@@ -63,6 +63,26 @@ else:
         pickle.dump(ncratio, f)
 
 
+    ncratio10 = []
+    ncratio100 = []
+
+    for x in ncratio:
+        i10 = int(x // 0.1)
+        i100 = int(x // 0.01)
+        nc10l = [0]*10
+        nc100l = [0]*100
+        nc10l[i10] += 1
+        nc100l[i100] += 1
+        ncratio10.append(nc10l)
+        ncratio100.append(nc100l)
+
+    ncratio10 = np.array(ncratio10)
+    ncratio100 = np.array(ncratio100)
+
+    with open('data/ncratio10', 'wb') as f:
+        pickle.dump(ncratio10, f)
+    with open('data/ncratio100', 'wb') as f:
+        pickle.dump(ncratio100, f)
 
 
 
