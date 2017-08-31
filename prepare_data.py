@@ -24,12 +24,12 @@ else:
             cell_path = 'band/' + file.replace('.bmp', '.mask.0.png')
             nucleus_path = 'band/' + file.replace('.bmp', '.mask.1.png')
 
-            image_array_ = processer.img_to_np(image_path)
-            cell_array_ = processer.img_to_np(cell_path)
-            nucleus_array_ = processer.img_to_np(nucleus_path)
-            image_array = processer.crop(image_array_, [360, 360])
-            cell_array = processer.crop(cell_array_, [360, 360])
-            nucleus_array = processer.crop(nucleus_array_, [360, 360])
+            image_array = processer.img_to_np(image_path)
+            cell_array = processer.img_to_np(cell_path)
+            nucleus_array = processer.img_to_np(nucleus_path)
+            image_array = image_array[3:,:,:]
+            cell_array = cell_array[3:,:,:]
+            nucleus_array = nucleus_array[3:,:,:]
 
             image.append(image_array)
             cell.append(cell_array)
@@ -43,10 +43,21 @@ else:
     nucleus = np.array(nucleus)
 
     image = processer.rgb2gray_array(image)
+
+    image_ = []
+    for x in image:
+        for y in processer.rotate_and_inverte(x):
+            image_.append(y)
+    image_ = np.array(image_)
+    image_ = processer.flatten(image_)
+
     image = processer.flatten(image)
 
     with open('data/image', 'wb') as f:
         pickle.dump(image, f)
+
+    with open('data/image_', 'wb') as f:
+        pickle.dump(image_, f)
 
     cell = cell[:, :, :, 0]
     nucleus = nucleus[:, :, :, 0]
@@ -87,3 +98,32 @@ else:
         pickle.dump(ncratio10, f)
     with open('data/ncratio100', 'wb') as f:
         pickle.dump(ncratio100, f)
+
+
+    ncratio_ = []
+    ncratio10_ = []
+    ncratio100_ = []
+
+    for x in ncratio:
+        for _ in range(8):
+            ncratio_.append(x)
+
+    for x in ncratio10:
+        for _ in range(8):
+            ncratio10_.append(x)
+
+    for x in ncratio100:
+        for _ in range(8):
+            ncratio100_.append(x)
+
+    ncratio_ = np.array(ncratio_)
+    ncratio10_ = np.array(ncratio10_)
+    ncratio100_ = np.array(ncratio100_)
+
+    with open('data/ncratio_', 'wb') as f:
+        pickle.dump(ncratio_, f)
+    with open('data/ncratio10_', 'wb') as f:
+        pickle.dump(ncratio10_, f)
+    with open('data/ncratio100_', 'wb') as f:
+        pickle.dump(ncratio100_, f)
+

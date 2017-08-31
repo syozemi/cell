@@ -93,3 +93,42 @@ def n_c_ratio(n,c):
 	n_size = len(np.where(n!=0)[0])
 	c_size = len(np.where(c!=0)[0])
 	return n_size / c_size
+
+#画像をもらって、その回転と反転の回転を返す。
+def rotate_and_inverte(image):
+    x1 = image
+    x2 = np.rot90(x1)
+    x3 = np.rot90(x2)
+    x4 = np.rot90(x3)
+    x5 = image[:,::-1]
+    x6 = np.rot90(x5)
+    x7 = np.rot90(x6)
+    x8 = np.rot90(x7)
+    return x1, x2, x3, x4, x5, x6, x7, x8
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

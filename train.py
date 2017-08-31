@@ -8,11 +8,11 @@ from libs import (get_variable, get_conv, get_bias, get_pool, conv_and_pool)
 
 
 
-with open('data/image', 'rb') as f:
+with open('data/image_', 'rb') as f:
     image = pickle.load(f)
 
-with open('data/ncratio10', 'rb') as f:
-    ncratio10 = pickle.load(f)
+with open('data/ncratio100_', 'rb') as f:
+    ncratio = pickle.load(f)
 
 
 
@@ -59,7 +59,7 @@ class CNN:
             hidden2_drop = tf.nn.dropout(hidden2, keep_prob)
 
         with tf.name_scope('softmax'):
-            num_class = 10
+            num_class = 100
 
             w0 = get_variable([num_units2, num_class])
             b0 = get_bias([num_class])
@@ -107,11 +107,11 @@ i = 0
 for _ in range(100):
     i += 1
     cnn.sess.run(cnn.train_step,
-             feed_dict={cnn.x:image, cnn.t:ncratio10, cnn.keep_prob:0.1})
+             feed_dict={cnn.x:image, cnn.t:ncratio, cnn.keep_prob:0.1})
     if i % 1 == 0:
         summary, loss_val, acc_val = cnn.sess.run([cnn.summary, cnn.loss, cnn.accuracy],
                 feed_dict={cnn.x:image,
-                           cnn.t:ncratio10,
+                           cnn.t:ncratio,
                            cnn.keep_prob:1.0})
         print ('Step: %d, Loss: %f, Accuracy: %f'
                % (i, loss_val, acc_val))
