@@ -6,13 +6,7 @@ import pickle
 import shutil
 from libs import (get_variable, get_conv, get_bias, get_pool, conv_and_pool)
 
-'''
-with open('train_x.data', mode='rb') as f:
-    train_x = pickle.load(f)
 
-with open('train_t.data', mode='rb') as f:
-    train_t = pickle.load(f)
-'''
 
 with open('data/image', 'rb') as f:
     image = pickle.load(f)
@@ -34,19 +28,19 @@ class CNN:
             x_image = tf.reshape(x, [-1,360,360,1])
 
         with tf.name_scope('conv_and_pool1'):
-            num_filters1 = 1
+            num_filters1 = 32
             h_conv1, h_pool1 = conv_and_pool(x_image, 1, num_filters1, 10, 2)
 
         with tf.name_scope('conv_and_pool2'):
-            num_filters2 = 2
+            num_filters2 = 64
             h_conv2, h_pool2 = conv_and_pool(h_pool1, num_filters1, num_filters2, 5, 1)
 
         with tf.name_scope('conv_and_pool3'):
-            num_filters3 = 3
+            num_filters3 = 64
             h_conv3, h_pool3 = conv_and_pool(h_pool2, num_filters2, num_filters3, 3, 1)
 
         with tf.name_scope('conv_and_pool4'):
-            num_filters4 = 4
+            num_filters4 = 64
             h_conv4, h_pool4 = conv_and_pool(h_pool3, num_filters3, num_filters4, 3, 1)
 
         with tf.name_scope('fully_connected'):
@@ -98,7 +92,8 @@ class CNN:
         summary = tf.summary.merge_all()
 
         saver = tf.train.Saver()
-        shutil.rmtree('/tmp/logs')
+        if os.path.isdir('/tmp/logs'):
+            shutil.rmtree('/tmp/logs')
         writer = tf.summary.FileWriter("/tmp/logs", sess.graph)
         
         self.sess = sess
@@ -109,10 +104,10 @@ class CNN:
 cnn = CNN()
 
 i = 0
-for _ in range(20000):
+for _ in range(100):
     i += 1
     cnn.sess.run(cnn.train_step,
-             feed_dict={cnn.x:image, cnn.t:ncratio10, cnn.keep_prob:0.5})
+             feed_dict={cnn.x:image, cnn.t:ncratio10, cnn.keep_prob:0.1})
     if i % 1 == 0:
         summary, loss_val, acc_val = cnn.sess.run([cnn.summary, cnn.loss, cnn.accuracy],
                 feed_dict={cnn.x:image,

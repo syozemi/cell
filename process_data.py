@@ -23,6 +23,22 @@ def rescale(input_array, output_shape):
 	else:
 		return input_array[:, y_start: y_start + y_, x_start: x_start + x_, :]
 
+#shapeで指定したサイズでinput_arrayを真ん中で切り抜く
+def crop(input_array, shape):
+    shape_ = input_array.shape
+    a = shape_[0]
+    b = shape_[1]
+    c = shape[0]
+    d = shape[1]
+    nx = (a - c) // 2
+    ny = (b - d) // 2
+    res = np.zeros(c * d * 3).reshape(c, d, 3)
+    for i in range(c):
+        for j in range(d):
+            res[i][j] = input_array[nx + i][ny + j]
+
+    return res
+    
 #画像のarrayをロードする。
 def load_array(name):
 	with open(name, 'rb') as f:
@@ -36,7 +52,9 @@ def save_array(z, name):
 
 #画像をグレースケールに変換。
 def rgb2gray(rgb):
-	return np.dot(rgb, [0.299, 0.587, 0.114])
+    gray = np.dot(rgb, [0.299, 0.587, 0.114])
+    gray = gray / 256.0
+    return gray
 
 #まとめてグレースケールに変換。
 def rgb2gray_array(rgb_array):
@@ -46,38 +64,8 @@ def rgb2gray_array(rgb_array):
 		l.append(x_)
 	return np.array(l)
 
-#画像をarrayとして取得して、保存する。既に保存してあったら、必要ない。
-def image_to_array_file():
-	x = []
-	y_ = []
-	y__ = []
-	for i in range(10):
-		tmp_x = img_to_np('band/' + str(i) + '.bmp')
-		tmp_y_ = img_to_np('band/' + str(i) + '.0.png')
-		tmp_y__ = img_to_np('band/' + str(i) + '.1.png')
-		x.append(tmp_x)
-		y_.append(tmp_y_)
-		y__.append(tmp_y__)
-
-	x = np.array(x)
-	y_ = np.array(y_)
-	y__ = np.array(y__)
-
-	gray_x = rgb2gray_array(x)
-	gray_y_ = rgb2gray_array(y_)
-	gray_y__ = rgb2gray_array(y__)
-
-	try:
-		os.mkdir('band_bin')
-	except:
-		pass
-
-	save_array(x, 'x')
-	save_array(y_, 'y_')
-	save_array(y__, 'y__')
-	save_array(gray_x, 'gray_x')
-	save_array(gray_y_, 'gray_y_')
-	save_array(gray_y__, 'gray_y__')
+def flatten(matrix):
+    return matrix.reshape(matrix.shape[0], -1)
 
 #折りたたんで拡張。
 def replicate(input_array, h_or_v, m):
@@ -105,52 +93,3 @@ def n_c_ratio(n,c):
 	n_size = len(np.where(n!=0)[0])
 	c_size = len(np.where(c!=0)[0])
 	return n_size / c_size
-
-'''
-gray_c = load_array('gray_y_')
-gray_n = load_array('gray_y__')
-
-n_c_ratio_list = []
-
-for i in range(10):
-	ratio = n_c_ratio(gray_n[i], gray_c[i])
-	ratio = (ratio // 0.01)
-	n_c_ratio_list.append(ratio)
-
-l = []
-
-for x in n_c_ratio_list:
-	tmp = [0.]*100
-	tmp[int(x)] += 1.
-	l.append(tmp)
-	print(tmp)
-
-l = np.array(l)
-
-with open('data/ncratio','wb') as f:
-	pickle.dump(l, f)
-
-
-
-with open('band_bin/ncratio', 'rb') as f:
-	l = pickle.load(f)
-
-print(l)
-'''
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
