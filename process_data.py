@@ -80,6 +80,7 @@ def replicate(input_array, h_or_v, m):
     else:
         print('put "h" or "v" as 2nd parameter')
 
+
 #ミラーリング
 def mirror(input_array, output_size):
     n = input_array.shape[0]
@@ -105,6 +106,8 @@ def rotate_and_inverte(image):
     x7 = np.rot90(x6)
     x8 = np.rot90(x7)
     return x1, x2, x3, x4, x5, x6, x7, x8
+
+
 
 
 

@@ -49,9 +49,14 @@ else:
         for y in processer.rotate_and_inverte(x):
             image_.append(y)
     image_ = np.array(image_)
-    image_ = processer.flatten(image_)
 
-    image = processer.flatten(image)
+    image572 = []
+    for x in image:
+        y = processer.mirror(x, 572)
+        image572.append(y)
+    image572 = np.array(image572)
+    with open('data/image572', 'wb') as f:
+        pickle.dump(image572, f)
 
     with open('data/image', 'wb') as f:
         pickle.dump(image, f)
@@ -126,4 +131,58 @@ else:
         pickle.dump(ncratio10_, f)
     with open('data/ncratio100_', 'wb') as f:
         pickle.dump(ncratio100_, f)
+
+    cell_label = []
+    nucleus_label = []
+
+    for x in cell:
+        x_ = processer.mirror(x, 572)
+        l = []
+        for y in x_:
+            for z in y:
+                if z == 0.:
+                    w = [1.,0.]
+                else:
+                    w = [0.,1.]
+                l.append(w)
+        l = np.array(l).reshape(572,572,2)
+
+        cell_label.append(l)
+
+    cell_label = np.array(cell_label)
+
+    with open('data/cell_label', 'wb') as f:
+        pickle.dump(cell_label, f)
+
+    for x in nucleus:
+        x_ = processer.mirror(x, 572)
+        l = []
+        for y in x_:
+            for z in y:
+                if z == 0.:
+                    w = [1.,0.]
+                else:
+                    w = [0.,1.]
+                l.append(w)
+        l = np.array(l).reshape(572,572,2)
+
+        nucleus_label.append(l)
+
+    nucleus_label = np.array(nucleus_label)
+
+    with open('data/nucleus_label', 'wb') as f:
+        pickle.dump(nucleus_label, f)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
