@@ -54,7 +54,7 @@ def save_array(z, name):
 #画像をグレースケールに変換。
 def rgb2gray(rgb):
     gray = np.dot(rgb, [0.299, 0.587, 0.114])
-    gray = gray / 256.0
+    gray = gray / 255.0
     return gray
 
 #まとめてグレースケールに変換。
@@ -148,7 +148,60 @@ def random_crop(img,cell,nucleus,size=(200,200)):
     nucleus = mirror(nucleus,572)
     return img,cell,nucleus
 
+def create_mask_label(cell, nucleus):
+    l = []
+    a = []
+    for x in cell:
+        for y in x:
+            if y == 0.:
+                a.append(1.)
+            else:
+                a.append(0.)
+    a = np.array(a).reshape(cell.shape)
+    a = a.T
+    cell = cell.T
+    nucleus = nucleus.T
+    l.append(a)
+    l.append(cell)
+    l.append(nucleus)
+    l = np.array(l).T
+    return l
 
+def load_data():
+    with open('data/image0', 'rb') as f:
+        image0 = pickle.load(f)
+
+    with open('data/image1', 'rb') as f:
+        image1 = pickle.load(f)
+
+    with open('data/mask0', 'rb') as f:
+        mask0 = pickle.load(f)
+
+    with open('data/mask1', 'rb') as f:
+        mask1 = pickle.load(f)
+
+    with open('data/ncratio0', 'rb') as f:
+        ncratio0 = pickle.load(f)
+
+    with open('data/ncratio1', 'rb') as f:
+        ncratio1 = pickle.load(f)
+
+    image = np.vstack((image0,image1))
+    mask = np.vstack((mask0,mask1))
+    ncratio = np.vstack((ncratio0,ncratio1))
+
+    return image, mask, ncratio
+
+def create_batch(x,y,n):
+    batch_x = []
+    batch_y = []
+    l = random.sample(range(len(x)),n)
+    for i in l:
+        batch_x.append(x[i])
+        batch_y.append(y[i])
+    batch_x = np.array(batch_x)
+    batch_y = np.array(batch_y)
+    return batch_x, batch_y
 
 
 
