@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 import os
+import random
 
 #画像をnumpyのarrayとして取得して返す。
 def img_to_np(img_path):
@@ -107,14 +108,45 @@ def rotate_and_inverte(image):
     x8 = np.rot90(x7)
     return x1, x2, x3, x4, x5, x6, x7, x8
 
+def mirror_all(matrix,size):
+    for x in matrix:
+        x = mirror(x,size)
+    return matrix
+
+def create_label(matrix, size):
+    label = []
+    for i,x in enumerate(matrix):
+        print(i,'\r',end='')
+        x_ = mirror(x, size)
+        l = []
+        for y in x_:
+            for z in y:
+                if z == 0.:
+                    w = [1.,0.]
+                else:
+                    w = [0.,1.]
+                l.append(w)
+        l = np.array(l).reshape(size,size,2)
+        label.append(l)
+    return np.array(label)
 
 
+def save(objecto, path):
+    with open(path, 'wb') as f:
+        pickle.dump(objecto, f)
 
 
-
-
-
-
+def random_crop(img,cell,nucleus,size=(200,200)):
+    x,y = img.shape
+    start_x = random.sample(range(x-size[1]),1)[0]
+    start_y = random.sample(range(y-size[0]),1)[0]
+    img = img[start_y:start_y+size[0], start_x:start_x+size[1]]
+    img = mirror(img,572)
+    cell = cell[start_y:start_y+size[0], start_x:start_x+size[1]]
+    cell = mirror(cell,572)
+    nucleus = nucleus[start_y:start_y+size[0], start_x:start_x+size[1]]
+    nucleus = mirror(nucleus,572)
+    return img,cell,nucleus
 
 
 
