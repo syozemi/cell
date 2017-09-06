@@ -27,10 +27,7 @@ def rescale(input_array, output_shape):
 #shapeで指定したサイズでinput_arrayを真ん中で切り抜く
 def crop(input_array, shape):
     shape_ = input_array.shape
-    a = shape_[0]
-    b = shape_[1]
-    c = shape[0]
-    d = shape[1]
+    a,b,c,d = shape_[0],shape_[1],shape[0],shape[1]
     nx = (a - c) // 2
     ny = (b - d) // 2
     res = np.zeros(c * d * 3).reshape(c, d, 3)
@@ -134,6 +131,7 @@ def create_label(matrix, size):
 def save(objecto, path):
     with open(path, 'wb') as f:
         pickle.dump(objecto, f)
+    return None
 
 
 def random_crop(img,cell,nucleus,size=(200,200)):
@@ -148,75 +146,36 @@ def random_crop(img,cell,nucleus,size=(200,200)):
     nucleus = mirror(nucleus,572)
     return img,cell,nucleus
 
+def flip(x):
+    if x == 0.:
+        return 1.
+    else:
+        return 0.
+
 def create_mask_label(cell, nucleus):
     l = []
-    a = []
-    for x in cell:
-        for y in x:
-            if y == 0.:
-                a.append(1.)
-            else:
-                a.append(0.)
+    a = [flip(x) for x in cell.flatten()]
     a = np.array(a).reshape(cell.shape)
-    a = a.T
-    cell = cell.T
-    nucleus = nucleus.T
-    l.append(a)
-    l.append(cell)
-    l.append(nucleus)
-    l = np.array(l).T
-    return l
+    a,cell,nucleus = [x.T for x in [a,cell,nucleus]]
+    _ = [l.append(x) for x in [a,cell,nucleus]]
+    #l.append(a)
+    #l.append(cell)
+    #l.append(nucleus)
+    return np.array(l).T
+
+def load(path):
+    with open(path,'rb') as f:
+        return pickle.load(f)
 
 def load_data():
-    with open('data/image0', 'rb') as f:
-        image0 = pickle.load(f)
-
-    with open('data/image1', 'rb') as f:
-        image1 = pickle.load(f)
-
-    with open('data/mask0', 'rb') as f:
-        mask0 = pickle.load(f)
-
-    with open('data/mask1', 'rb') as f:
-        mask1 = pickle.load(f)
-
-    with open('data/ncratio0', 'rb') as f:
-        ncratio0 = pickle.load(f)
-
-    with open('data/ncratio1', 'rb') as f:
-        ncratio1 = pickle.load(f)
-
-    image = np.vstack((image0,image1))
-    mask = np.vstack((mask0,mask1))
-    ncratio = np.vstack((ncratio0,ncratio1))
-
+    i0,i1,m0,m1,r0,r1 = [load(x) for x in ['data/image0','data/image1','data/mask0','data/mask1','data/ncratio0','data/ncratio1']]
+    image,mask,ncratio = map(np.vstack(),[(i0,i1),(m0,m1),(r0,r1)])
     return image, mask, ncratio
 
-def create_batch(x,y,n):
-    batch_x = []
-    batch_y = []
+def create_random_batch(x,y,n):
     l = random.sample(range(len(x)),n)
-    for i in l:
-        batch_x.append(x[i])
-        batch_y.append(y[i])
-    batch_x = np.array(batch_x)
-    batch_y = np.array(batch_y)
+    batch_x = [x[i] for i in l]
+    batch_y = [y[i] for i in l]
+    batch_x, batch_y = map(np.array(), [batch_x,batch_y])
     return batch_x, batch_y
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
