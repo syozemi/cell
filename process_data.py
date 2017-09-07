@@ -191,7 +191,7 @@ def load(path):
         return pickle.load(f)
 
 def load_data_cnn():
-    print('loading data for cnn')
+    print('loading data for cnn...')
     folders = os.listdir('data')
     for i,folder in enumerate(folders):
         ipath = 'data/%s/image360' % folder
@@ -217,6 +217,25 @@ def load_data_unet():
             image, mask = [np.vstack(x) for x in [(image,img),(mask,msk)]]
     print('loading done')
     return image, mask  
+
+def load_data_cnn_torch():
+    print('loading data for cnn...')
+    folders = os.listdir('data')
+    for i,folder in enumerate(folders):
+        ipath = 'data/%s/image360' % folder
+        n10path = 'data/%s/ncratio_num10' % folder
+        n100path = 'data/%s/ncratio_num100' % folder
+        nc10path = 'data/%s/ncratio10' % folder
+        nc100path = 'data/%s/ncratio100' % folder
+        if i == 0:
+            image, n10, n100, nc10, nc100 = [load(x) for x in [ipath, n10path, n100path, nc10path, nc100path]]
+        else:
+            img, nn10, nn100, ncn10, ncn100 = [load(x) for x in [ipath, n10path, n100path, nc10path, nc100path]]
+            image, nc10, nc100 = [np.vstack(x) for x in [(image,img),(nc10,ncn10),(nc100,ncn100)]]
+            n10, n100 = [np.hstack(x) for x in [(n10,nn10),(n100,nn100)]]
+    print('loading done')
+    return image, n10, n100, nc10, nc100  
+
 
 def check():
     img, ncr = load_data_cnn()

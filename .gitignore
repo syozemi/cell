@@ -3,7 +3,7 @@
 /a.py
 /cell_data
 /prepare.py
-/batch.py
 /train.py
 /libs.py
 /create_batch.py
+/model

@@ -16,7 +16,7 @@ folders = os.listdir('cell_data/image')
 
 for folder in folders:
     try:
-        image,image572,image572m,mask,ncratio,ncratio_ = [],[],[],[],[],[]
+        image,image572,image572m,mask,ncratio,ncratio_num,ncratio_,ncratio_num_ = [],[],[],[],[],[],[],[]
         files = os.listdir('cell_data/image/%s' % folder)
         for i,file in enumerate(files):
 
@@ -49,17 +49,21 @@ for folder in folders:
             mask.append(mask_array)
             ncratio.append(ncl)
             ncratio_.append(ncl_)
+            ncratio_num.append(nc)
+            ncratio_num_.append(nc_)
             image572.append(image_array_572)
             image572m.append(image_array_572m)
 
             print(i,'\r',end='')
-        image,image572,image572m,mask,ncratio,ncratio_ = [np.array(x) for x in [image,image572,image572m,mask,ncratio,ncratio_]]
+        image,image572,image572m,mask,ncratio,ncratio_,ncratio_num,ncratio_num_ = [np.array(x) for x in [image,image572,image572m,mask,ncratio,ncratio_,ncratio_num,ncratio_num_]]
         pro.save(image,'data/%s' % folder, 'image360')
         pro.save(image572,'data/%s' % folder, 'image572')
         pro.save(image572m, 'data/%s' % folder, 'image572m')
         pro.save(mask,'data/%s' % folder, 'mask')
         pro.save(ncratio,'data/%s' % folder, 'ncratio10')
-        pro.save(ncratio_, 'data/%s' % folder, 'ncratio100')   
+        pro.save(ncratio_, 'data/%s' % folder, 'ncratio100')
+        pro.save(ncratio_num, 'data/%s' % folder, 'ncratio_num10')
+        pro.save(ncratio_num_, 'data/%s' % folder, 'ncratio_num100')   
         print(folder + ' done')
     except:
         print('unable to process ' + folder)
