@@ -169,7 +169,7 @@ def load(path):
 
 def load_data():
     i0,i1,m0,m1,r0,r1 = [load(x) for x in ['data/image0','data/image1','data/mask0','data/mask1','data/ncratio0','data/ncratio1']]
-    image,mask,ncratio = map(np.vstack(),[(i0,i1),(m0,m1),(r0,r1)])
+    image,mask,ncratio = [np.vstack(x) for x in [(i0,i1),(m0,m1),(r0,r1)]]
     return image, mask, ncratio
 
 def create_random_batch(x,y,n):
