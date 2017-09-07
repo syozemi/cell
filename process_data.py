@@ -217,3 +217,39 @@ def load_data_unet():
             image, mask = [np.vstack(x) for x in [(image,img),(mask,msk)]]
     print('loading done')
     return image, mask  
+
+def check():
+    img, ncr = load_data_cnn()
+    image, mask = load_data_unet()
+
+    n = 50
+
+    l = random.sample(range(len(img)),1)
+
+    i = img[l[0]]
+    r = ncr[l[0]]
+    im = image[l[0]]
+    c = mask[l[0],:,:,1]
+    nu = mask[l[0],:,:,2]
+
+    fig = plt.figure(figsize=(6,6))
+
+    subplot = fig.add_subplot(2,2,1)
+    subplot.imshow(i,cmap='gray')
+    subplot = fig.add_subplot(2,2,2)
+    subplot.imshow(im,cmap='gray')
+    subplot = fig.add_subplot(2,2,3)
+    subplot.imshow(c,cmap='gray')
+    subplot = fig.add_subplot(2,2,4)
+    subplot.imshow(nu,cmap='gray')
+
+    plt.show()
+
+    cel = np.sum(c)
+    nuc = np.sum(nu)
+
+
+    for x in c[180]:
+        print(x)
+    print(int((nuc/cel)//0.1))
+    print(r)
