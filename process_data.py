@@ -179,12 +179,14 @@ def create_mask_label(cell, nucleus):
     l = []
     a = [flip(x) for x in cell.flatten()]
     a = np.array(a).reshape(cell.shape)
+    cell = cell - nucleus
     a,cell,nucleus = [x.T for x in [a,cell,nucleus]]
     _ = [l.append(x) for x in [a,cell,nucleus]]
-    #l.append(a)
-    #l.append(cell)
-    #l.append(nucleus)
     return np.array(l).T
+
+def create_torch_mask_label(cell,nucleus):
+    l = cell + nucleus
+    return l.astype(np.int)
 
 def load(path):
     with open(path,'rb') as f:
@@ -236,6 +238,19 @@ def load_data_cnn_torch():
     print('loading done')
     return image, n10, n100, nc10, nc100  
 
+def load_data_unet_torch():
+    print('loading')
+    folders = os.listdir('data')
+    for i,folder in enumerate(folders[1:2]):
+        ipath = 'data/%s/image572' % folder
+        mpath = 'data/%s/mask' % folder
+        if i == 0:
+            image,mask = [load(x) for x in [ipath,mpath]]
+        else:
+            img,msk = [load(x) for x in [ipath,mpath]]
+            image, mask = [np.vstack(x) for x in [(image,img),(mask,msk)]]
+    print('loading done')
+    return image, mask
 
 def check():
     img, ncr = load_data_cnn()

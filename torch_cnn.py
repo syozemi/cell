@@ -36,7 +36,10 @@ class Net(nn.Module):
             nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.MaxPool2d(2))
-        self.fc = nn.Linear(64*9*9,10)
+        self.layer6 = nn.Sequential(
+            nn.Linear(64*9*9,100),
+            nn.ReLU())
+        self.fc = nn.Linear(100,10)
 
     def forward(self, x):
         out = self.layer1(x)
@@ -45,6 +48,7 @@ class Net(nn.Module):
         out = self.layer4(out)
         out = self.layer5(out)
         out = out.view(out.size(0),-1)
+        out = self.layer6(out)
         out = self.fc(out)
         return out
 
@@ -62,7 +66,6 @@ learningtime = 50
 for i in range(learningtime):
     batch_x = train_x.next_batch(50)
     batch_y = train_y.next_batch(50)
-
     x = Variable(torch.from_numpy(batch_x))
     y = Variable(torch.from_numpy(batch_y))
     optimizer.zero_grad()
