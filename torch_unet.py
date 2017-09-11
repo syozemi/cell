@@ -94,7 +94,7 @@ class Net(nn.Module):
         block13 = self.expanding4(block12)
         return F.softmax(block13)
 
-image, mask = pro.load_data_unet_torch()   
+image, mask = pro.load_data_unet_torch()
 
 image = image.reshape(50,1,572,572).astype(np.float32)
 mask = mask.reshape(50,388,388,3).astype(np.float32)
@@ -103,6 +103,7 @@ mask = np.swapaxes(mask,2,3)
 
 
 net = Net()
+net.cuda()
 criterion = nn.MSELoss()
 optimizer = optim.Adam(net.parameters())
 learningtime = 50
@@ -110,8 +111,8 @@ for i in range(learningtime):
     r = random.randint(0,40)
     imagee = image[r:r+3,:,:,:]
     maskk = mask[r:r+3,:,:,:]
-    x = Variable(torch.cuda.from_numpy(imagee))
-    y = Variable(torch.cuda.from_numpy(maskk))
+    x = Variable(torch.from_numpy(imagee).cuda())
+    y = Variable(torch.from_numpy(maskk).cuda())
     optimizer.zero_grad()
     out = net(x)
     loss = criterion(out,y)
@@ -121,37 +122,3 @@ for i in range(learningtime):
     print(str(i)+'/'+str(learningtime))
 
 torch.save(net, 'model/torchmodel')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
