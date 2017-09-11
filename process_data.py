@@ -209,16 +209,20 @@ def load_data_cnn():
 def load_data_unet():
     print('loading data for unet...')
     folders = os.listdir('data')
+    image,mask = [],[]
     for i,folder in enumerate(folders):
-        ipath = 'data/%s/image572' % folder
-        mpath = 'data/%s/mask' % folder
-        if i == 0:
-            image, mask = [load(x) for x in [ipath, mpath]]
-        else:
+        try:
+            ipath = 'data/%s/image572' % folder
+            mpath = 'data/%s/mask' % folder
             img, msk = [load(x) for x in [ipath, mpath]]
-            image, mask = [np.vstack(x) for x in [(image,img),(mask,msk)]]
+            image.append(img)
+            mask.append(msk)
+        except:
+            pass
+    image,mask = [np.array(x) for x in [image,mask]]
+    image = image.reshape(7,50,572,572,1)
     print('loading done')
-    return image, mask  
+    return image, mask
 
 def load_data_cnn_torch():
     print('loading data for cnn...')
