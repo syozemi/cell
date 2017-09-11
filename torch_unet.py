@@ -9,65 +9,40 @@ import process_data as pro
 import pickle
 import random
 
+class Convolution(nn.Module):
+    def __init__(self, in_channels, out_channels, kernel_size, padding):
+        super(Contract,self).__init__()
+        self.conv1 = nn.Conv2d(in_channels=in_channels,out_channels=out_channels,
+            kernel_size=kernel_size,padding=padding)
+        self.conv2 = nn.Conv2d(out_channels,out_channels,kernel_size),
+
+    def forward(self,x):
+        x = nn.ReLU(conv1(x))
+        x = nn.ReLU(conv2(x))
+        return x
+
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        self.contracting1 = nn.Sequential(
-            nn.Conv2d(in_channels=1,out_channels=64,
-                kernel_size=3,padding=0),
-            nn.ReLU(),
-            nn.Conv2d(64,64,3),
-            nn.ReLU())
-        self.contracting2 = nn.Sequential(
-            nn.MaxPool2d(2),
-            nn.Conv2d(64,128,3),
-            nn.ReLU(),
-            nn.Conv2d(128,128,3),
-            nn.ReLU())
-        self.contracting3 = nn.Sequential(
-            nn.MaxPool2d(2),
-            nn.Conv2d(128,256,3),
-            nn.ReLU(),
-            nn.Conv2d(256,256,3),
-            nn.ReLU())
-        self.contracting4 = nn.Sequential(
-            nn.MaxPool2d(2),
-            nn.Conv2d(256,512,3),
-            nn.ReLU(),
-            nn.Conv2d(512,512,3),
-            nn.ReLU())
-        self.bottom = nn.Sequential(
-            nn.MaxPool2d(2),
-            nn.Conv2d(512,1024,3),
-            nn.ReLU(),
-            nn.Conv2d(1024,1024,3),
-            nn.ReLU(),
-            nn.ConvTranspose2d(in_channels=1024,out_channels=512,
-                kernel_size=2,stride=2),)
-        self.expanding1 = nn.Sequential(
-            nn.Conv2d(1024,512,3),
-            nn.ReLU(),
-            nn.Conv2d(512,512,3),
-            nn.ReLU(),
-            nn.ConvTranspose2d(512,256,2,stride=2),)
-        self.expanding2 = nn.Sequential(
-            nn.Conv2d(512,256,3),
-            nn.ReLU(),
-            nn.Conv2d(256,256,3),
-            nn.ReLU(),
-            nn.ConvTranspose2d(256,128,2,stride=2),)
-        self.expanding3 = nn.Sequential(
-            nn.Conv2d(256,128,3),
-            nn.ReLU(),
-            nn.Conv2d(128,128,3),
-            nn.ReLU(),
-            nn.ConvTranspose2d(128,64,2,stride=2))
-        self.expanding4 = nn.Sequential(
-            nn.Conv2d(128,64,3),
-            nn.ReLU(),
-            nn.Conv2d(64,64,3),
-            nn.ReLU(),
-            nn.Conv2d(64,3,1))
+        self.conv_1_8 = Convolution(1,8,3,0)
+        self.conv_8_16 = Convolution(8,16,3,0)
+        self.conv_16_32 = Convolution(16,32,3,0)
+        self.conv_32_64 = Convolution(32,64,3,0)
+        self.conv_64_128 = Convolution(64,128,3,0)
+        self.conv_128_64 = Convolution(128,64,3,0)
+        self.conv_64_32 = Convolution(64,32,3,0)
+        self.conv_32_16 = Convolution(32,16,3,0)
+        self.conv_16_8 = Convolution(16,8,3,0)
+        self.pool1 = nn.MaxPool2d(2)
+        self.pool2 = nn.MaxPool2d(2)
+        self.pool3 = nn.MaxPool2d(2)
+        self.pool4 = nn.MaxPool2d(2)
+        self.transpose1 = nn.ConvTranspose2d(128,64,2,stride=2)
+        self.transpose2 = nn.ConvTranspose2d(64,32,2,stride=2)
+        self.transpose3 = nn.ConvTranspose2d(32,16,2,stride=2)
+        self.transpose4 = nn.ConvTranspose2d(16,8,2,stride=2)
+        self.last = nn.Conv2d(8,3,3)
+
 
     def crop(self, layer, target_size):
         batch_size, n_channels, layer_width, layer_height = layer.size()
@@ -75,23 +50,12 @@ class Net(nn.Module):
         return layer[:, :, xy1:(xy1 + target_size), xy1:(xy1 + target_size)]
 
     def forward(self, x):
-        block1 = self.contracting1(x)
-        block2 = self.contracting2(block1)
-        block3 = self.contracting3(block2)
-        block4 = self.contracting4(block3)
-        block5 = self.bottom(block4)
-        bridge1 = self.crop(block4, block5.size()[2])
-        block6 = torch.cat([block5,bridge1],1)
-        block7 = self.expanding1(block6)
-        bridge2 = self.crop(block3,block7.size()[2])
-        block8 = torch.cat([block7,bridge2],1)
-        block9 = self.expanding2(block8)
-        bridfe3 = self.crop(block2,block9.size()[2])
-        block10 = torch.cat([block9,bridfe3],1)
-        block11 = self.expanding3(block10)
-        bridge4 = self.crop(block1,block11.size()[2])
-        block12 = torch.cat([block11,bridge4],1)
-        block13 = self.expanding4(block12)
+        b1 = conv_1_8(x)
+        b2 = conv_8_16(pool1(b1))
+        b3 = conv_16_32(pool2(b2))
+        b4 = conv_32_64(pool3(b3))
+        y = conv_64_128(pool4(b4))
+        
         return F.softmax(block13)
 
 image, mask = pro.load_data_unet_torch()
