@@ -107,9 +107,9 @@ criterion = nn.MSELoss()
 optimizer = optim.Adam(net.parameters())
 learningtime = 1000
 for i in range(learningtime):
-    r = random.randint(0,300)
-    imagee = image[r:r+50,:,:,:]
-    maskk = mask[r:r+50,:,:,:]
+    r = random.randint(0,320)
+    imagee = image[r:r+30,:,:,:]
+    maskk = mask[r:r+30,:,:,:]
     x = Variable(torch.from_numpy(imagee).cuda())
     y = Variable(torch.from_numpy(maskk).cuda())
     optimizer.zero_grad()
