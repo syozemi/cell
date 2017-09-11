@@ -96,21 +96,20 @@ class Net(nn.Module):
 
 image, mask = pro.load_data_unet_torch()
 
-image = image.reshape(50,1,572,572).astype(np.float32)
-mask = mask.reshape(50,388,388,3).astype(np.float32)
+image = image.reshape(350,1,572,572).astype(np.float32)
+mask = mask.reshape(350,388,388,3).astype(np.float32)
 mask = np.swapaxes(mask,1,3)
 mask = np.swapaxes(mask,2,3)
-
 
 net = Net()
 net.cuda()
 criterion = nn.MSELoss()
 optimizer = optim.Adam(net.parameters())
-learningtime = 50
+learningtime = 1000
 for i in range(learningtime):
-    r = random.randint(0,40)
-    imagee = image[r:r+3,:,:,:]
-    maskk = mask[r:r+3,:,:,:]
+    r = random.randint(0,300)
+    imagee = image[r:r+50,:,:,:]
+    maskk = mask[r:r+50,:,:,:]
     x = Variable(torch.from_numpy(imagee).cuda())
     y = Variable(torch.from_numpy(maskk).cuda())
     optimizer.zero_grad()

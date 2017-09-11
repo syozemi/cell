@@ -108,6 +108,13 @@ mask = mask[10:12,:,:]
 
 out = net(Variable(torch.from_numpy(image)))
 
+ouch = out.data.numpy()[0]
+
+ouch = ouch[:,150:154,200:204]
+
+print(ouch)
+
+'''
 _, pred = torch.max(out,1)
 
 pred = pred.data.numpy()
@@ -141,7 +148,7 @@ sub.imshow(cell)
 sub = fig.add_subplot(1,2,2)
 sub.imshow(nuc)
 plt.show()
-
+'''
 
 
 

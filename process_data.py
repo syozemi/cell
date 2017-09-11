@@ -241,7 +241,7 @@ def load_data_cnn_torch():
 def load_data_unet_torch():
     print('loading')
     folders = os.listdir('data')
-    for i,folder in enumerate(folders[1:2]):
+    for i,folder in enumerate(folders):
         ipath = 'data/%s/image572' % folder
         mpath = 'data/%s/mask' % folder
         if i == 0:
