@@ -8,6 +8,7 @@ import batch
 import process_data as pro
 import pickle
 import matplotlib.pyplot as plt
+import random
 
 
 class Net(nn.Module):
@@ -98,33 +99,24 @@ class Net(nn.Module):
 
 net = torch.load('model/torchmodel')
 
-image, mask = pro.load_data_unet_torch()   
+image, mask = pro.load_data_unet_torch()
 
-image = image.reshape(50,1,572,572).astype(np.float32)
-mask = mask.reshape(50,3,388,388)
+image = image.reshape(350,1,572,572).astype(np.float32)
+mask = mask.reshape(350,388,388,3)
+n = random.randint(0,350)
+image = image[n,:,:,:].reshape(1,1,572,572)
 
-image = image[10:12,:,:,:]
-mask = mask[10:12,:,:]
+out = net(Variable(torch.from_numpy(image).cuda()))
 
-out = net(Variable(torch.from_numpy(image)))
-
-ouch = out.data.numpy()[0]
-
-ouch = ouch[:,150:154,200:204]
-
-print(ouch)
-
-'''
 _, pred = torch.max(out,1)
-
+pred = pred.cpu()
 pred = pred.data.numpy()
-
-p = pred[0].reshape(388,388)
+pred = pred.reshape(388,388)
 
 cell = np.zeros((388,388))
 nuc = np.zeros((388,388))
 
-for i,x_ in enumerate(p):
+for i,x_ in enumerate(pred):
     for j,y_ in enumerate(x_):
         if y_ == 0:
             cell[i,j] = 0
@@ -136,9 +128,9 @@ for i,x_ in enumerate(p):
             cell[i,j] = 1
             nuc[i,j] = 1
 
-print(len(np.where(p==0)[0]))
-print(len(np.where(p==1)[0]))
-print(len(np.where(p==2)[0]))
+print(len(np.where(pred==0)[0]))
+print(len(np.where(pred==1)[0]))
+print(len(np.where(pred==2)[0]))
 
 
 
@@ -148,24 +140,3 @@ sub.imshow(cell)
 sub = fig.add_subplot(1,2,2)
 sub.imshow(nuc)
 plt.show()
-'''
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
