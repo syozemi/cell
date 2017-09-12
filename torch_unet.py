@@ -36,7 +36,7 @@ class Up(nn.Module):
     def forward(self,x,bridge):
         up = self.up(x)
         crop = self.crop(bridge,up.size()[2])
-        out = torch.cat([out,crop],1)
+        out = torch.cat([up,crop],1)
         out = self.activation(self.conv1(out))
         out = self.activation(self.conv2(out))
         return out
