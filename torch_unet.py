@@ -99,7 +99,7 @@ mask = np.swapaxes(mask,2,3)
 
 net = Net()
 net.cuda()
-criterion = nn.MSELoss()
+criterion = nn.MSELoss().cuda()
 optimizer = optim.Adam(net.parameters())
 learningtime = 1000
 for i in range(learningtime):
