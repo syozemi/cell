@@ -245,7 +245,8 @@ def load_data_cnn_torch():
 def load_data_unet_torch():
     print('loading')
     folders = os.listdir('data')
-    folders.remove('.DS_Store')
+    if '.DS_Store' in folders:
+        folders.remove('.DS_Store')
     for i,folder in enumerate(folders):
         ipath = 'data/%s/image572' % folder
         mpath = 'data/%s/mask' % folder
