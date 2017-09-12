@@ -75,10 +75,10 @@ class Net(nn.Module):
 
     def forward(self, x):
         b1 = self.conv_1_8(x)
-        b2 = self.conv_8_16(pool1(b1))
-        b3 = self.conv_16_32(pool2(b2))
-        b4 = self.conv_32_64(pool3(b3))
-        out = self.bottom(pool4(b4))
+        b2 = self.conv_8_16(self.pool1(b1))
+        b3 = self.conv_16_32(self.pool2(b2))
+        b4 = self.conv_32_64(self.pool3(b3))
+        out = self.bottom(self.pool4(b4))
         block1 = crop(b4,out.size()[2])
         out = self.expand2(block,out)
         block2 = crop(b3,out.size()[2])
