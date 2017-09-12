@@ -119,7 +119,7 @@ for i in range(learningtime):
         pred = pred[1]
         pred = pred.cpu()
         pred = pred.data.numpy()
-        tmaskk = tmask[r:r+30,:,:,:]
+        tmaskk = tmask[r:r+30,:,:]
         correct = len(np.where(pred==tmaskk)[0])
         acc = correct / pred.size()
         print(loss)
