@@ -222,7 +222,7 @@ def load_data_unet():
     image,mask = [np.array(x) for x in [image,mask]]
     image = image.reshape(7,50,572,572,1)
     print('loading done')
-    return image, mask
+    return image, mask  
 
 def load_data_cnn_torch():
     print('loading data for cnn...')
@@ -245,6 +245,7 @@ def load_data_cnn_torch():
 def load_data_unet_torch():
     print('loading')
     folders = os.listdir('data')
+    folders.remove('.DS_Store')
     for i,folder in enumerate(folders):
         ipath = 'data/%s/image572' % folder
         mpath = 'data/%s/mask' % folder
