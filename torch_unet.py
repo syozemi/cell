@@ -114,6 +114,9 @@ for i in range(learningtime):
     loss = criterion(out,y)
     loss.backward()
     optimizer.step()
+    if i % 10 == 0:
+        _, pred = torch.max(out,1)
+
     print(loss)
     print(str(i)+'/'+str(learningtime))
 
