@@ -15,14 +15,6 @@ import torch.optim as optim
 
 
 
-
-with open('data/Band/image572', 'rb') as f:
-    image = pickle.load(f)
-
-with open('data/Band/mask','rb') as f:
-    mask = pickle.load(f)
-
-
 class Conv(nn.Module):
     def __init__(self, ins, outs, activation=F.relu):
         super(Conv,self).__init__()
@@ -105,6 +97,14 @@ class Net(nn.Module):
 
         return F.softmax(self.last(up4))
 
+with open('data/Band/image572', 'rb') as f:
+    image = pickle.load(f)
+
+with open('data/Band/mask','rb') as f:
+    mask = pickle.load(f)
+
+image = image[:40,...]
+mask = mask[:40,...]
 
 net = torch.load('model/torchmodel')
 net.cuda()
