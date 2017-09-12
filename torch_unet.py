@@ -42,7 +42,7 @@ class Bottom(nn.Module):
         self.transpose = nn.ConvTranspose2d(outs,ins,2,stride=2)
 
     def forward(self,x):
-        out = F.relu(self.conv1(out))
+        out = F.relu(self.conv1(x))
         out = F.relu(self.conv2(out))
         out = F.relu(self.transpose(out))
         return out
