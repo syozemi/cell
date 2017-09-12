@@ -120,6 +120,7 @@ b = a[0]
 b = b.cpu()
 b = b.data.numpy()
 
+print(b.shape)
 b = b[190:195,190:195]
 
 print(b)
