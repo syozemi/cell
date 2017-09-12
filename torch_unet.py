@@ -47,6 +47,19 @@ class Bottom(nn.Module):
         out = F.relu(self.transpose(out))
         return out
 
+class Last(nn.Module):
+    def __init__(self,ins,middles,outs):
+        super(Last,self).__init__()
+        self.conv1 = nn.Conv2d(ins,middles,3)
+        self.conv2 = nn.Conv2d(middles,middles,3)
+        self.conv3 = nn.Conv2d(middles,outs,1)
+
+    def forward(self,block,x):
+        out = torch.cat([block,x],1)
+        out = F.relu(self.conv1(out))
+        out = F.relu(self.conv2(out))
+        our = F.softmax(self.conv3(out))
+
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
@@ -63,10 +76,7 @@ class Net(nn.Module):
         self.expand2 = Expand(128,64,32)
         self.expand3 = Expand(64,32,16)
         self.expand4 = Expand(32,16,8)
-        self.conv1 = nn.Conv2d(16,8,3)
-        self.conv2 = nn.Conv2d(8,8,3)
-        self.last = nn.Conv2d(8,3,1)
-
+        self.last = Last(16,8,3)
 
     def crop(self, layer, target_size):
         batch_size, n_channels, layer_width, layer_height = layer.size()
@@ -80,16 +90,14 @@ class Net(nn.Module):
         b4 = self.conv_32_64(self.pool3(b3))
         out = self.bottom(self.pool4(b4))
         block1 = self.crop(b4,out.size()[2])
-        out = self.expand2(block,out)
+        out = self.expand2(block1,out)
         block2 = self.crop(b3,out.size()[2])
-        out = self.expand3(block,out)
+        out = self.expand3(block2,out)
         block3 = self.crop(b2,out.size()[2])
-        out = self.expand4(block,out)
+        out = self.expand4(block3,out)
         block4 = self.crop(b1,out.size()[2])
-        out = F.relu(self.conv1(out))
-        out = F.relu(self.conv2(out))
-        out = self.last(out)
-        return F.softmax(out)
+        out = self.last(block4,out)
+        return out
 
 image, mask = pro.load_data_unet_torch()
 
