@@ -125,8 +125,6 @@ b = b.data.numpy()
 
 print(b.shape)
 
-b = b[0]
-
 print(len(np.where(b==0)[0]))
 print(len(np.where(b==1)[0]))
 print(len(np.where(b==2)[0]))
@@ -134,29 +132,12 @@ print(len(np.where(b==2)[0]))
 print(b.shape)
 print(b)
 
-c = tmask[0]
+c = tmask
 
-print(len(np.where(b==c)[0]))
+correct = len(np.where(b==c)[0])
 
+acc = (correct/len(image)*388*388) * 100
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+print(acc)
 
 

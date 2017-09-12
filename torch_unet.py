@@ -115,7 +115,10 @@ for i in range(learningtime):
     loss.backward()
     optimizer.step()
     if i % 10 == 0:
-        _, pred = torch.max(out,1)
+        _, pred = torch.max(out,1) #(n,388,388)のVariable, 一枚は、0,1,2でできた配列
+        
+
+
 
     print(loss)
     print(str(i)+'/'+str(learningtime))
