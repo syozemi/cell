@@ -12,8 +12,8 @@ from torch.autograd import Variable
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import torchvision.datasets as dsets
-import torchvision.transforms as transforms
+
+
 
 
 with open('data/Band/image572', 'rb') as f:
