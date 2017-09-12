@@ -27,6 +27,7 @@ class Up(nn.Module):
         self.up = nn.ConvTranspose2d(ins,outs,2,stride=2)
         self.conv1 = nn.Conv2d(ins,outs,3)
         self.conv2 = nn.Conv2d(outs,outs,3)
+        self.activation = activation
 
     def crop(self, layer, target_size):
         batch_size, n_channels, layer_width, layer_height = layer.size()
