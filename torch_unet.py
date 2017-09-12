@@ -33,7 +33,7 @@ class Up(nn.Module):
         xy1 = (layer_width - target_size) // 2
         return layer[:, :, xy1:(xy1 + target_size), xy1:(xy1 + target_size)]
 
-    def forward(self,bridge,x):
+    def forward(self,x,bridge):
         up = self.up(x)
         crop = self.crop(bridge,up.size()[2])
         out = torch.cat([out,crop],1)
