@@ -10,73 +10,55 @@ import pickle
 import random
 
 class Conv(nn.Module):
-    def __init__(self, ins, outs):
+    def __init__(self, ins, outs, activation=F.relu):
         super(Conv,self).__init__()
         self.conv1 = nn.Conv2d(ins,outs,3)
         self.conv2 = nn.Conv2d(outs,outs,3)
+        self.activation = activation
 
     def forward(self,x):
-        out = F.relu(self.conv1(x))
-        out = F.relu(self.conv2(out))
+        out = self.activation(self.conv1(x))
+        out = self.activation(self.conv2(out))
         return out
 
-class Expand(nn.Module):
-    def __init__(self, ins, middles, outs):
-        super(Expand,self).__init__()
-        self.conv1 = nn.Conv2d(ins,middles,3)
-        self.conv2 = nn.Conv2d(middles,middles,3)
-        self.transpose = nn.ConvTranspose2d(middles,outs,2,stride=2)
-
-    def forward(self,block,x):
-        out = torch.cat([block,x],1)
-        out = F.relu(self.conv1(out))
-        out = F.relu(self.conv2(out))
-        out = F.relu(self.transpose(out))
-        return out
-
-class Bottom(nn.Module):
-    def __init__(self, ins, outs):
-        super(Bottom,self).__init__()
+class Up(nn.Module):
+    def __init__(self, ins, outs, activation=F.relu):
+        super(Up,self).__init__()
+        self.up = nn.ConvTranspose2d(ins,outs,2,strides=2)
         self.conv1 = nn.Conv2d(ins,outs,3)
         self.conv2 = nn.Conv2d(outs,outs,3)
-        self.transpose = nn.ConvTranspose2d(outs,ins,2,stride=2)
 
-    def forward(self,x):
-        out = F.relu(self.conv1(x))
-        out = F.relu(self.conv2(out))
-        out = F.relu(self.transpose(out))
+    def crop(self, layer, target_size):
+        batch_size, n_channels, layer_width, layer_height = layer.size()
+        xy1 = (layer_width - target_size) // 2
+        return layer[:, :, xy1:(xy1 + target_size), xy1:(xy1 + target_size)]
+
+    def forward(self,bridge,x):
+        up = self.up(x)
+        crop = self.crop(bridge,up.size()[2])
+        out = torch.cat([out,crop],1)
+        out = self.activation(self.conv1(out))
+        out = self.activation(self.conv2(out))
         return out
-
-class Last(nn.Module):
-    def __init__(self,ins,middles,outs):
-        super(Last,self).__init__()
-        self.conv1 = nn.Conv2d(ins,middles,3)
-        self.conv2 = nn.Conv2d(middles,middles,3)
-        self.conv3 = nn.Conv2d(middles,outs,1)
-
-    def forward(self,block,x):
-        out = torch.cat([block,x],1)
-        out = F.relu(self.conv1(out))
-        out = F.relu(self.conv2(out))
-        our = F.softmax(self.conv3(out))
 
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
+        self.activation = F.relu
         self.conv_1_8 = Conv(1,8)
         self.conv_8_16 = Conv(8,16)
         self.conv_16_32 = Conv(16,32)
         self.conv_32_64 = Conv(32,64)
+        self.conv_64_128 = Conv(64,128)
         self.pool1 = nn.MaxPool2d(2)
         self.pool2 = nn.MaxPool2d(2)
         self.pool3 = nn.MaxPool2d(2)
         self.pool4 = nn.MaxPool2d(2)
-        self.bottom = Bottom(64,128)
-        self.expand1 = Expand(64,128,64)
-        self.expand2 = Expand(128,64,32)
-        self.expand3 = Expand(64,32,16)
-        self.expand4 = Expand(32,16,8)
-        self.last = Last(16,8,3)
+        self.up1 = Up(128,64)
+        self.up2 = Up(64,32)
+        self.up3 = Up(32,16)
+        self.up4 = Up(16,8)
+        self.last = nn.Conv2d(8,3,1)
 
     def crop(self, layer, target_size):
         batch_size, n_channels, layer_width, layer_height = layer.size()
@@ -84,20 +66,29 @@ class Net(nn.Module):
         return layer[:, :, xy1:(xy1 + target_size), xy1:(xy1 + target_size)]
 
     def forward(self, x):
-        b1 = self.conv_1_8(x)
-        b2 = self.conv_8_16(self.pool1(b1))
-        b3 = self.conv_16_32(self.pool2(b2))
-        b4 = self.conv_32_64(self.pool3(b3))
-        out = self.bottom(self.pool4(b4))
-        block1 = self.crop(b4,out.size()[2])
-        out = self.expand2(block1,out)
-        block2 = self.crop(b3,out.size()[2])
-        out = self.expand3(block2,out)
-        block3 = self.crop(b2,out.size()[2])
-        out = self.expand4(block3,out)
-        block4 = self.crop(b1,out.size()[2])
-        out = self.last(block4,out)
-        return out
+        block1 = self.conv_1_8(x)
+        pool1 = self.pool1(block1)
+
+        block2 = self.conv_8_16(pool1)
+        pool2 = self.pool2(block2)
+
+        block3 = self.conv_16_32(pool2)
+        pool3 = self.pool3(block3)
+
+        block4 = self.conv_32_64(pool3)
+        pool4 = self.pool4(block4)
+
+        bottom = self.conv_64_128(pool4)
+
+        up1 = self.up1(bottom,block4)
+
+        up2 = self.up2(up1,block3)
+
+        up3 = self.up3(up2,block2)
+
+        up4 = self.up4(up3,block1)
+
+        return F.softmax(self.last(up4))
 
 image, mask = pro.load_data_unet_torch()
 
