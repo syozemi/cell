@@ -91,7 +91,7 @@ class Net(nn.Module):
 
         return F.softmax(self.last(up4))
 
-image, mask = pro.load_data_unet_torch()
+image, mask, tmask = pro.load_data_unet_torch()
 
 image = image.reshape(350,1,572,572).astype(np.float32)
 mask = mask.reshape(350,388,388,3).astype(np.float32)
@@ -102,7 +102,7 @@ net = Net()
 net.cuda()
 criterion = nn.MSELoss().cuda()
 optimizer = optim.Adam(net.parameters())
-learningtime = 1000
+learningtime = 5000
 for i in range(learningtime):
     r = random.randint(0,300)
     imagee = image[r:r+30,:,:,:]
@@ -116,11 +116,14 @@ for i in range(learningtime):
     optimizer.step()
     if i % 10 == 0:
         _, pred = torch.max(out,1) #(n,388,388)のVariable, 一枚は、0,1,2でできた配列
-        
-
-
-
-    print(loss)
-    print(str(i)+'/'+str(learningtime))
+        pred = pred[1]
+        pred = pred.cpu()
+        pred = pred.data.numpy()
+        tmaskk = tmask[r:r+30,:,:,:]
+        correct = len(np.where(pred==tmaskk)[0])
+        acc = correct / pred.size()
+        print(loss)
+        print(acc)
+        print(str(i)+'/'+str(learningtime))
 
 torch.save(net, 'model/torchmodel')
