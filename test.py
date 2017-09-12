@@ -96,7 +96,7 @@ class Net(nn.Module):
 
 net = torch.load('model/torchmodel')
 
-image, mask = pro.load_data_unet_torch()
+image, mask, tmask = pro.load_data_unet_torch()
 
 image = image.reshape(350,1,572,572).astype(np.float32)
 mask = mask.reshape(350,388,388,3)

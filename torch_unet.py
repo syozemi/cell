@@ -105,8 +105,8 @@ optimizer = optim.Adam(net.parameters())
 learningtime = 5000
 for i in range(learningtime):
     r = random.randint(0,300)
-    imagee = image[r:r+30,:,:,:]
-    maskk = mask[r:r+30,:,:,:]
+    imagee = image[r:r+30,...]
+    maskk = mask[r:r+30,...]
     x = Variable(torch.from_numpy(imagee).cuda())
     y = Variable(torch.from_numpy(maskk).cuda())
     optimizer.zero_grad()
@@ -119,9 +119,9 @@ for i in range(learningtime):
         pred = pred[1]
         pred = pred.cpu()
         pred = pred.data.numpy()
-        tmaskk = tmask[r:r+30,:,:]
+        tmaskk = tmask[r:r+30,...]
         correct = len(np.where(pred==tmaskk)[0])
-        acc = correct / pred.size
+        acc = correct / tmaskk.size
         print(loss)
         print(acc)
         print(str(i)+'/'+str(learningtime))
