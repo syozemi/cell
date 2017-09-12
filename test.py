@@ -101,7 +101,9 @@ image, mask = pro.load_data_unet_torch()
 image = image.reshape(350,1,572,572).astype(np.float32)
 mask = mask.reshape(350,388,388,3)
 n = random.randint(0,350)
+
 image = image[n,:,:,:].reshape(1,1,572,572)
+mask = mask[n,:,:,:]
 
 out = net(Variable(torch.from_numpy(image).cuda()))
 
@@ -129,11 +131,11 @@ print(len(np.where(pred==0)[0]))
 print(len(np.where(pred==1)[0]))
 print(len(np.where(pred==2)[0]))
 
-
-
 fig = plt.figure(figsize=(8,8))
-sub = fig.add_subplot(1,2,1)
-sub.imshow(cell)
-sub = fig.add_subplot(1,2,2)
-sub.imshow(nuc)
+sub = fig.add_subplot(1,3,1)
+sub.imshow(image.reshape(572,572),cmap='gray')
+sub = fig.add_subplot(1,3,2)
+sub.imshow(cell,cmap='gray')
+sub = fig.add_subplot(1,3,3)
+sub.imshow(nuc,cmap='gray')
 plt.show()
