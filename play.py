@@ -115,7 +115,7 @@ out = net(Variable(torch.from_numpy(image).cuda()))
 
 a = torch.max(out,1)
 
-b = a[0]
+b = a[1]
 
 b = b.cpu()
 b = b.data.numpy()
