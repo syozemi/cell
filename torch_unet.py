@@ -16,8 +16,8 @@ class Conv(nn.Module):
         self.conv2 = nn.Conv2d(outs,outs,3)
 
     def forward(self,x):
-        out = F.ReLU(self.conv1(x))
-        out = F.ReLU(self.conv2(out))
+        out = F.relu(self.conv1(x))
+        out = F.relu(self.conv2(out))
         return out
 
 class Expand(nn.Module):
@@ -29,9 +29,9 @@ class Expand(nn.Module):
 
     def forward(self,block,x):
         out = torch.cat([block,x],1)
-        out = F.ReLU(self.conv1(out))
-        out = F.ReLU(self.conv2(out))
-        out = F.ReLU(self.transpose(out))
+        out = F.relu(self.conv1(out))
+        out = F.relu(self.conv2(out))
+        out = F.relu(self.transpose(out))
         return out
 
 class Bottom(nn.Module):
@@ -42,9 +42,9 @@ class Bottom(nn.Module):
         self.transpose = nn.ConvTranspose2d(outs,ins,2,stride=2)
 
     def forward(self,x):
-        out = nn.ReLU(self.conv1(out))
-        out = nn.ReLU(self.conv2(out))
-        out = nn.ReLU(self.transpose(out))
+        out = F.relu(self.conv1(out))
+        out = F.relu(self.conv2(out))
+        out = F.relu(self.transpose(out))
         return out
 
 class Net(nn.Module):
@@ -86,8 +86,8 @@ class Net(nn.Module):
         block3 = crop(b2,out.size()[2])
         out = self.expand4(block,out)
         block4 = self.crop(b1,out.size()[2])
-        out = F.ReLU(self.conv1(out))
-        out = F.ReLU(self.conv2(out))
+        out = F.relu(self.conv1(out))
+        out = F.relu(self.conv2(out))
         out = self.last(out)
         return F.softmax(out)
 
