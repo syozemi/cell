@@ -121,7 +121,7 @@ for i in range(learningtime):
         pred = pred.data.numpy()
         tmaskk = tmask[r:r+30,:,:]
         correct = len(np.where(pred==tmaskk)[0])
-        acc = correct / pred.size()
+        acc = correct / pred.size
         print(loss)
         print(acc)
         print(str(i)+'/'+str(learningtime))
