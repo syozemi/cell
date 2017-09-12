@@ -24,7 +24,7 @@ class Conv(nn.Module):
 class Up(nn.Module):
     def __init__(self, ins, outs, activation=F.relu):
         super(Up,self).__init__()
-        self.up = nn.ConvTranspose2d(ins,outs,2,strides=2)
+        self.up = nn.ConvTranspose2d(ins,outs,2,stride=2)
         self.conv1 = nn.Conv2d(ins,outs,3)
         self.conv2 = nn.Conv2d(outs,outs,3)
 
