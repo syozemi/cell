@@ -115,9 +115,14 @@ out = net(Variable(torch.from_numpy(image).cuda()))
 
 a = torch.max(out,1)
 
-print(type(a))
+b = a[0]
 
-print(a)
+b = b.cpu()
+b = b.numpy()
+
+b = b[190:195,190:195]
+
+print(b)
 
 
 
