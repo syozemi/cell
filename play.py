@@ -117,11 +117,7 @@ a = torch.max(out,1)
 
 print(type(a))
 
-a = a.cpu()
-
-a = a.numpy()
-
-print(a.shape)
+print(a)
 
 
 
