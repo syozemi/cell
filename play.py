@@ -107,10 +107,11 @@ class Net(nn.Module):
 
 
 net = torch.load('model/torchmodel')
+net.cuda()
 
 image = image.reshape(50,1,572,572).astype(np.float32)
 
-out = net(Variable(torch.from_numpy(image)))
+out = net(Variable(torch.from_numpy(image).cuda()))
 
 a = torch.max(out,1)
 
