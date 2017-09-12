@@ -115,6 +115,16 @@ out = net(Variable(torch.from_numpy(image).cuda()))
 
 a = torch.max(out,1)
 
+print(type(a))
+
+a = a.cpu()
+
+a = a.numpy()
+
+print(a.shape)
+
+
+
 
 
 
