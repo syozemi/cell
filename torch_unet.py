@@ -16,8 +16,8 @@ class Conv(nn.Module):
         self.conv2 = nn.Conv2d(outs,outs,3)
 
     def forward(self,x):
-        out = nn.ReLU(self.conv1(x))
-        out = nn.ReLU(self.conv2(out))
+        out = F.ReLU(self.conv1(x))
+        out = F.ReLU(self.conv2(out))
         return out
 
 class Expand(nn.Module):
