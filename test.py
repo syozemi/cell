@@ -131,11 +131,20 @@ print(len(np.where(pred==0)[0]))
 print(len(np.where(pred==1)[0]))
 print(len(np.where(pred==2)[0]))
 
+cell_ = mask[:,:,1]
+nuc_ = mask[:,:,2]
+cell_ = cell_ + nuc_
+
 fig = plt.figure(figsize=(8,8))
-sub = fig.add_subplot(1,3,1)
+sub = fig.add_subplot(2,3,1)
 sub.imshow(image.reshape(572,572),cmap='gray')
-sub = fig.add_subplot(1,3,2)
+sub = fig.add_subplot(2,3,2)
+sub.imshow(cell_,cmap='gray')
+sub = fig.add_subplot(2,3,3)
+sub.imshow(nuc_,cmap='gray')
+sub = fig.add_subplot(2,3,5)
 sub.imshow(cell,cmap='gray')
-sub = fig.add_subplot(1,3,3)
+sub = fig.add_subplot(2,3,6)
 sub.imshow(nuc,cmap='gray')
+
 plt.show()
