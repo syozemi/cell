@@ -103,6 +103,9 @@ with open('data/Band/image572', 'rb') as f:
 with open('data/Band/mask','rb') as f:
     mask = pickle.load(f)
 
+with open('data/Band/tmask','rb') as f:
+    tmask = pickle.load(f)
+
 image = image[:40,...]
 mask = mask[:40,...]
 
@@ -130,6 +133,10 @@ print(len(np.where(b==2)[0]))
 
 print(b.shape)
 print(b)
+
+c = tmask[0]
+
+print(len(np.where(b==c)[0]))
 
 
 
