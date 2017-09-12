@@ -109,7 +109,7 @@ mask = mask[:40,...]
 net = torch.load('model/torchmodel')
 net.cuda()
 
-image = image.reshape(50,1,572,572).astype(np.float32)
+image = image.reshape(40,1,572,572).astype(np.float32)
 
 out = net(Variable(torch.from_numpy(image).cuda()))
 
