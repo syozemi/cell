@@ -122,7 +122,11 @@ b = b.data.numpy()
 
 print(b.shape)
 
-b = b[0,190:195,190:195]
+b = b[0]
+
+print(len(np.where(b==0)[0]))
+print(len(np.where(b==1)[0]))
+print(len(np.where(b==2)[0]))
 
 print(b.shape)
 print(b)
