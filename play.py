@@ -129,10 +129,7 @@ print(len(np.where(b==0)[0]))
 print(len(np.where(b==1)[0]))
 print(len(np.where(b==2)[0]))
 
-print(b.shape)
-print(b)
-
-c = tmask
+c = tmask[:40,...]
 
 correct = len(np.where(b==c)[0])
 
