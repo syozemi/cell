@@ -118,7 +118,7 @@ a = torch.max(out,1)
 b = a[0]
 
 b = b.cpu()
-b = b.numpy()
+b = b.data.numpy()
 
 b = b[190:195,190:195]
 
