@@ -114,7 +114,7 @@ mid_n = image[2,...]
 act_c = mask[:,:,1] + mask[:,:,2]
 act_n = mask[:,:,2]
 
-out = net(Variable(torch.from_numpy(image.reshape[1,3,572,572]).cuda()))
+out = net(Variable(torch.from_numpy(image.reshape(1,3,572,572)).cuda()))
 _,pred = torch.max(out,1)
 pred = pred.cpu()
 pred = pred.data.numpy()
