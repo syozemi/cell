@@ -115,11 +115,11 @@ act_c = mask[:,:,1] + mask[:,:,2]
 act_n = mask[:,:,2]
 
 out = net(Variable(torch.from_numpy(image.reshape(1,3,572,572)).cuda()))
-_,pred = torch.max(out,1)
-pred = pred.cpu()
+pred = out.cpu()
 pred = pred.data.numpy()
-pred = pred.reshape(388,388)
+pred = pred.reshape(3,388,388)
 
+'''
 cell = np.zeros((388,388))
 nuc = np.zeros((388,388))
 
@@ -138,7 +138,7 @@ for i,x_ in enumerate(pred):
 print(len(np.where(pred==0)[0]))
 print(len(np.where(pred==1)[0]))
 print(len(np.where(pred==2)[0]))
-
+'''
 
 fig = plt.figure(figsize=(8,8))
 sub = fig.add_subplot(3,3,1)
@@ -152,9 +152,9 @@ sub.imshow(mid_c,cmap='gray')
 sub = fig.add_subplot(3,3,6)
 sub.imshow(mid_n,cmap='gray')
 sub = fig.add_subplot(3,3,8)
-sub.imshow(cell,cmap='gray')
+sub.imshow(pred[1],cmap='gray')
 sub = fig.add_subplot(3,3,9)
-sub.imshow(nuc,cmap='gray')
+sub.imshow(pred[2],cmap='gray')
 
 plt.show()
 
