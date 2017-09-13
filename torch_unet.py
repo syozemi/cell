@@ -122,8 +122,10 @@ for i in range(learningtime):
         tmaskk = tmask[r:r+30,...]
         correct = len(np.where(pred==tmaskk)[0])
         acc = correct / tmaskk.size
+        print('======================')
         print(loss)
         print(acc)
         print(str(i)+'/'+str(learningtime))
+        print('======================')
 
 torch.save(net, 'model/torchmodel')
