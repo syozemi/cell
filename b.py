@@ -17,15 +17,18 @@ image,mask,tmask = pro.load_data_wnet()
 
 print(image.shape)
 
+print(mask.shape)
+
 n = random.randint(0,350)
 
 image = image[n,...]
+mask = mask[n,...]
 
 c = image[1]
 n = image[2]
 
-cc = mask[n,1,:,:]
-nn = mask[n,2,:,:]
+cc = mask[1,...]
+nn = mask[2,...]
 
 fig = plt.figure(figsize=(8,8))
 sub = fig.add_subplot(2,2,1)
