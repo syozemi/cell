@@ -24,6 +24,7 @@ n = random.randint(0,350)
 image = image[n,...]
 mask = mask[n,...]
 
+i = image[0]
 c = image[1]
 n = image[2]
 
@@ -31,13 +32,15 @@ cc = mask[:,:,1]
 nn = mask[:,:,2]
 
 fig = plt.figure(figsize=(8,8))
-sub = fig.add_subplot(2,2,1)
+sub = fig.add_subplot(3,2,1)
+sub.imshow(i,cmap='gray')
+sub = fig.add_subplot(3,2,3)
 sub.imshow(cc,cmap='gray')
-sub = fig.add_subplot(2,2,2)
+sub = fig.add_subplot(3,2,4)
 sub.imshow(nn,cmap='gray')
-sub = fig.add_subplot(2,2,3)
+sub = fig.add_subplot(3,2,5)
 sub.imshow(c,cmap='gray')
-sub = fig.add_subplot(2,2,4)
+sub = fig.add_subplot(3,2,6)
 sub.imshow(n,cmap='gray')
 plt.show()
 
