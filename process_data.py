@@ -259,6 +259,23 @@ def load_data_unet_torch():
     print('loading done')
     return image, mask, tmask
 
+def load_data_wnet():
+    print('loading')
+    folders = os.listdir('data')
+    if '.DS_Store' in folders:
+        folders.remove('.DS_Store')
+    for i,folder in enumerate(folders):
+        ipath = 'data/%s/wnet' % folder
+        mpath = 'data/%s/mask' % folder
+        mmpath = 'data/%s/tmask' % folder
+        if i == 0:
+            image,mask,tmask = [load(x) for x in [ipath,mpath,mmpath]]
+        else:
+            img,msk,tmsk = [load(x) for x in [ipath,mpath,mmpath]]
+            image, mask, tmask = [np.vstack(x) for x in [(image,img),(mask,msk),(tmask,tmsk)]]
+    print('loading done')
+    return image, mask, tmask
+
 def check():
     img, ncr = load_data_cnn()
     image, mask = load_data_unet()
