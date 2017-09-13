@@ -101,19 +101,20 @@ net.cuda()
 
 folders = os.listdir('data')
 
-for folder in folders:
+for ii,folder in enumerate(folders):
+    print(folder)
     ipath = 'data/%s/image572' % folder
     with open(ipath,'rb') as f:
         image = pickle.load(f)
     image = image.reshape(50,1,572,572).astype(np.float32)
     image1,image2 = image[:25,...],image[25:,...]
     out1 = net(Variable(torch.from_numpy(image1).cuda()))
-    out2 = net(Variable(torch.from_numpy(image2).cuda()))
     _,out1 = torch.max(out1,1)
-    _,out2 = torch.max(out2,1)
-    #out1 = out1.cpu()
-    #out2 = out2.cpu()
+    out1 = out1.cpu()
     out1 = out1.data.numpy()
+    out2 = net(Variable(torch.from_numpy(image2).cuda()))
+    _,out2 = torch.max(out2,1)
+    out2 = out2.cpu()
     out2 = out2.data.numpy()
     out = np.vstack(out1,out2).reshape(-1,388,388)
     cell,nuc = np.zeros((50,388,388)),np.zeros((50,388,388))
@@ -145,4 +146,5 @@ for folder in folders:
     last = np.array(last)
     last = np.swapaxes(last,0,1)
     pro.save(last, 'data/%s' % folder, 'wnet')
+    print('done')
 
