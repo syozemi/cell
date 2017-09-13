@@ -98,8 +98,10 @@ class Net(nn.Module):
 
 net1 = torch.load('model/torchmodel')
 net2 = torch.load('model/torchmodel')
-net1.cuda()
-net2.cuda()
+with torch.cuda.device(0):
+    net1.cuda()
+with torch.cuda.device(1):
+    net2.cuda()
 
 folders = os.listdir('data')
 
