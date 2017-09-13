@@ -97,7 +97,7 @@ net = Net()
 net.cuda()
 criterion = nn.MSELoss().cuda()
 optimizer = optim.Adam(net.parameters())
-learningtime = 5000
+learningtime = 1000
 for i in range(learningtime):
     r = random.randint(0,300)
     imagee = image[r:r+30,...]
