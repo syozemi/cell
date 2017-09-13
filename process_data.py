@@ -284,7 +284,7 @@ def load_data_wnet_for_test():
     for i,folder in enumerate(folders):
         ipath = 'data/%s/wnet' % folder
         mpath = 'data/%s/mask' % folder
-        impath = 'data/%s/image360' % folder
+        mmpath = 'data/%s/image360' % folder
         if i == 0:
             image,mask,tmask = [load(x) for x in [ipath,mpath,mmpath]]
         else:
