@@ -96,8 +96,10 @@ class Net(nn.Module):
 
         return F.softmax(self.last(up4))
 
-net = torch.load('model/torchmodel')
-net.cuda()
+net1 = torch.load('model/torchmodel')
+net2 = torch.load('model/torchmodel')
+net1.cuda()
+net2.cuda()
 
 folders = os.listdir('data')
 
@@ -110,12 +112,12 @@ for ii,folder in enumerate(folders):
     image1,image2 = image[:25,...],image[25:,...]
 
     with torch.cuda.device(0):
-        out1 = net(Variable(torch.from_numpy(image1).cuda()))
+        out1 = net1(Variable(torch.from_numpy(image1).cuda()))
         _,out1 = torch.max(out1,1)
         out1 = out1.cpu()
         out1 = out1.data.numpy()
     with torch.cuda.device(1):
-        out2 = net(Variable(torch.from_numpy(image2).cuda()))
+        out2 = net2(Variable(torch.from_numpy(image2).cuda()))
         _,out2 = torch.max(out2,1)
         out2 = out2.cpu()
         out2 = out2.data.numpy()
