@@ -120,15 +120,16 @@ for folder in folders:
     for i,x in enumerate(out):
         for j,y in enumerate(x):
             for k,z in enumerate(y):
-            if z == 0:
-                cell[i,j,k] = 0
-                nuc[i,j,k] = 0
-            elif z == 1:
-                cell[i,j,k] = 1
-                nuc[i,j,k] = 0
-            else:
-                cell[i,j,k] = 1
-                nuc[i,j,k] = 1
+                if z == 0:
+                    cell[i,j,k] = 0
+                    nuc[i,j,k] = 0
+                elif z == 1:
+                    cell[i,j,k] = 1
+                    nuc[i,j,k] = 0
+                else:
+                    cell[i,j,k] = 1
+                    nuc[i,j,k] = 1
+
     c = []
     n = []
     for x in cell:
@@ -144,5 +145,4 @@ for folder in folders:
     last = np.array(last)
     last = np.swapaxes(last,0,1)
     pro.save(last, 'data/%s' % folder, 'wnet')
-
 
