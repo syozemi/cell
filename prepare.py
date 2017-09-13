@@ -115,36 +115,22 @@ for ii,folder in enumerate(folders):
 
     with torch.cuda.device(0):
         out1 = net1(Variable(torch.from_numpy(image1).cuda()))
-        _,out1 = torch.max(out1,1)
         out1 = out1.cpu()
         out1 = out1.data.numpy()
     with torch.cuda.device(1):
         out2 = net2(Variable(torch.from_numpy(image2).cuda()))
-        _,out2 = torch.max(out2,1)
         out2 = out2.cpu()
         out2 = out2.data.numpy()
-    out = np.vstack((out1,out2)).reshape(-1,388,388)
-    cell,nuc = np.zeros((50,388,388)),np.zeros((50,388,388))
-    for i,x in enumerate(out):
-        for j,y in enumerate(x):
-            for k,z in enumerate(y):
-                if z == 0:
-                    cell[i,j,k] = 0
-                    nuc[i,j,k] = 0
-                elif z == 1:
-                    cell[i,j,k] = 1
-                    nuc[i,j,k] = 0
-                else:
-                    cell[i,j,k] = 0
-                    nuc[i,j,k] = 1
-
+    out = np.vstack((out1,out2)).reshape(50,3,388,388)
+    cell = out[:,1,:,:]
+    nuc = out[:,2,:,:]
     c = []
     n = []
     for x in cell:
         c.append(cv.resize(x,(572,572)))
     for x in nuc:
         n.append(cv.resize(x,(572,572)))
-    c = np.array(c)
+    c = np.array(c) #50,388,388
     n = np.array(n)
     last = []
     last.append(image.reshape(50,572,572))
