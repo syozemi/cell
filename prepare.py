@@ -135,7 +135,7 @@ for ii,folder in enumerate(folders):
                     cell[i,j,k] = 1
                     nuc[i,j,k] = 0
                 else:
-                    cell[i,j,k] = 1
+                    cell[i,j,k] = 0
                     nuc[i,j,k] = 1
 
     c = []
