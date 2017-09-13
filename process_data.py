@@ -274,7 +274,7 @@ def load_data_wnet():
             img,msk,tmsk = [load(x) for x in [ipath,mpath,mmpath]]
             image, mask, tmask = [np.vstack(x) for x in [(image,img),(mask,msk),(tmask,tmsk)]]
     print('loading done')
-    return image, mask, tmask
+    return image.astype(np.float32), mask.astype(np.float32), tmask
 
 def check():
     img, ncr = load_data_cnn()
