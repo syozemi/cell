@@ -67,7 +67,7 @@ class Net(nn.Module):
         return layer[:, :, xy1:(xy1 + target_size), xy1:(xy1 + target_size)]
 
     def forward(self, x):
-        block1 = self.conv_1_8(x)
+        block1 = self.conv_3_8(x)
         pool1 = self.pool1(block1)
 
         block2 = self.conv_8_16(pool1)
