@@ -118,8 +118,8 @@ for i in range(learningtime):
         correct = len(np.where(pred==tmaskk)[0])
         acc = correct / tmaskk.size
         print('======================')
-        print(loss)
-        print(acc)
+        print(loss.data)
+        print('accuracy: %s' % str(acc))
         print(str(i)+'/'+str(learningtime))
         print('======================')
 
