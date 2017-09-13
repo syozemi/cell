@@ -95,7 +95,10 @@ class Net(nn.Module):
 
 
 
-image,mask,img = pro.load_data_wnet_for_test()
+image,mask,img = pro.load_data_wnet()
+print(image.shape)
+print(mask.shape)
+print(img.shape)
 
 net = torch.load('model/torchmodel_wnet')
 
@@ -107,8 +110,11 @@ n = random.randint(0,350)
 image = image[n,...]
 mask = mask[n,...]
 img = img[n,...]
+print(image.shape)
+print(mask.shape)
+print(img.shape)
 
-mid_c = image[1,...] + image[2,...]
+mid_c = image[1,...]
 mid_n = image[2,...]
 
 act_c = mask[:,:,1] + mask[:,:,2]
@@ -117,6 +123,7 @@ act_n = mask[:,:,2]
 out = net(Variable(torch.from_numpy(image.reshape(1,3,572,572)).cuda()))
 pred = out.cpu()
 pred = pred.data.numpy()
+print(pred.shape)
 pred = pred.reshape(3,388,388)
 
 '''
@@ -141,8 +148,8 @@ print(len(np.where(pred==2)[0]))
 '''
 
 fig = plt.figure(figsize=(8,8))
-sub = fig.add_subplot(3,3,1)
-sub.imshow(img,cmap='gray')
+#sub = fig.add_subplot(3,3,1)
+#sub.imshow(img,cmap='gray')
 sub = fig.add_subplot(3,3,2)
 sub.imshow(act_c,cmap='gray')
 sub = fig.add_subplot(3,3,3)
