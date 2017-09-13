@@ -123,7 +123,7 @@ for ii,folder in enumerate(folders):
         _,out2 = torch.max(out2,1)
         out2 = out2.cpu()
         out2 = out2.data.numpy()
-    out = np.vstack(out1,out2).reshape(-1,388,388)
+    out = np.vstack((out1,out2)).reshape(-1,388,388)
     cell,nuc = np.zeros((50,388,388)),np.zeros((50,388,388))
     for i,x in enumerate(out):
         for j,y in enumerate(x):
