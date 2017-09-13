@@ -30,6 +30,7 @@ sub = fig.add_subplot(1,2,1)
 sub.imshow(c,cmap='gray')
 sub = fig.add_subplot(1,2,2)
 sub.imshow(n,cmap='gray')
+plt.show()
 
 
 
