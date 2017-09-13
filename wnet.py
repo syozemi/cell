@@ -93,6 +93,10 @@ class Net(nn.Module):
 
 image,mask,tmask = pro.load_data_wnet()
 
+mask = mask.reshape(350,388,388,3).astype(np.float32)
+mask = np.swapaxes(mask,1,3)
+mask = np.swapaxes(mask,2,3)
+
 net = Net()
 net.cuda()
 criterion = nn.MSELoss().cuda()

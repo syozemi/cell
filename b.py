@@ -31,7 +31,7 @@ n = image[2]
 cc = mask[:,:,1]
 nn = mask[:,:,2]
 
-fig = plt.figure(figsize=(8,8))
+fig = plt.figure(figsize=(10,10))
 sub = fig.add_subplot(3,2,1)
 sub.imshow(i,cmap='gray')
 sub = fig.add_subplot(3,2,3)
