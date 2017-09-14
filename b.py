@@ -21,7 +21,7 @@ print(mask.shape)
 
 n = random.randint(0,350)
 
-image = image[n,...]
+image = image[n,...].reshape(284,284)
 mask = mask[n,...]
 
 cc = mask[:,:,1]
