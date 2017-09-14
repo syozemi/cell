@@ -87,6 +87,11 @@ class Net(nn.Module):
 
 image, mask, tmask = pro.load_data_unet_torch2()
 
+image = image.reshape(350,1,284,284).astype(np.float32)
+mask = mask.reshape(350,196,196,3).astype(np.float32)
+mask = np.swapaxes(mask,1,3)
+mask = np.swapaxes(mask,2,3)
+
 net = Net()
 net.cuda()
 
