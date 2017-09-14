@@ -34,8 +34,13 @@ for x in cc:
     for y in x:
         d[y] += 1
 
+for x in nn:
+    for y in x:
+        d2[y] += 1
+
 print(d)
 
+print(d2)
 
 fig = plt.figure(figsize=(10,10))
 sub = fig.add_subplot(1,3,1)
