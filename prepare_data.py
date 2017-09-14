@@ -30,7 +30,7 @@ for folder in folders:
             cell_array,nucleus_array = [cv.imread(x)[3:,:,2]/255 for x in [cell_path,nucleus_path]]
 
             #画像を284に縮小する
-            image_array = cv.resize(image_array,(284,284))
+            image284_array = cv.resize(image_array,(284,284))
 
             #細胞と核のマスクから、ラベルを作る
             cell_array,nucleus_array = [cv.resize(x,(196,196)) for x in [cell_array,nucleus_array]]
@@ -49,6 +49,7 @@ for folder in folders:
             ncl_[nc_] = 1.
 
             image.append(image_array)
+            image284.append(image284_array)
             mask.append(mask_array)
             tmask.append(tmask_array)
             #maskm.append(mask_array_m)

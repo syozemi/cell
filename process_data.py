@@ -159,6 +159,10 @@ def load_data_unet_torch2():
         else:
             img,msk,tmsk = [load(x) for x in [ipath,mpath,mmpath]]
             image, mask, tmask = [np.vstack(x) for x in [(image,img),(mask,msk),(tmask,tmsk)]]
+    image = image.reshape(350,1,284,284).astype(np.float32)
+    mask = mask.reshape(350,196,196,3).astype(np.float32)
+    mask = np.swapaxes(mask,1,3)
+    mask = np.swapaxes(mask,2,3)
     print('loading done')
     return image, mask, tmask
 
