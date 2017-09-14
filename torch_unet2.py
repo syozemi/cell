@@ -46,21 +46,19 @@ class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
         self.activation = F.relu
-        self.conv_3_8 = Conv(3,8)
+        self.conv_1_8 = Conv(1,8)
         self.conv_8_16 = Conv(8,16)
         self.conv_16_32 = Conv(16,32)
         self.conv_32_64 = Conv(32,64)
-        self.conv_64_128 = Conv(64,128)
+
         self.pool1 = nn.MaxPool2d(2)
         self.pool2 = nn.MaxPool2d(2)
         self.pool3 = nn.MaxPool2d(2)
-        self.pool4 = nn.MaxPool2d(2)
-        self.up1 = Up(128,64)
-        self.up2 = Up(64,32)
-        self.up3 = Up(32,16)
-        self.up4 = Up(16,8)
+
+        self.up1 = Up(64,32)
+        self.up2 = Up(32,16)
+        self.up3 = Up(16,8)
         self.last = nn.Conv2d(8,3,1)
-        self.constant = 
 
     def crop(self, layer, target_size):
         batch_size, n_channels, layer_width, layer_height = layer.size()
@@ -68,7 +66,7 @@ class Net(nn.Module):
         return layer[:, :, xy1:(xy1 + target_size), xy1:(xy1 + target_size)]
 
     def forward(self, x):
-        block1 = self.conv_3_8(x)
+        block1 = self.conv_1_8(x)
         pool1 = self.pool1(block1)
 
         block2 = self.conv_8_16(pool1)
@@ -77,39 +75,28 @@ class Net(nn.Module):
         block3 = self.conv_16_32(pool2)
         pool3 = self.pool3(block3)
 
-        block4 = self.conv_32_64(pool3)
-        pool4 = self.pool4(block4)
+        bottom = self.conv_32_64(pool3)
 
-        bottom = self.conv_64_128(pool4)
+        up1 = self.up1(bottom,block3)
 
-        up1 = self.up1(bottom,block4)
+        up2 = self.up2(up1,block2)
 
-        up2 = self.up2(up1,block3)
+        up3 = self.up3(up2,block1)
 
-        up3 = self.up3(up2,block2)
+        return F.softmax(self.last(up3))
 
-        up4 = self.up4(up3,block1)
-
-        return F.softmax(self.last(up4))
-
-image,mask,tmask = pro.load_data_wnet()
-
-image.reshape(350,3,572,572).astype(np.float32)
-mask = mask.reshape(350,388,388,3).astype(np.float32)
-mask = np.swapaxes(mask,1,3)
-mask = np.swapaxes(mask,2,3)
+image, mask, tmask = pro.load_data_unet_torch2()
 
 net = Net()
 net.cuda()
-criterion = nn.MSELoss().cuda()
+
+criterion = nn.MSELoss()
 optimizer = optim.Adam(net.parameters())
-learningtime = 2000
+
+learningtime = 100
 for i in range(learningtime):
-    r = random.randint(0,300)
-    imagee = image[r:r+30,...]
-    maskk = mask[r:r+30,...]
-    x = Variable(torch.from_numpy(imagee).cuda())
-    y = Variable(torch.from_numpy(maskk).cuda())
+    x = Variable(torch.from_numpy(image).cuda())
+    y = Variable(torch.from_numpy(mask).cuda())
     optimizer.zero_grad()
     out = net(x)
     loss = criterion(out,y)
@@ -120,14 +107,37 @@ for i in range(learningtime):
         pred = pred[1]
         pred = pred.cpu()
         pred = pred.data.numpy()
-        tmaskk = tmask[r:r+30,...]
-        correct = len(np.where(pred==tmaskk)[0])
-        acc = correct / tmaskk.size
+        correct = len(np.where(pred==tmask)[0])
+        acc = correct / tmask.size
         print('======================')
         print(loss.data)
         print('accuracy: %s' % str(acc))
         print(str(i)+'/'+str(learningtime))
         print('======================')
 
-torch.save(net, 'model/torchmodel_wnet')
+torch.save(net, 'model/torchmodel_unet2')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

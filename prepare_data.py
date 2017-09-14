@@ -16,7 +16,7 @@ folders = os.listdir('cell_data/image')
 
 for folder in folders:
     try:
-        image,image572,image572m,mask,tmask,maskm,ncratio,ncratio_num,ncratio_,ncratio_num_ = [],[],[],[],[],[],[],[],[],[]
+        image,image284,image572m,mask,tmask,maskm,ncratio,ncratio_num,ncratio_,ncratio_num_ = [],[],[],[],[],[],[],[],[],[]
         files = os.listdir('cell_data/image/%s' % folder)
         for i,file in enumerate(files):
 
@@ -29,12 +29,11 @@ for folder in folders:
             image_array = cv.imread(image_path,0)[3:,:] / 255
             cell_array,nucleus_array = [cv.imread(x)[3:,:,2]/255 for x in [cell_path,nucleus_path]]
 
-            #拡大
-            image_array_572 = cv.resize(image_array, (572,572))
-            #image_array_572m = pro.mirror(image_array, 572)
+            #画像を284に縮小する
+            image_array = cv.resize(image_array,(284,284))
 
             #細胞と核のマスクから、ラベルを作る
-            cell_array,nucleus_array = [cv.resize(x,(388,388)) for x in [cell_array,nucleus_array]]
+            cell_array,nucleus_array = [cv.resize(x,(196,196)) for x in [cell_array,nucleus_array]]
             mask_array = pro.create_mask_label(cell_array, nucleus_array)
             tmask_array = pro.create_torch_mask_label(cell_array,nucleus_array)
             #cell_array_m,nucleus_array_m = [pro.mirror(x,388) for x in [cell_array,nucleus_array]]
@@ -57,13 +56,11 @@ for folder in folders:
             ncratio_.append(ncl_)
             ncratio_num.append(nc)
             ncratio_num_.append(nc_)
-            image572.append(image_array_572)
-            #image572m.append(image_array_572m)
 
             print(i,'\r',end='')
-        image,image572,image572m,mask,tmask,maskm,ncratio,ncratio_,ncratio_num,ncratio_num_ = [np.array(x) for x in [image,image572,image572m,mask,tmask,maskm,ncratio,ncratio_,ncratio_num,ncratio_num_]]
+        image,image284,image572m,mask,tmask,maskm,ncratio,ncratio_,ncratio_num,ncratio_num_ = [np.array(x) for x in [image,image284,image572m,mask,tmask,maskm,ncratio,ncratio_,ncratio_num,ncratio_num_]]
         pro.save(image,'data/%s' % folder, 'image360')
-        pro.save(image572,'data/%s' % folder, 'image572')
+        pro.save(image284,'data/%s' % folder, 'image284')
         #pro.save(image572m, 'data/%s' % folder, 'image572m')
         pro.save(mask,'data/%s' % folder, 'mask')
         pro.save(tmask, 'data/%s' % folder, 'tmask')
