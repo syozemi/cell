@@ -13,7 +13,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-image,mask,tmask = pro.load_data_wnet()
+image,mask,tmask = pro.load_data_unet_torch2()
 
 print(image.shape)
 
