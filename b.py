@@ -24,8 +24,8 @@ n = random.randint(0,350)
 image = image[n,...].reshape(284,284)
 mask = mask[n,...]
 
-cc = mask[:,:,1]
-nn = mask[:,:,2]
+cc = mask[1,:,:]
+nn = mask[2,:,:]
 
 fig = plt.figure(figsize=(10,10))
 sub = fig.add_subplot(1,3,1)
