@@ -100,8 +100,11 @@ optimizer = optim.Adam(net.parameters())
 
 learningtime = 100
 for i in range(learningtime):
-    x = Variable(torch.from_numpy(image).cuda())
-    y = Variable(torch.from_numpy(mask).cuda())
+    r = np.random.sample(range(len(image)),100)
+    img_tmp = np.take(image,r)
+    mask_tmp = np.take(mask,r)
+    x = Variable(torch.from_numpy(image_tmp).cuda())
+    y = Variable(torch.from_numpy(mask_tmp).cuda())
     optimizer.zero_grad()
     out = net(x)
     loss = criterion(out,y)
