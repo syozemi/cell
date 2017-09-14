@@ -29,6 +29,7 @@ cc = mask[1,:,:]
 nn = mask[2,:,:]
 
 d = defaultdict(int)
+d2 = defaultdict(int)
 
 for x in cc:
     for y in x:
