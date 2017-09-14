@@ -31,9 +31,11 @@ nn = mask[2,:,:]
 d = defaultdict(int)
 d2 = defaultdict(int)
 
-for x in cc:
-    for y in x:
+for i,x in enumerate(cc):
+    for j,y in enumerate(x):
         d[y] += 1
+        if y != 0 and y != 1:
+            print(i,j)
 
 for x in nn:
     for y in x:
@@ -42,7 +44,7 @@ for x in nn:
 print(d)
 
 print(d2)
-
+'''
 fig = plt.figure(figsize=(10,10))
 sub = fig.add_subplot(1,3,1)
 sub.imshow(image,cmap='gray')
@@ -53,7 +55,7 @@ sub.imshow(nn,cmap='gray')
 plt.show()
 
 print(n)
-
+'''
 
 
 
