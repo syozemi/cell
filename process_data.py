@@ -61,8 +61,10 @@ def flip(x):
     else:
         return 0.
 
-def create_mask_label(cell, nucleus):
+def create_mask_label(cell, nuc):
     l = []
+    cell = np.ceil(cell)
+    nuc = np.ceil(nuc)
     a = [flip(x) for x in cell.flatten()]
     a = np.array(a).reshape(cell.shape)
     cell = cell - nucleus
