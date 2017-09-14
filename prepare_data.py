@@ -15,7 +15,7 @@ else:
 folders = os.listdir('cell_data/image')
 
 for folder in folders:
-    try:
+    #try:
         image,image284,image572m,mask,tmask,maskm,ncratio,ncratio_num,ncratio_,ncratio_num_ = [],[],[],[],[],[],[],[],[],[]
         files = os.listdir('cell_data/image/%s' % folder)
         for i,file in enumerate(files):
@@ -27,7 +27,8 @@ for folder in folders:
 
             #画像を360*360の行列として取得する
             image_array = cv.imread(image_path,0)[3:,:] / 255
-            cell_array,nucleus_array = [cv.imread(x)[3:,:,2]/255 for x in [cell_path,nucleus_path]]
+            cell_array,nucleus_array = [cv.imread(x)[3:,:,2] for x in [cell_path,nucleus_path]]
+            cell_array,nucleus_array = [x/255 for x in [cell_array,nucleus_array]]
 
             #画像を284に縮小する
             image284_array = cv.resize(image_array,(284,284))
@@ -71,8 +72,8 @@ for folder in folders:
         pro.save(ncratio_num, 'data/%s' % folder, 'ncratio_num10')
         pro.save(ncratio_num_, 'data/%s' % folder, 'ncratio_num100')   
         print(folder + ' done')
-    except:
-        print('unable to process ' + folder)
+    #except:
+        #print('unable to process ' + folder)
 
 
 
