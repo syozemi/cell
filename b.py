@@ -44,7 +44,7 @@ for x in nn:
 print(d)
 
 print(d2)
-
+'''
 fig = plt.figure(figsize=(10,10))
 sub = fig.add_subplot(1,3,1)
 sub.imshow(image,cmap='gray')
@@ -57,7 +57,7 @@ plt.show()
 print(n)
 
 
-
+'''
 
 
 
