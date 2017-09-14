@@ -15,7 +15,7 @@ else:
 folders = os.listdir('cell_data/image')
 
 for folder in folders:
-    #try:
+    try:
         image,image284,image572m,mask,tmask,maskm,ncratio,ncratio_num,ncratio_,ncratio_num_ = [],[],[],[],[],[],[],[],[],[]
         files = os.listdir('cell_data/image/%s' % folder)
         for i,file in enumerate(files):
@@ -72,8 +72,8 @@ for folder in folders:
         pro.save(ncratio_num, 'data/%s' % folder, 'ncratio_num10')
         pro.save(ncratio_num_, 'data/%s' % folder, 'ncratio_num100')   
         print(folder + ' done')
-    #except:
-        #print('unable to process ' + folder)
+    except:
+        print('unable to process ' + folder)
 
 
 
