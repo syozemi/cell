@@ -102,7 +102,7 @@ learningtime = 100
 for i in range(learningtime):
     r = np.random.choice([True,False],size=(len(image),),p=[0.3,0.7])
     image_tmp = np.compress(r,image,axis=0)
-    mask_tmp = np.take(r,mask,axis=0)
+    mask_tmp = np.compress(r,mask,axis=0)
     x = Variable(torch.from_numpy(image_tmp).cuda())
     y = Variable(torch.from_numpy(mask_tmp).cuda())
     optimizer.zero_grad()
