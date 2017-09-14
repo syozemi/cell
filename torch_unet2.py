@@ -101,7 +101,7 @@ optimizer = optim.Adam(net.parameters())
 learningtime = 100
 for i in range(learningtime):
     r = random.sample(range(len(image)),100)
-    img_tmp = np.take(image,r)
+    image_tmp = np.take(image,r)
     mask_tmp = np.take(mask,r)
     x = Variable(torch.from_numpy(image_tmp).cuda())
     y = Variable(torch.from_numpy(mask_tmp).cuda())
