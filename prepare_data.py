@@ -72,7 +72,8 @@ for folder in folders:
         pro.save(ncratio_num, 'data/%s' % folder, 'ncratio_num10')
         pro.save(ncratio_num_, 'data/%s' % folder, 'ncratio_num100')   
         print(folder + ' done')
-    except:
+    except Exception as e:
+        print(str(e))
         print('unable to process ' + folder)
 
 
