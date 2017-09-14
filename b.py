@@ -46,7 +46,7 @@ sub = fig.add_subplot(1,3,3)
 sub.imshow(nn,cmap='gray')
 plt.show()
 
-
+print(n)
 
 
 
