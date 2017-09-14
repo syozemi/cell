@@ -19,6 +19,7 @@ for folder in folders:
         image,image284,image572m,mask,tmask,maskm,ncratio,ncratio_num,ncratio_,ncratio_num_ = [],[],[],[],[],[],[],[],[],[]
         files = os.listdir('cell_data/image/%s' % folder)
         for i,file in enumerate(files):
+            print(file)
 
             #画像のパス
             image_path = 'cell_data/image/%s/%s' % (folder,file)
