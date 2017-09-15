@@ -43,6 +43,22 @@ class Up(nn.Module):
         out = self.activation(self.norm(self.conv2(out)))
         return out
 
+class MulWeight(nn.Module):
+    def __init__(self, weight):
+        super(MulWeight, self).__init__()
+        self.w0 = weight[0]
+        self.w1 = weight[1]
+        self.w2 = weight[2]
+
+    def forward(self,x):
+        s0 = x[:,0,:,:]
+        s1 = x[:,1,:,:]
+        s2 = x[:,2,:,:]
+        s0 = torch.mul(s0,self.w0)
+        s1 = torch.mul(s1,self.w1)
+        s2 = torch.mul(s2,self.w2)
+        out = torch.stack([s0,s1,s2],1)
+        return out
 
 class Net(nn.Module):
     def __init__(self):
@@ -62,19 +78,7 @@ class Net(nn.Module):
         self.up3 = Up(32,16)
         self.up4 = Up(16,8)
         self.last = nn.Conv2d(8,3,1)
-
-    def mul_weight(self,score,weight):
-        #score.shape: (batch_num,3,height,width)
-        #weight: 3d vec
-        w0,w1,w2 = weight[0],weight[1],weight[2]
-        batch_size, n_channels, score_width, score_height = score.size()
-        score0,score1,score2 = score[:,0,:,:],score[:,1,:,:],score[:,2,:,:]
-        score0 = torch.mul(score0,w0)
-        score1 = torch.mul(score0,w1)
-        score2 = torch.mul(score0,w2)
-        res = torch.stack([score0,score1,score2],1)
-        print(res.size())
-        return res
+        self.weight = MulWeight([1,1,1])
 
     def forward(self, x):
         block1 = self.conv_1_8(x)
@@ -99,9 +103,11 @@ class Net(nn.Module):
 
         up4 = self.up4(up3,block1)
 
-        score = self.last(up4)
+        raw_score = self.last(up4)
 
-        return F.softmax(self.mul_weight(score,[0.5,1.0,1.0]))
+        score = self.weight(raw_score)
+
+        return F.softmax(score)
 
 image, mask = pro.load_data_unet_torch()
 
