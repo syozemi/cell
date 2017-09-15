@@ -43,6 +43,7 @@ class Up(nn.Module):
         out = self.activation(self.norm(self.conv2(out)))
         return out
 
+
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
@@ -71,6 +72,7 @@ class Net(nn.Module):
         score0 = torch.mul(score0,w0)
         score1 = torch.mul(score0,w1)
         score2 = torch.mul(score0,w2)
+        print(score0.size())
         return torch.stack([score0,score1,score2],1)
 
     def forward(self, x):
