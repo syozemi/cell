@@ -100,7 +100,7 @@ class Net(nn.Module):
 
         return F.softmax(self.mul_weight(score,[0.5,1.0,1.0]))
 
-image, mask, tmask = pro.load_data_unet_torch()
+image, mask = pro.load_data_unet_torch()
 
 image = image.reshape(350,1,572,572).astype(np.float32)
 mask = mask.reshape(350,3,388,388).astype(np.float32)
@@ -126,9 +126,8 @@ for i in range(learningtime):
         pred = pred[1]
         pred = pred.cpu()
         pred = pred.data.numpy()
-        tmaskk = tmask[r:r+30,...]
-        correct = len(np.where(pred==tmaskk)[0])
-        acc = correct / tmaskk.size
+        correct = len(np.where(pred==maskk)[0])
+        acc = correct / maskk.size
         print('======================')
         print(loss)
         print(acc)

@@ -94,50 +94,43 @@ class Net(nn.Module):
         return F.softmax(self.last(up4))
 
 
-net = torch.load('model/torchmodel')
+net = torch.load('model/torchmodel_unet2')
 
-image, mask, tmask = pro.load_data_unet_torch()
+image, mask = pro.load_data_unet_torch2()
 
-image = image.reshape(350,1,572,572).astype(np.float32)
-mask = mask.reshape(350,388,388,3)
-n = random.randint(0,350)
+image = image.reshape(350,1,288,288).astype(np.float32)
+mask = mask.reshape(350,3,196,196).astype(np.float32)
+n = random.randint(0,349)
 
-image = image[n,:,:,:].reshape(1,1,572,572)
-mask = mask[n,:,:,:]
+image = image[n,:,:,:].reshape(1,1,288,288)
+mask = mask[n,:,:,:].reshape(1,3,196,196)
 
 out = net(Variable(torch.from_numpy(image).cuda()))
 
+'''
 _, pred = torch.max(out,1)
 pred = pred.cpu()
 pred = pred.data.numpy()
-pred = pred.reshape(388,388)
+pred = pred.reshape(196,196)
 
-cell = np.zeros((388,388))
-nuc = np.zeros((388,388))
-
-for i,x_ in enumerate(pred):
-    for j,y_ in enumerate(x_):
-        if y_ == 0:
-            cell[i,j] = 0
-            nuc[i,j] = 0
-        elif y_ == 1:
-            cell[i,j] = 1
-            nuc[i,j] = 0
-        else:
-            cell[i,j] = 1
-            nuc[i,j] = 1
 
 print(len(np.where(pred==0)[0]))
 print(len(np.where(pred==1)[0]))
 print(len(np.where(pred==2)[0]))
+'''
 
-cell_ = mask[:,:,1]
-nuc_ = mask[:,:,2]
-cell_ = cell_ + nuc_
+out = out.cpu()
+out = out.data.numpy()
+
+cell = out[1,:,:]
+nuc = out[2,:,:]
+
+cell_ = mask[1,:,:]
+nuc_ = mask[2,:,:]
 
 fig = plt.figure(figsize=(8,8))
 sub = fig.add_subplot(2,3,1)
-sub.imshow(image.reshape(572,572),cmap='gray')
+sub.imshow(image.reshape(288,288),cmap='gray')
 sub = fig.add_subplot(2,3,2)
 sub.imshow(cell_,cmap='gray')
 sub = fig.add_subplot(2,3,3)
