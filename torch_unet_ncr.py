@@ -6,9 +6,7 @@ import torch.optim as optim
 import numpy as np
 import process_data as pro
 import pickle
-import matplotlib.pyplot as plt
 import random
-
 
 class Conv(nn.Module):
     def __init__(self, ins, outs, activation=F.relu):
@@ -62,6 +60,7 @@ class MulWeight(nn.Module):
         out = torch.stack([s0,s1,s2],1)
         return out
 
+
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
@@ -81,6 +80,9 @@ class Net(nn.Module):
         self.up4 = Up(16,8)
         self.last = nn.Conv2d(8,3,1)
         self.weight = MulWeight([0.8,1,1])
+
+    def calculate_ncr(self,mask):
+        
 
     def forward(self, x):
         block1 = self.conv_1_8(x)
@@ -111,53 +113,28 @@ class Net(nn.Module):
 
         return F.softmax(score)
 
-net = torch.load('model/torchmodel_unet')
-
-image, mask = pro.load_data_unet_torch2()
-
-image = image.reshape(350,1,572,572).astype(np.float32)
-mask = mask.reshape(350,3,388,388).astype(np.float32)
-n = random.randint(0,349)
-
-image = image[n].reshape(1,1,572,572)
-mask = mask[n].reshape(3,388,388)
-
-out = net(Variable(torch.from_numpy(image).cuda()))
 
 
-'''
-_, pred = torch.max(out,1)
-pred = pred.cpu()
-pred = pred.data.numpy()
-pred = pred.reshape(196,196)
 
 
-print(len(np.where(pred==0)[0]))
-print(len(np.where(pred==1)[0]))
-print(len(np.where(pred==2)[0]))
-'''
 
-out = out.cpu()
-out = out.data.numpy()
-print(out.shape)
-out = out.reshape(3,388,388)
 
-cell = out[1]
-nuc = out[2]
 
-cell_ = mask[1]
-nuc_ = mask[2]
 
-fig = plt.figure(figsize=(8,8))
-sub = fig.add_subplot(2,3,1)
-sub.imshow(image.reshape(572,572),cmap='gray')
-sub = fig.add_subplot(2,3,2)
-sub.imshow(cell_,cmap='gray')
-sub = fig.add_subplot(2,3,3)
-sub.imshow(nuc_,cmap='gray')
-sub = fig.add_subplot(2,3,5)
-sub.imshow(cell,cmap='gray')
-sub = fig.add_subplot(2,3,6)
-sub.imshow(nuc,cmap='gray')
 
-plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
