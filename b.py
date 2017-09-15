@@ -5,7 +5,6 @@ import random
 import pickle
 import numpy as np
 import time
-import batch
 import cv2 as cv
 import torch
 from torch.autograd import Variable

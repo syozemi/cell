@@ -4,7 +4,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import numpy as np
-import batch
 import process_data as pro
 import pickle
 import random
@@ -88,9 +87,7 @@ class Net(nn.Module):
 image, mask, tmask = pro.load_data_unet_torch2()
 
 image = image.reshape(350,1,284,284).astype(np.float32)
-mask = mask.reshape(350,196,196,3).astype(np.float32)
-mask = np.swapaxes(mask,1,3)
-mask = np.swapaxes(mask,2,3)
+mask = mask.astype(np.float32)
 
 net = Net()
 net.cuda()
@@ -98,7 +95,7 @@ net.cuda()
 criterion = nn.MSELoss()
 optimizer = optim.Adam(net.parameters())
 
-learningtime = 100
+learningtime = 2000
 for i in range(learningtime):
     r = np.random.choice([True,False],size=(len(image),),p=[0.3,0.7])
     image_tmp = np.compress(r,image,axis=0)
