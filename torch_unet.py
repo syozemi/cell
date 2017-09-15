@@ -65,7 +65,7 @@ class Net(nn.Module):
     def mul_weight(self,score,weight):
         #score.shape: (batch_num,3,height,width)
         #weight: 3d vec
-        w0,w1,w2 = weight
+        w0,w1,w2 = weight[0],weight[1],weight[2]
         batch_size, n_channels, score_width, score_height = score.size()
         score0,score1,score2 = score[:,0,:,:],score[:,1,:,:],score[:,2,:,:]
         score0 = torch.mul(score0,w0)
