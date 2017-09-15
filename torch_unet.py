@@ -14,10 +14,11 @@ class Conv(nn.Module):
         self.conv1 = nn.Conv2d(ins,outs,3)
         self.conv2 = nn.Conv2d(outs,outs,3)
         self.activation = activation
+        self.norm = nn.BatchNorm2d(outs)
 
     def forward(self,x):
-        out = self.activation(self.conv1(x))
-        out = self.activation(self.conv2(out))
+        out = self.activation(self.norm(self.conv1(x)))
+        out = self.activation(self.norm(self.conv2(out)))
         return out
 
 class Up(nn.Module):
@@ -27,6 +28,7 @@ class Up(nn.Module):
         self.conv1 = nn.Conv2d(ins,outs,3)
         self.conv2 = nn.Conv2d(outs,outs,3)
         self.activation = activation
+        self.norm = nn.BatchNorm2d(outs)
 
     def crop(self, layer, target_size):
         batch_size, n_channels, layer_width, layer_height = layer.size()
@@ -37,8 +39,8 @@ class Up(nn.Module):
         up = self.up(x)
         crop = self.crop(bridge,up.size()[2])
         out = torch.cat([up,crop],1)
-        out = self.activation(self.conv1(out))
-        out = self.activation(self.conv2(out))
+        out = self.activation(self.norm(self.conv1(out)))
+        out = self.activation(self.norm(self.conv2(out)))
         return out
 
 class Net(nn.Module):
@@ -60,10 +62,16 @@ class Net(nn.Module):
         self.up4 = Up(16,8)
         self.last = nn.Conv2d(8,3,1)
 
-    def crop(self, layer, target_size):
-        batch_size, n_channels, layer_width, layer_height = layer.size()
-        xy1 = (layer_width - target_size) // 2
-        return layer[:, :, xy1:(xy1 + target_size), xy1:(xy1 + target_size)]
+    def mul_weight(self,score,weight):
+        #score.shape: (batch_num,3,height,width)
+        #weight: 3d vec
+        w0,w1,w2 = weight
+        batch_size, n_channels, score_width, score_height = score.size()
+        score0,score1,score2 = score[:,0,:,:],score[:,1,:,:],score[:,2,:,:]
+        score0 = torch.mul(score0,w0)
+        score1 = torch.mul(score0,w1)
+        score2 = torch.mul(score0,w2)
+        return torch.stack([score0,score1,score2],1)
 
     def forward(self, x):
         block1 = self.conv_1_8(x)
@@ -88,14 +96,14 @@ class Net(nn.Module):
 
         up4 = self.up4(up3,block1)
 
-        return F.softmax(self.last(up4))
+        score = self.last(up4)
+
+        return F.softmax(self.mul_weight(score,[0.5,1.0,1.0]))
 
 image, mask, tmask = pro.load_data_unet_torch()
 
 image = image.reshape(350,1,572,572).astype(np.float32)
-mask = mask.reshape(350,388,388,3).astype(np.float32)
-mask = np.swapaxes(mask,1,3)
-mask = np.swapaxes(mask,2,3)
+mask = mask.reshape(350,3,388,388).astype(np.float32)
 
 net = Net()
 net.cuda()

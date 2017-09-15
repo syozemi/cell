@@ -27,10 +27,10 @@ for folder in folders:
                 npath = 'cell_data/mask/%s/%s' % (folder,file.replace('.jpg', '.mask.1.png'))
 
                 #画像をグレースケールで取得して拡大し正規化する
-                image = cv.resize(cv.imread(ipath,0)/255,(288,288))
+                image = cv.resize(cv.imread(ipath,0)/255,(572,572))
 
                 #３クラスのマスクを作る
-                mask = pro.create_mask_label(cpath,npath,196)
+                mask = pro.create_mask_label(cpath,npath,388)
 
                 images.append(image)
                 masks.append(mask)
