@@ -78,7 +78,7 @@ class Net(nn.Module):
         self.up3 = Up(32,16)
         self.up4 = Up(16,8)
         self.last = nn.Conv2d(8,3,1)
-        self.weight = MulWeight([1,1,1])
+        self.weight = MulWeight([0.8,1,1])
 
     def forward(self, x):
         block1 = self.conv_1_8(x)
