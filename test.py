@@ -95,7 +95,7 @@ mask = mask.reshape(350,3,196,196).astype(np.float32)
 n = random.randint(0,349)
 
 image = image[n].reshape(1,1,288,288)
-mask = mask[n].reshape(1,3,196,196)
+mask = mask[n].reshape(3,196,196)
 
 out = net(Variable(torch.from_numpy(image).cuda()))
 
