@@ -113,6 +113,7 @@ print(len(np.where(pred==2)[0]))
 
 out = out.cpu()
 out = out.data.numpy()
+out = out.reshape(3,196,196)
 
 cell = out[1,:,:]
 nuc = out[2,:,:]
