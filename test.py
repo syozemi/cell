@@ -111,7 +111,7 @@ class Net(nn.Module):
 
         return F.softmax(score)
 
-net = torch.load('model/torchmodel_unet')
+net = torch.load('model/torchmodel')
 
 image, mask = pro.load_data_unet_torch2()
 
