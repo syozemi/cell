@@ -13,7 +13,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from collections import defaultdict
 
-image,mask,tmask = pro.load_data_unet_torch2()
+image,mask = pro.load_data_unet_torch()
 
 print(image.shape)
 
@@ -21,7 +21,7 @@ print(mask.shape)
 
 n = random.randint(0,350)
 
-image = image[n,...].reshape(284,284)
+image = image[n,...].reshape(572,572)
 mask = mask[n,...]
 
 cc = mask[1,:,:]
@@ -43,7 +43,8 @@ for x in nn:
 print(d)
 
 print(d2)
-'''
+
+
 fig = plt.figure(figsize=(10,10))
 sub = fig.add_subplot(1,3,1)
 sub.imshow(image,cmap='gray')
@@ -54,9 +55,6 @@ sub.imshow(nn,cmap='gray')
 plt.show()
 
 print(n)
-
-
-'''
 
 
 
