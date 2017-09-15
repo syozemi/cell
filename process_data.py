@@ -3,26 +3,13 @@ import matplotlib.pyplot as plt
 import pickle
 import os
 import random
-
-#shapeで指定したサイズでinput_arrayを真ん中で切り抜く
-def crop(input_array, shape):
-    shape_ = input_array.shape
-    a,b,c,d = shape_[0],shape_[1],shape[0],shape[1]
-    nx = (a - c) // 2
-    ny = (b - d) // 2
-    res = np.zeros(c * d * 3).reshape(c, d, 3)
-    for i in range(c):
-        for j in range(d):
-            res[i][j] = input_array[nx + i][ny + j]
-
-    return res
+import cv2 as cv
 
 #画像をグレースケールに変換。
 def rgb2gray(rgb):
     gray = np.dot(rgb, [0.299, 0.587, 0.114])
     gray = gray / 255.0
     return gray
-
 
 #折りたたんで拡張。
 def replicate(input_array, h_or_v, m):
@@ -55,28 +42,41 @@ def save(obj,directory,filename):
     with open(path, 'wb') as f:
         pickle.dump(obj,f)
 
-def flip(x):
-    if x == 0.:
-        return 1.
-    else:
-        return 0.
+def create_mask_label(cpath, npath, size):
+    cytoplasm,nucleus = [cv.imread(x)[3:,:,2]/255 for x in [cpath,npath]]
+    #cytoplasm = cv.imread(cpath)[3:,:,2]
+    #nucleus = cv.imread(npath)[3:,:,2]
 
-def create_mask_label(cell, nucleus):
-    l = []
-    cell = np.round(cell)
-    nuc = np.round(nucleus)
-    a = [flip(x) for x in cell.flatten()]
-    a = np.array(a).reshape(cell.shape)
-    _ = [l.append(x) for x in [a,cell,nucleus]]
-    return np.array(l)
+    cytoplasm,nucleus = [cv.resize(x,(size,size)) for x in [cytoplasm,nucleus]]
+    #cytoplasm = cv.resize(cytoplasm,(size,size))
+    #nucleus = cv.resize(nucleus,(size,size))
 
-def create_torch_mask_label(cell,nucleus):
-    l = cell + nucleus
-    return l.astype(np.int)
+    cytoplasm,nucleus = [np.round(x) for x in [cytoplasm,nucleus]]
+    #cytoplasm = np.round(cytoplasm)
+    #nucleus = np.round(nucleus)
 
-def load(path):
-    with open(path,'rb') as f:
-        return pickle.load(f)
+    for i in range(size):
+        for j in range(size):
+            if cytoplasm[i][j] == 0 and nucleus[i][j] == 1:
+                cytoplasm[i][j] += 1
+
+    background = np.ones((size,size)) - cytoplasm
+
+    cytoplasm = cytoplasm - nucleus
+
+    mask = []
+    _,_,_ = [mask.append(x) for x in [background,cytoplasm,nucleus]]
+    #mask.append(background)
+    #mask.append(cytoplasm)
+    #mask.append(nucleus)
+    mask = np.array(mask)
+
+    return mask
+
+
+#==================================================
+#LOADING FUNCTIONS
+#==================================================
 
 def load_data_cnn():
     print('loading data for cnn...')
@@ -200,40 +200,3 @@ def load_data_wnet_for_test():
     print('loading done')
     return image.astype(np.float32), mask.astype(np.float32), tmask
 
-
-
-def check():
-    img, ncr = load_data_cnn()
-    image, mask = load_data_unet()
-
-    n = 50
-
-    l = random.sample(range(len(img)),1)
-
-    i = img[l[0]]
-    r = ncr[l[0]]
-    im = image[l[0]]
-    c = mask[l[0],:,:,1]
-    nu = mask[l[0],:,:,2]
-
-    fig = plt.figure(figsize=(6,6))
-
-    subplot = fig.add_subplot(2,2,1)
-    subplot.imshow(i,cmap='gray')
-    subplot = fig.add_subplot(2,2,2)
-    subplot.imshow(im,cmap='gray')
-    subplot = fig.add_subplot(2,2,3)
-    subplot.imshow(c,cmap='gray')
-    subplot = fig.add_subplot(2,2,4)
-    subplot.imshow(nu,cmap='gray')
-
-    plt.show()
-
-    cel = np.sum(c)
-    nuc = np.sum(nu)
-
-
-    for x in c[180]:
-        print(x)
-    print(int((nuc/cel)//0.1))
-    print(r)
