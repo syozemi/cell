@@ -16,7 +16,7 @@ folders = os.listdir('cell_data/image')
 
 for folder in folders:
     try:
-        images,masks = [],[]
+        images,masks,ncratio = [],[],[]
         files = os.listdir('cell_data/image/%s' % folder)
         for i,file in enumerate(files):
 
@@ -32,8 +32,12 @@ for folder in folders:
                 #３クラスのマスクを作る
                 mask = pro.create_mask_label(cpath,npath,388)
 
+                #マスクからnc比を計算する
+                ncr = pro.create_ncratio(mask)
+
                 images.append(image)
                 masks.append(mask)
+                ncratio.append(ncr)
 
             except Exception as e:
                 print(str(e))
@@ -43,8 +47,10 @@ for folder in folders:
 
         images = np.array(images)
         masks = np.array(masks)
+        ncratio = np.array(ncratio)
         pro.save(images, 'data/%s' % folder, 'image')
         pro.save(masks, 'data/%s' % folder, 'mask')
+        pro.save(ncratio, 'data/%s' % folder, 'ncratio')
         print('%s done' % folder)
                 
     except Exception as e:

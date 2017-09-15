@@ -73,6 +73,17 @@ def create_mask_label(cpath, npath, size):
 
     return mask
 
+def create_ncratio(mask):
+    #maskは(3,n,n)
+    cytoplasm = mask[1]
+    nucleus = mask[2]
+    c = np.sum(cytoplasm + nucleus)
+    n = np.sum(nucleus)
+    p = int((n / c) // 0.01)
+    ncr = [0]*100
+    ncr[p] += 1
+    return np.array(ncr)
+
 
 #==================================================
 #LOADING FUNCTIONS
