@@ -116,11 +116,11 @@ out = out.data.numpy()
 print(out.shape)
 out = out.reshape(3,196,196)
 
-cell = out[1,:,:]
-nuc = out[2,:,:]
+cell = out[1]
+nuc = out[2]
 
-cell_ = mask[1,:,:]
-nuc_ = mask[2,:,:]
+cell_ = mask[1]
+nuc_ = mask[2]
 
 fig = plt.figure(figsize=(8,8))
 sub = fig.add_subplot(2,3,1)
