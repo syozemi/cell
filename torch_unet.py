@@ -72,8 +72,9 @@ class Net(nn.Module):
         score0 = torch.mul(score0,w0)
         score1 = torch.mul(score0,w1)
         score2 = torch.mul(score0,w2)
-        print(score0.size())
-        return torch.stack([score0,score1,score2],1)
+        res = torch.stack([score0,score1,score2],1)
+        print(res.size())
+        return res
 
     def forward(self, x):
         block1 = self.conv_1_8(x)
