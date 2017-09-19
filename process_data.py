@@ -193,7 +193,8 @@ def load_data_unet_ncr():
             image,mask,ncratio = [load(x) for x in [ipath,mpath,npath]]
         else:
             img,msk,ncr = [load(x) for x in [ipath,mpath,npath]]
-            image, mask, ncratio = [np.vstack(x) for x in [(image,img),(mask,msk),(ncratio,ncr)]]
+            image, mask = [np.vstack(x) for x in [(image,img),(mask,msk)]]
+            ncratio = np.hstack((ncratio,ncr))
     print('loading done')
     return image, mask, ncratio
 

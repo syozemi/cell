@@ -175,7 +175,7 @@ def eval(model_path,test_data,answers):
         n = len(np.where(x==2)[0])
         ncr = (c / n) // 0.01
         ncpred.append(int(ncr))
-
+    
     print(type(ncpred))
     print(type(answers))
     print(len(ncpred))
