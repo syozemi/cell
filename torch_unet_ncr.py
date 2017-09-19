@@ -121,7 +121,7 @@ class Criterion(nn.Module):
         batch_size,features,height,width = x.size()
         mask_loss = self.mask_criterion(x,mask)
         _,pred = torch.max(x,1)
-        ones = torch.ones((batch_size,1,height,width)).double()
+        ones = torch.ones((batch_size,1,height,width)).long()
         ones = Variable(ones.cuda())
         c = torch.ge(pred,ones)
         n = torch.gt(pred,ones)
