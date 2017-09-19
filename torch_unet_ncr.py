@@ -127,7 +127,9 @@ class Criterion(nn.Module):
         n = torch.gt(pred,ones)
         c = torch.sum(torch.sum(c,2),2)
         n = torch.sum(torch.sum(n,2),2)
+        print(n.size())
         ncr = torch.div(n,c)
+        print(ncr.size())
         ncr_loss = self.ncr_criterion(ncr,ncratio)
         return ratio[0]*mask_loss + ratio[1]*ncr_loss
 
