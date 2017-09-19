@@ -8,6 +8,7 @@ import process_data as pro
 import pickle
 import random
 from collections import defaultdict
+import os
 
 
 class Conv(nn.Module):
