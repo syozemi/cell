@@ -189,6 +189,8 @@ def eval(model_path,test_data,answers):
     target_names = list(map(str,range(100)))
     print(classification_report(ncpred.tolist(), answers.tolist(), target_names=target_names))
     ###
+    print(ncpred.tolist())
+    print(answers.tolist())
 
     for p,a in zip(ncpred, answers):
         diff = np.absolute(p-a)
@@ -206,5 +208,3 @@ def eval(model_path,test_data,answers):
 
 if __name__ == '__main__':
     train()
-
-
