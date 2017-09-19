@@ -133,7 +133,7 @@ def load_data_unet():
     image,mask = [],[]
     for i,folder in enumerate(folders):
         try:
-            ipath = 'data/%s/image572' % folder
+            ipath = 'data/%s/image' % folder
             mpath = 'data/%s/mask' % folder
             img, msk = [load(x) for x in [ipath, mpath]]
             image.append(img)
@@ -179,6 +179,23 @@ def load_data_unet_torch():
             image, mask, nmask = [np.vstack(x) for x in [(image,img),(mask,msk),(nmask,nmsk)]]
     print('loading done')
     return image, mask, nmask
+
+def load_data_unet_ncr():
+    print('loading')
+    folders = os.listdir('data')
+    if '.DS_Store' in folders:
+        folders.remove('.DS_Store')
+    for i,folder in enumerate(folders):
+        ipath = 'data/%s/image' % folder
+        mpath = 'data/%s/mask' % folder
+        npath = 'data/%s/ncratio' % folder
+        if i == 0:
+            image,mask,ncratio = [load(x) for x in [ipath,mpath,npath]]
+        else:
+            img,msk,ncr = [load(x) for x in [ipath,mpath,npath]]
+            image, mask, ncratio = [np.vstack(x) for x in [(image,img),(mask,msk),(ncratio,ncr)]]
+    print('loading done')
+    return image, mask, ncratio
 
 def load_data_unet_torch2():
     print('loading')
