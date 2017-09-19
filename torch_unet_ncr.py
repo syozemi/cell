@@ -144,6 +144,10 @@ def ncr_calculator(x):
 def train():
     image, mask, ncratio = pro.load_data_unet_ncr()
 
+    image = image.reshape(350,1,572,572).astype(np.float32)
+    mask = mask.reshape(350,3,388,388).astype(np.float32)
+    ncratio = ncratio.reshape(350,1,1,100).astype(np.float32)
+
     net = Net()
     net.cuda()
 
