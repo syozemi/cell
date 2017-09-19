@@ -194,8 +194,7 @@ def eval(model_path,test_data,answers):
 
     for p,a in zip(ncpred, answers):
         diff = np.absolute(p-a)
-        print(type(diff))
-        if diff <= 5:
+        if p == a:
             correct += 1
         else:
             pass

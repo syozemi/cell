@@ -116,8 +116,8 @@ image,mask,ncratio = pro.load_data_unet_ncr()
 
 image = image.reshape(350,1,572,572).astype(np.float32)
 mask = mask.reshape(350,3,388,388).astype(np.float32)
-image = image[:10]
-ncratio = ncratio[:10]
+image = image[90:100]
+ncratio = ncratio[90:100]
 
 torch_unet.eval('model/torchmodel',image,ncratio)
 
