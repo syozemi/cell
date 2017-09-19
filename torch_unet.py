@@ -9,8 +9,7 @@ import pickle
 import random
 import os
 from collections import defaultdict
-from sk
-
+from sklearn.metrics import classification_report
 
 
 class Conv(nn.Module):
