@@ -176,11 +176,17 @@ def eval(model_path,test_data,answers):
         ncr = (c / n) // 0.01
         ncpred.append(int(ncr))
 
+    print(type(ncpred))
+    print(type(answers))
+    print(len(ncpred))
+    print(len(answers))
+
     #check
     correct = 0
     diff_dict = defaultdict(int)
     for p,a in zip(ncpred, answers):
         diff = np.absolute(p-a)
+        print(type(diff))
         if diff <= 5:
             correct += 1
         else:
