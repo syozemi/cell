@@ -172,10 +172,14 @@ def eval(model_path,test_data,answers):
     ncpred = []
     for x in pred:
         c = len(np.where(x>=1)[0])
+        print(c)
         n = len(np.where(x==2)[0])
+        print(n)
         ncr = (c / n) // 0.01
+        print(ncr)
         ncpred.append(int(ncr))
-    
+
+    ncpred = np.array(ncpred)
     print(type(ncpred))
     print(type(answers))
     print(len(ncpred))
@@ -184,6 +188,8 @@ def eval(model_path,test_data,answers):
     #check
     correct = 0
     diff_dict = defaultdict(int)
+    print(ncpred)
+    print(answers)
     for p,a in zip(ncpred, answers):
         diff = np.absolute(p-a)
         print(type(diff))
