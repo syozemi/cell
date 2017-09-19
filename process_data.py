@@ -188,7 +188,7 @@ def load_data_unet_ncr():
     for i,folder in enumerate(folders):
         ipath = 'data/%s/image' % folder
         mpath = 'data/%s/mask' % folder
-        npath = 'data/%s/ncratio' % folder
+        npath = 'data/%s/num_ncratio' % folder
         if i == 0:
             image,mask,ncratio = [load(x) for x in [ipath,mpath,npath]]
         else:
