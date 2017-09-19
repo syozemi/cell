@@ -9,6 +9,7 @@ import pickle
 import random
 import os
 from collections import defaultdict
+from sk
 
 
 
@@ -180,16 +181,16 @@ def eval(model_path,test_data,answers):
         ncpred.append(int(ncr))
 
     ncpred = np.array(ncpred)
-    print(type(ncpred))
-    print(type(answers))
-    print(len(ncpred))
-    print(len(answers))
 
     #check
     correct = 0
     diff_dict = defaultdict(int)
-    print(ncpred)
-    print(answers)
+
+    ###
+    target_names = list(map(str,range(100)))
+    print(classification_report(ncpred.tolist(), answers.tolist(), target_names=target_names))
+    ###
+
     for p,a in zip(ncpred, answers):
         diff = np.absolute(p-a)
         print(type(diff))
