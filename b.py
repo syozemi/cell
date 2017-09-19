@@ -13,7 +13,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from collections import defaultdict
 
-image,mask = pro.load_data_unet_torch()
+image,mask,nmask = pro.load_data_unet_torch()
 
 print(image.shape)
 
