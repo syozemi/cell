@@ -119,7 +119,7 @@ mask = mask.reshape(350,3,388,388).astype(np.float32)
 image = image[:10]
 ncratio = ncratio[:10]
 
-torch_unet.eval('model/torchmodel_unet0',image,ncratio)
+torch_unet.eval('model/torchmodel',image,ncratio)
 
 
 
