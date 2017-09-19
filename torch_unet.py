@@ -120,7 +120,7 @@ def train():
     net.cuda()
     criterion = nn.MSELoss().cuda()
     optimizer = optim.Adam(net.parameters())
-    learningtime = 5000
+    learningtime = 5
     for i in range(learningtime):
         r = random.randint(0,329)
         tmp_image = image[r:r+20,...]
