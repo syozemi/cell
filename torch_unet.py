@@ -7,8 +7,9 @@ import numpy as np
 import process_data as pro
 import pickle
 import random
-from collections import defaultdict
 import os
+from collections import defaultdict
+
 
 
 class Conv(nn.Module):
@@ -121,7 +122,7 @@ def train():
     net.cuda()
     criterion = nn.MSELoss().cuda()
     optimizer = optim.Adam(net.parameters())
-    learningtime = 5
+    learningtime = 10
     for i in range(learningtime):
         r = random.randint(0,329)
         tmp_image = image[r:r+20,...]
