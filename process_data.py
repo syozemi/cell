@@ -15,12 +15,15 @@ def rgb2gray(rgb):
 def replicate(input_array, h_or_v, m):
     n = input_array.shape[0]
     a = np.identity(n)
+
     if h_or_v == 'h':
         a = np.hstack((a[:,:m][:,::-1],a,a[:,n-m:][:,::-1]))
         return np.dot(input_array, a)
+
     elif h_or_v == 'v':
         a = np.vstack((a[:m,:][::-1,:],a,a[n-m:,:][::-1,:]))
         return np.dot(a, input_array)
+
     else:
         print('put "h" or "v" as 2nd parameter')
 
@@ -29,8 +32,10 @@ def replicate(input_array, h_or_v, m):
 def mirror(input_array, output_size):
     n = input_array.shape[0]
     m = (output_size - n) // 2
+
     input_array = replicate(input_array, 'h', m)
     input_array = replicate(input_array, 'v', m)
+
     return input_array
 
 def save(obj,directory,filename):
@@ -38,10 +43,13 @@ def save(obj,directory,filename):
         os.mkdir(directory)
     else:
         pass
-    path = directory + '/' + filename
+
+    path = '%s/%s' % (directory, filename)
+
     with open(path, 'wb') as f:
         pickle.dump(obj,f)
 
+#マスクデータを作る
 def create_mask_label(cpath, npath, size):
     cytoplasm,nucleus = [cv.imread(x)[3:,:,2]/255 for x in [cpath,npath]]
     #cytoplasm = cv.imread(cpath)[3:,:,2]
@@ -51,6 +59,7 @@ def create_mask_label(cpath, npath, size):
     #cytoplasm = cv.resize(cytoplasm,(size,size))
     #nucleus = cv.resize(nucleus,(size,size))
 
+    #cytoplasm, nucleus = [cv.adaptiveThreshold(x, 1, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 20, 2) for x in [cytoplasm,nucleus]]
     cytoplasm,nucleus = [np.round(x) for x in [cytoplasm,nucleus]]
     #cytoplasm = np.round(cytoplasm)
     #nucleus = np.round(nucleus)
@@ -65,29 +74,38 @@ def create_mask_label(cpath, npath, size):
     cytoplasm = cytoplasm - nucleus
 
     mask = []
-    _,_,_ = [mask.append(x) for x in [background,cytoplasm,nucleus]]
+    _ = [mask.append(x) for x in [background,cytoplasm,nucleus]]
     #mask.append(background)
     #mask.append(cytoplasm)
     #mask.append(nucleus)
     mask = np.array(mask)
 
-    return mask
+    mask_num = mask[0]*0 + mask[1]*1 + mask[2]*2
+
+    return mask, mask_num
 
 def create_ncratio(mask):
     #maskは(3,n,n)
     cytoplasm = mask[1]
     nucleus = mask[2]
+
     c = np.sum(cytoplasm + nucleus)
     n = np.sum(nucleus)
+
     p = int((n / c) // 0.01)
     ncr = [0]*100
     ncr[p] += 1
-    return np.array(ncr)
 
+    return np.array(ncr), p
 
-#==================================================
+    
+
+#=========================================================
+#=========================================================
 #LOADING FUNCTIONS
-#==================================================
+#=========================================================
+#=========================================================
+
 
 def load(path):
     with open(path,'rb') as f:
@@ -153,13 +171,14 @@ def load_data_unet_torch():
     for i,folder in enumerate(folders):
         ipath = 'data/%s/image' % folder
         mpath = 'data/%s/mask' % folder
+        npath = 'data/%s/num_mask' % folder
         if i == 0:
-            image,mask = [load(x) for x in [ipath,mpath]]
+            image,mask,nmask = [load(x) for x in [ipath,mpath,npath]]
         else:
-            img,msk = [load(x) for x in [ipath,mpath]]
-            image, mask = [np.vstack(x) for x in [(image,img),(mask,msk)]]
+            img,msk,nmsk = [load(x) for x in [ipath,mpath,npath]]
+            image, mask, nmask = [np.vstack(x) for x in [(image,img),(mask,msk),(nmask,nmsk)]]
     print('loading done')
-    return image, mask
+    return image, mask, nmask
 
 def load_data_unet_torch2():
     print('loading')

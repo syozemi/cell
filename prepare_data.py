@@ -16,7 +16,7 @@ folders = os.listdir('cell_data/image')
 
 for folder in folders:
     try:
-        images,masks,ncratio = [],[],[]
+        image,mask,num_mask,ncratio,num_ncratio = [],[],[],[],[]
         files = os.listdir('cell_data/image/%s' % folder)
         for i,file in enumerate(files):
 
@@ -26,18 +26,20 @@ for folder in folders:
                 cpath = 'cell_data/mask/%s/%s' % (folder,file.replace('.jpg', '.mask.0.png'))
                 npath = 'cell_data/mask/%s/%s' % (folder,file.replace('.jpg', '.mask.1.png'))
 
-                #画像をグレースケールで取得して拡大し正規化する
-                image = cv.resize(cv.imread(ipath,0)/255,(572,572))
+                #画像をグレースケールで取得して正規化し拡大する
+                img = cv.resize(cv.imread(ipath,0)/255,(572,572))
 
                 #３クラスのマスクを作る
-                mask = pro.create_mask_label(cpath,npath,388)
+                msk, num_msk = pro.create_mask_label(cpath,npath,388)
 
                 #マスクからnc比を計算する
-                ncr = pro.create_ncratio(mask)
+                ncr, num_ncr = pro.create_ncratio(msk)
 
-                images.append(image)
-                masks.append(mask)
+                image.append(img)
+                mask.append(msk)
+                num_mask.append(num_msk)
                 ncratio.append(ncr)
+                num_ncratio.append(num_ncr)
 
             except Exception as e:
                 print(str(e))
@@ -45,12 +47,19 @@ for folder in folders:
 
             print(str(i), '\r', end='')
 
-        images = np.array(images)
-        masks = np.array(masks)
+
+        image = np.array(image)
+        mask = np.array(mask)
+        num_mask = np.array(num_mask)
         ncratio = np.array(ncratio)
+        num_ncratio = np.array(num_ncratio)
+
         pro.save(images, 'data/%s' % folder, 'image')
         pro.save(masks, 'data/%s' % folder, 'mask')
+        pro.save(num_masks, 'data/%s' % folder, 'num_mask')
         pro.save(ncratio, 'data/%s' % folder, 'ncratio')
+        pro.save(num_ncratio, 'data/%s' % folder, 'num_ncratio')
+
         print('%s done' % folder)
                 
     except Exception as e:

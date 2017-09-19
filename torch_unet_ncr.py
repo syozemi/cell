@@ -80,9 +80,7 @@ class Net(nn.Module):
         self.up4 = Up(16,8)
         self.last = nn.Conv2d(8,3,1)
         self.weight = MulWeight([0.8,1,1])
-
-    def calculate_ncr(self,mask):
-        
+        self.mask_loss = nn.MSELoss()
 
     def forward(self, x):
         block1 = self.conv_1_8(x)
@@ -100,11 +98,8 @@ class Net(nn.Module):
         bottom = self.conv_64_128(pool4)
 
         up1 = self.up1(bottom,block4)
-
         up2 = self.up2(up1,block3)
-
         up3 = self.up3(up2,block2)
-
         up4 = self.up4(up3,block1)
 
         raw_score = self.last(up4)
@@ -114,7 +109,95 @@ class Net(nn.Module):
         return F.softmax(score)
 
 
+class Criterion(nn.Module):
+    def __init__(self, ratio):
+        super(Criterion,self).__init__()
+        self.mask_coefficient = ratio[0]
+        self.ncr_coefficient = ratio[1]
+        self.mask_criterion = nn.MSELoss()
+        self.ncr_criterion = nn.MSELoss()
 
+    def forward(self,x,mask,ncratio):
+        batch_size,features,height,width = x.size()
+        mask_loss = self.mask_criterion(x,mask)
+        _,pred = torch.max(x,1)
+        ones = torch.ones((batch_size,1,height,width))
+        c = torch.ge(pred,ones)
+        n = torch.gt(pred,ones)
+        c = torch.sum(torch.sum(c,2),3)
+        n = torch.sum(torch.sum(n,2),3)
+        ncr = torch.div(n,c)
+        ncr_loss = self.ncr_criterion(ncr,ncratio)
+        return ratio[0]*mask_loss + ratio[1]*ncr_loss
+
+def ncr_calculator(x):
+    batch_size,features,height,width = x.size()
+    _,pred = torch.max(x,1)
+    ones = torch.ones((batch_size,1,height,width))
+    c = torch.ge(pred,ones)
+    n = torch.gt(pred,ones)
+    c = torch.sum(torch.sum(c,2),3)
+    n = torch.sum(torch.sum(n,2),3)
+    ncr = torch.div(torch.div(n,c),0.01)
+    return ncr
+
+def train():
+    image, mask, ncratio = pro.load_data_unet_ncr()
+
+    net = Net()
+    net.cuda()
+
+    criterion = Criterion((1.0,0.5))
+    criterion.cuda()
+
+    optimizer = optim.Adam(net.parameters())
+
+    learningtime = 100
+    for i in range(learningtime):
+        r = random.randint(0,339)
+        x = Variable(torch.from_numpy(image[r:r+10,...]).cuda())
+        y = Variable(torch.from_numpy(mask[r:r+10,...]).cuda())
+        y_ = Variable(torch.from_numpy(ncratio[r:r+10,...]).cuda())
+        optimizer.zero_grad()
+        out = net(x)
+        loss = criterion(out,y,y_)
+        loss.backward()
+        optimizer.step()
+
+        if i % 10 == 0:
+            pred_ncr = ncr_calculator(out)
+            pred_ncr = pred_ncr.cpu()
+            pred_ncr = pred_ncr.data.numpy()
+            pred_ncr = pred_ncr.reshape(n)
+            correct = 0
+            for p,a in zip(pred_ncr, ncratio):
+                if np.absolute(p-a) <= 3:
+                    correct += 1
+                else:
+                    pass
+            acc = correct / len(ncratio)
+
+            print('===========================')
+            print('%s/%s = %s' % (str(correct),str(len(ncratio)),str(acc)))
+            print(loss)
+            print('===========================')
+
+def eval(model_path,test_data,answers):
+    net = torch.load(model_path)
+    net.cuda()
+    x = Variable(torch.from_numpy(test_data).cuda())
+    out = net(x)
+    ncr_prediction = ncr_calculator(out)
+    correct = 0
+    for p,a in zip(ncr_prediction,answers):
+        if np.absolute(p-a) <= 3:
+            correct += 1
+        else:
+            pass
+    print('%s / %s = %s' % (str(correct), str(len(answers)), str(correct/len(answers))))
+
+if __name__ == '__main__':
+    train()
 
 
 

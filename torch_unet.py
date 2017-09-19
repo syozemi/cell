@@ -7,6 +7,8 @@ import numpy as np
 import process_data as pro
 import pickle
 import random
+from collections import defaultdict
+
 
 class Conv(nn.Module):
     def __init__(self, ins, outs, activation=F.relu):
@@ -109,38 +111,86 @@ class Net(nn.Module):
 
         return F.softmax(score)
 
-image, mask = pro.load_data_unet_torch()
 
-image = image.reshape(350,1,572,572).astype(np.float32)
-mask = mask.reshape(350,3,388,388).astype(np.float32)
+def train():
+    image, mask, nmask = pro.load_data_unet_torch()
+    image = image.reshape(350,1,572,572).astype(np.float32)
+    mask = mask.reshape(350,3,388,388).astype(np.float32)
+    net = Net()
+    net.cuda()
+    criterion = nn.MSELoss().cuda()
+    optimizer = optim.Adam(net.parameters())
+    learningtime = 5000
+    for i in range(learningtime):
+        r = random.randint(0,329)
+        tmp_image = image[r:r+20,...]
+        tmp_mask = mask[r:r+20,...]
+        x = Variable(torch.from_numpy(tmp_image).cuda())
+        y = Variable(torch.from_numpy(tmp_mask).cuda())
+        optimizer.zero_grad()
+        out = net(x)
+        loss = criterion(out,y)
+        loss.backward()
+        optimizer.step()
+        if i % 10 == 0:
+            _, pred = torch.max(out,1) #(n,388,388)のVariable, 一枚は、0,1,2でできた配列
+            pred = pred.cpu()
+            pred = pred.data.numpy()
+            pred.reshape(20,388,388)
+            tmp_nmask = nmask[r:r+20,...]
+            correct = len(np.where(pred==tmp_nmask)[0])
+            acc = correct / tmp_nmask.size
+            print('======================')
+            print(loss)
+            print(acc)
+            print(str(i)+'/'+str(learningtime))
+            print('======================')
 
-net = Net()
-net.cuda()
-criterion = nn.MSELoss().cuda()
-optimizer = optim.Adam(net.parameters())
-learningtime = 5000
-for i in range(learningtime):
-    r = random.randint(0,329)
-    imagee = image[r:r+20,...]
-    maskk = mask[r:r+20,...]
-    x = Variable(torch.from_numpy(imagee).cuda())
-    y = Variable(torch.from_numpy(maskk).cuda())
-    optimizer.zero_grad()
-    out = net(x)
-    loss = criterion(out,y)
-    loss.backward()
-    optimizer.step()
-    if i % 10 == 0:
-        _, pred = torch.max(out,1) #(n,388,388)のVariable, 一枚は、0,1,2でできた配列
-        pred = pred[1]
-        pred = pred.cpu()
-        pred = pred.data.numpy()
-        correct = len(np.where(pred==maskk)[0])
-        acc = correct / maskk.size
-        print('======================')
-        print(loss)
-        print(acc)
-        print(str(i)+'/'+str(learningtime))
-        print('======================')
+    files = os.listdir('model')
 
-torch.save(net, 'model/torchmodel')
+    for i in range(len(files)):
+        if os.path.exists('model/torchmodel_unet%s' % str(i)):
+            pass
+        else:
+            filename = 'torchmodel_unet%s' % str(i)
+            torch.save(net, 'model/%s' % filename)
+            print('saved model as %s' % filename)
+            break
+
+def eval(model_path,test_data,answers):
+    #test_data_setは(n,1,572,572)の配列
+    #answersは(1,n)の配列
+    #prediction
+    net = torch.load(model_path)
+    net.cuda()
+    out = net(Variable(torch.from_numpy(test_data).cuda()))
+    _, pred = torch.max(out,1) #(n,388,388)で要素は0,1,2の配列
+    pred = pred.cpu()
+    pred = pred.data.numpy()
+    ncpred = []
+    for x in pred:
+        c = len(np.where(x>=1)[0])
+        n = len(np.where(x==2)[0])
+        ncr = (c / n) // 0.01
+        ncpred.append(int(ncr))
+
+    #check
+    correct = 0
+    diff_dict = defaultdict(int)
+    for p,a in zip(ncpred, answers):
+        diff = np.absolute(p-a)
+        if diff <= 5:
+            correct += 1
+        else:
+            pass
+        diff_dict[diff] += 1
+    data_num = len(answers)
+    accuracy = correct / data_num
+    print('%s / %s = %s' % (str(correct),str(data_num),str(accuracy)))
+    print(diff_dict)
+
+
+if __name__ == '__main__':
+    train()
+
+
