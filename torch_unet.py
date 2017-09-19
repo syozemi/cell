@@ -175,7 +175,7 @@ def eval(model_path,test_data,answers):
         print(c)
         n = len(np.where(x==2)[0])
         print(n)
-        ncr = (n / c) // 0.01
+        ncr = (n / c) // 0.1
         print(ncr)
         ncpred.append(int(ncr))
 

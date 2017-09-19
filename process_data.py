@@ -92,11 +92,12 @@ def create_ncratio(mask):
     c = np.sum(cytoplasm + nucleus)
     n = np.sum(nucleus)
 
+    d = int((n / c) // 0.1)
     p = int((n / c) // 0.01)
     ncr = [0]*100
     ncr[p] += 1
 
-    return np.array(ncr), p
+    return np.array(ncr), p, d
 
     
 
@@ -188,7 +189,7 @@ def load_data_unet_ncr():
     for i,folder in enumerate(folders):
         ipath = 'data/%s/image' % folder
         mpath = 'data/%s/mask' % folder
-        npath = 'data/%s/num_ncratio' % folder
+        npath = 'data/%s/num_ncratio10' % folder
         if i == 0:
             image,mask,ncratio = [load(x) for x in [ipath,mpath,npath]]
         else:
