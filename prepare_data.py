@@ -54,9 +54,9 @@ for folder in folders:
         ncratio = np.array(ncratio)
         num_ncratio = np.array(num_ncratio)
 
-        pro.save(images, 'data/%s' % folder, 'image')
-        pro.save(masks, 'data/%s' % folder, 'mask')
-        pro.save(num_masks, 'data/%s' % folder, 'num_mask')
+        pro.save(image, 'data/%s' % folder, 'image')
+        pro.save(mask, 'data/%s' % folder, 'mask')
+        pro.save(num_mask, 'data/%s' % folder, 'num_mask')
         pro.save(ncratio, 'data/%s' % folder, 'ncratio')
         pro.save(num_ncratio, 'data/%s' % folder, 'num_ncratio')
 
