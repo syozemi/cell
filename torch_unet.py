@@ -139,9 +139,9 @@ def train(seed):
             pred = pred.cpu()
             pred = pred.data.numpy()
             pred.reshape(20,388,388)
-            tmp_nmask = nmask[r:r+20,...].reshape(20,388,388)
-            correct = len(np.where(pred==tmp_nmask)[0])
-            acc = correct / tmp_nmask.size
+            tmp_num_mask = num_mask[r:r+20,...].reshape(20,388,388)
+            correct = len(np.where(pred==tmp_num_mask)[0])
+            acc = correct / tmp_num_mask.size
             print('======================')
             print(loss)
             print(acc)
