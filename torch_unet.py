@@ -10,6 +10,7 @@ import random
 import os
 from collections import defaultdict
 from sklearn.metrics import classification_report
+import matplotlib.pyplot as plt
 
 
 class Conv(nn.Module):
