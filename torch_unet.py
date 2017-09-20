@@ -114,17 +114,17 @@ class Net(nn.Module):
         return F.softmax(score)
 
 
-def train():
-    image, mask, nmask = pro.load_data_unet_torch()
-    image = image.reshape(350,1,572,572).astype(np.float32)
-    mask = mask.reshape(350,3,388,388).astype(np.float32)
+def train(seed):
+    image, mask, num_mask = pro.load_unet_data(seed,is_train=True)
+    image = image.reshape(250,1,572,572).astype(np.float32)
+    mask = mask.reshape(250,3,388,388).astype(np.float32)
     net = Net()
     net.cuda()
     criterion = nn.MSELoss().cuda()
     optimizer = optim.Adam(net.parameters())
-    learningtime = 10
+    learningtime = 100
     for i in range(learningtime):
-        r = random.randint(0,329)
+        r = random.randint(0,229)
         tmp_image = image[r:r+20,...]
         tmp_mask = mask[r:r+20,...]
         x = Variable(torch.from_numpy(tmp_image).cuda())
@@ -139,7 +139,7 @@ def train():
             pred = pred.cpu()
             pred = pred.data.numpy()
             pred.reshape(20,388,388)
-            tmp_nmask = nmask[r:r+20,...]
+            tmp_nmask = nmask[r:r+20,...].reshape(20,388,388)
             correct = len(np.where(pred==tmp_nmask)[0])
             acc = correct / tmp_nmask.size
             print('======================')
@@ -148,36 +148,34 @@ def train():
             print(str(i)+'/'+str(learningtime))
             print('======================')
 
-    files = os.listdir('model')
+    torch.save(net, 'model/unet/%s' % str(seed))
 
-    for i in range(len(files)):
-        if os.path.exists('model/torchmodel_unet%s' % str(i)):
-            pass
-        else:
-            filename = 'torchmodel_unet%s' % str(i)
-            torch.save(net, 'model/%s' % filename)
-            print('saved model as %s' % filename)
-            break
-
-def eval(model_path,test_data,answers):
+def eval(seed):
     #test_data_setは(n,1,572,572)の配列
     #answersは(1,n)の配列
     #prediction
-    net = torch.load(model_path)
+    image, ncratio = pro.load_unet_data(seed,is_train=False)
+
+    net = torch.load('model/unet/%s' % str(seed))
     net.cuda()
-    out = net(Variable(torch.from_numpy(test_data).cuda()))
-    _, pred = torch.max(out,1) #(n,388,388)で要素は0,1,2の配列
-    pred = pred.cpu()
-    pred = pred.data.numpy()
+    
     ncpred = []
-    for x in pred:
-        c = len(np.where(x>=1)[0])
-        print(c)
-        n = len(np.where(x==2)[0])
-        print(n)
-        ncr = (n / c) // 0.1
-        print(ncr)
-        ncpred.append(int(ncr))
+
+    for i in range(10):
+        start = i * 10
+        img = image[start:start+10]
+        out = net(Variable(torch.from_numpy(img).cuda()))
+        _, pred = torch.max(out,1) #(n,388,388)で要素は0,1,2の配列
+        pred = pred.cpu()
+        pred = pred.data.numpy()
+        for x in pred:
+            c = len(np.where(x>=1)[0])
+            print(c)
+            n = len(np.where(x==2)[0])
+            print(n)
+            ncr = (n / c) // 0.1
+            print(ncr)
+            ncpred.append(int(ncr))
 
     ncpred = np.array(ncpred)
 
@@ -206,4 +204,11 @@ def eval(model_path,test_data,answers):
 
 
 if __name__ == '__main__':
-    train()
+    if os.exists('model/unet'):
+        pass
+    else:
+        os.mkdir('model/unet')
+    files = os.listdir('model/unet')
+    seed = len(files)
+    train(seed)
+    eval(seed)

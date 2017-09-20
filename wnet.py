@@ -60,7 +60,7 @@ class Net(nn.Module):
         self.up3 = Up(32,16)
         self.up4 = Up(16,8)
         self.last = nn.Conv2d(8,3,1)
-        self.constant = 
+
 
     def crop(self, layer, target_size):
         batch_size, n_channels, layer_width, layer_height = layer.size()

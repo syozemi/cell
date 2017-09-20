@@ -121,35 +121,3 @@ ncratio = ncratio[90:100]
 
 torch_unet.eval('model/torchmodel',image,ncratio)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
