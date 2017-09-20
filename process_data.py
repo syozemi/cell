@@ -260,7 +260,7 @@ def load_unet2_data(seed,mode=0):
     if mode == 0:
         image = load_raw_image()
         mask = load_raw_mask()
-        num_mask = load_raw_num_musk()
+        num_mask = load_raw_num_mask()
         for x in [image,mask,num_mask]:
             np.random.seed(seed)
             np.random.shuffle(x)
