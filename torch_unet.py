@@ -115,7 +115,7 @@ class Net(nn.Module):
 
 
 def train(seed):
-    image, mask, num_mask = pro.load_unet_data(seed,is_train=True)
+    image, mask, num_mask = pro.load_unet_data(seed,mode=0)
     image = image.reshape(250,1,572,572).astype(np.float32)
     mask = mask.reshape(250,3,388,388).astype(np.float32)
     net = Net()
@@ -157,7 +157,7 @@ def eval(seed):
     #test_data_setは(n,1,572,572)の配列
     #answersは(1,n)の配列
     #prediction
-    image, answers = pro.load_unet_data(seed,is_train=False)
+    image, answers = pro.load_unet_data(seed,mode=1)
 
     image = image.reshape(-1,1,572,572).astype(np.float32)
 
@@ -203,6 +203,50 @@ def eval(seed):
     accuracy = correct / data_num
     print('%s / %s = %s' % (str(correct),str(data_num),str(accuracy)))
     print(diff_dict)
+
+
+def view(seed):
+    image, mask, ncratio = pro.load_unet_data(seed,mode=2)
+    image = image.reshape(-1,1,572,572).astype(np.float32)
+    n = int(len(image) // 4)
+    for i in range(n):
+        start = i * 4
+        img = image[start:start+4]
+        msk = mask[start:start+4]
+        net = torch.load('model/unet/%s' % str(seed))
+        net.cuda()
+        x = Variable(torch.from_numpy(img).cuda())
+        out = net(x)
+        _, pred = torch.max(out,1) #(n,388,388)で要素は0,1,2の配列
+        pred = pred.cpu()
+        pred = pred.data.numpy()
+        fig = plt.figure(figsize=(7,7))
+        sub = fig.add_subplot(4,3,1)
+        sub.imshow(img[0],cmap='gray')
+        sub = fig.add_subplot(4,3,2)
+        sub.imshow(mask[0,1],cmap='gray')
+        sub = fig.add_subplot(4,3,3)
+        sub.imshow(pred[0],cmap='gray')
+        sub = fig.add_subplot(4,3,4)
+        sub.imshow(img[1],cmap='gray')
+        sub = fig.add_subplot(4,3,5)
+        sub.imshow(mask[1,1],cmap='gray')
+        sub = fig.add_subplot(4,3,6)
+        sub.imshow(pred[1],cmap='gray')
+        sub = fig.add_subplot(4,3,7)
+        sub.imshow(img[2],cmap='gray')
+        sub = fig.add_subplot(4,3,8)
+        sub.imshow(mask[2,1],cmap='gray')
+        sub = fig.add_subplot(4,3,9)
+        sub.imshow(pred[2],cmap='gray')
+        sub = fig.add_subplot(4,3,10)
+        sub.imshow(img[3],cmap='gray')
+        sub = fig.add_subplot(4,3,11)
+        sub.imshow(mask[3,1],cmap='gray')
+        sub = fig.add_subplot(4,3,12)
+        sub.imshow(pred[3],cmap='gray')
+    plt.show()
+
 
 
 if __name__ == '__main__':

@@ -113,7 +113,7 @@ class Net(nn.Module):
         return F.softmax(score)
 
 
-torch_unet.eval(0)
+torch_unet.view(0)
 
 
 
