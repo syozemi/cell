@@ -16,6 +16,7 @@ folders = os.listdir('cell_data/image')
 #aug_type = os.listdir('picture/image/Band')
 for folder in folders:
     #for aug in aug_type:
+        files = os.listdir('cell_data/image/%s' % folder)
         try:
             image,mask,num_mask,ncratio,num_ncratio,num_ncratio10 = [],[],[],[],[],[]
             #files = os.listdir('picture/image/%s/%s' % (folder,aug))
