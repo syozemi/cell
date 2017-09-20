@@ -179,6 +179,51 @@ def load_num_ncratio10():
 
     return num_ncratio10
 
+def load_raw_image():
+    print('loading image data')
+
+    folders = os.listdir('data')
+    for i,folder in enumerate(folders):
+        path = 'data/%s/raw_image' % folder
+        if i == 0:
+            image = load(path)
+        else:
+            image = np.vstack((image,load(path)))
+
+    print('loading done')
+
+    return image
+
+def load_raw_mask():
+    print('loading mask data')
+
+    folders = os.listdir('data')
+    for i,folder in enumerate(folders):
+        path = 'data/%s/raw_mask' % folder
+        if i == 0:
+            mask = load(path)
+        else:
+            mask = np.vstack((mask,load(path)))
+
+    print('loading done')
+
+    return mask
+
+def load_raw_num_mask():
+    print('loading num_mask data')
+
+    folders = os.listdir('data')
+    for i,folder in enumerate(folders):
+        path = 'data/%s/raw_num_mask' % folder
+        if i == 0:
+            num_mask = load(path)
+        else:
+            num_mask = np.vstack((num_mask,load(path)))
+
+    print('loading done')
+
+    return num_mask
+
 
 def load_unet_data(seed,mode=0):
     print('loading data for U-Net')
