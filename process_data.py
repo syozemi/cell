@@ -4,14 +4,16 @@ import pickle
 import os
 import random
 import cv2 as cv
+from collections import defaultdict
 
-#画像をグレースケールに変換。
+
+#画像をグレースケールに変換
 def rgb2gray(rgb):
     gray = np.dot(rgb, [0.299, 0.587, 0.114])
     gray = gray / 255.0
     return gray
 
-#折りたたんで拡張。
+#折りたたんで拡張
 def replicate(input_array, h_or_v, m):
     n = input_array.shape[0]
     a = np.identity(n)
@@ -90,6 +92,25 @@ def create_ncratio(mask):
     ncr[p] += 1
 
     return np.array(ncr), p, d
+
+
+#answerの値を10段階に分け、それぞれの正解率をだす
+def validate(answer_list, prediction_list):
+    a = [0] * 10
+    b = [0] * 10
+    d = defaultdict(int)
+    for x,y in zip(answer_list, prediction_list):
+        i = int(x // 10)
+        a[i] += 1
+        diff = np.absolute(x-y)
+        d[diff] += 1
+        if diff <= 5:
+            b[i] += 1
+        else:
+            pass
+    c = [x/y for x,y in zip(b,a)]
+    return a,b,c,d
+
 
     
 
@@ -237,6 +258,7 @@ def load_unet_data(seed,mode=0):
             np.random.shuffle(x)
         print('loading done')
         return image[:250], mask[:250], num_mask[:250]
+
     elif mode == 1:
         image = load_image()
         ncratio = load_num_ncratio10()
@@ -245,6 +267,7 @@ def load_unet_data(seed,mode=0):
             np.random.shuffle(x)
         print('loading done')
         return image[250:], ncratio[250:]
+
     else:
         image = load_image()
         mask = load_mask()
@@ -256,8 +279,8 @@ def load_unet_data(seed,mode=0):
         return image[250:], mask[250:], ncratio[250:]
 
 def load_unet2_data(seed,mode=0):
-    print('loading data for U-Net2')
     if mode == 0:
+        print('loading training data for U-Net2')
         image = load_raw_image()
         mask = load_raw_mask()
         num_mask = load_raw_num_mask()
@@ -266,6 +289,26 @@ def load_unet2_data(seed,mode=0):
             np.random.shuffle(x)
         print('loading done')
         return image[:250], mask[:250], num_mask[:250]
+
+    elif mode == 1:
+        print('loading test data for U-Net2')
+        image = load_raw_image()
+        ncratio = load_num_ncratio()
+        for x in [image,ncratio]:
+            np.random.seed(seed)
+            np.random.shuffle(x)
+        print('loading done')
+        return image[250:], ncratio[250:]
+
+    else:
+        print('loading view data for U-Net2')
+        image = load_raw_image()
+        mask = load_raw_mask()
+        for x in [image,mask]:
+            np.random.seed(seed)
+            np.random.shuffle(x)
+        print('loading done')
+        return image[250:], mask[250:]
 
 def load_cnn_data(seed,is_train=True):
     print('loading data for CNN')

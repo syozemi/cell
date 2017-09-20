@@ -65,6 +65,7 @@ class MulWeight(nn.Module):
         out = torch.stack([s0,s1,s2],1)
         return out
 
+
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
@@ -107,133 +108,199 @@ class Net(nn.Module):
         return F.softmax(score)
 
 
+class Net2(nn.Module):
+    def __init__(self):
+        super(Net, self).__init__()
+        self.activation = F.relu
+        self.conv_3_8 = Conv(3,8)
+        self.conv_8_16 = Conv(8,16)
+        self.conv_16_32 = Conv(16,32)
+        self.conv_32_64 = Conv(32,64)
+        self.pool1 = nn.MaxPool2d(2)
+        self.pool2 = nn.MaxPool2d(2)
+        self.pool3 = nn.MaxPool2d(2)
+        self.up1 = Up(64,32)
+        self.up2 = Up(32,16)
+        self.up3 = Up(16,8)
+        self.last = nn.Conv2d(8,3,1)
+        self.weight = MulWeight([0.8,1,1])
+
+    def forward(self, x):
+        block1 = self.conv_1_8(x)
+        pool1 = self.pool1(block1)
+
+        block2 = self.conv_8_16(pool1)
+        pool2 = self.pool2(block2)
+
+        block3 = self.conv_16_32(pool2)
+        pool3 = self.pool3(block3)
+
+        bottom = self.conv_32_64(pool3)
+
+        up1 = self.up1(bottom,block3)
+
+        up2 = self.up2(up1,block2)
+
+        up3 = self.up3(up2,block1)
+
+        raw_score = self.last(up3)
+
+        score = self.weight(raw_score)
+
+        return F.softmax(score)
+
+
 def train(seed):
+    #imageは入力データ
+    #maskは教師用データ
+    #num_maskはマスクの数字版で、validationに使う
+    net = torch.load('model/unet2/%s' % str(seed))
     image, mask, num_mask = pro.load_unet2_data(seed,mode=0)
     image = image.reshape(250,1,360,360).astype(np.float32)
     mask = mask.reshape(250,3,360,360).astype(np.float32)
-    net = Net()
-    net.cuda()
+
+    tmp_x = Variable(torch.from_numpy(image))
+    tmp_out = net(tmp_x) #(250,3,360,360)
+    tmp_out = tmp_out.data.numpy()
+
+    tmp_out = tmp_out[:,1:,:,:] #(250,2,360,360)
+    images = np.hstack(image,tmp_out) #(250,3,360,360)
+
+    train_images = images[:230]
+    train_mask = mask[:230] #(230,3,360,360)
+
+    validation_images = images[230:] #(20,1,360,360)
+    validation_num_mask = num_mask[230:] #(20,360,360)
+
+    net2 = Net2()
+    net2.cuda()
     criterion = nn.MSELoss().cuda()
-    optimizer = optim.Adam(net.parameters())
-    learningtime = 10000
-    for i in range(learningtime):
-        r = random.randint(0,229)
-        tmp_image = image[r:r+20,...]
+    optimizer = optim.Adam(net2.parameters())
+
+    #validation用に作っておく
+    val_x = Variable(torch.from_numpy(validation_images).cuda())
+
+    learning_times = 10000
+    for i in range(learning_times):
+        r = random.randint(0,209)
+        tmp_images = train_images[r:r+20,...]
         tmp_mask = mask[r:r+20,...]
-        x = Variable(torch.from_numpy(tmp_image).cuda())
+        #もっといいバッチの作り方ある(これだと端にあるデータの登場回数が少ない)
+        #バッチを作ったのは、GPUのメモリに全部は乗らないから
+
+        x = Variable(torch.from_numpy(tmp_images).cuda())
         y = Variable(torch.from_numpy(tmp_mask).cuda())
+
         optimizer.zero_grad()
-        out = net(x)
+        out = net2(x)
         loss = criterion(out,y)
         loss.backward()
         optimizer.step()
+
+        #10回に一回validateする
+        #ピクセル単位でどれだけ正しく予測できているか
         if i % 10 == 0:
-            _, pred = torch.max(out,1) #(n,388,388)のVariable, 一枚は、0,1,2でできた配列
+            out_val = net2(val_x)
+            _, pred = torch.max(out_val,1) #(n,388,388)のVariable, 一枚は、0,1,2でできた配列
             pred = pred.cpu()
             pred = pred.data.numpy()
             pred.reshape(20,360,360)
-            tmp_num_mask = num_mask[r:r+20,...].reshape(20,360,360)
-            correct = len(np.where(pred==tmp_num_mask)[0])
-            acc = correct / tmp_num_mask.size
+            correct = len(np.where(pred == validation_num_mask)[0])
+            acc = correct / validation_num_mask.size
             print('======================')
             print(loss)
             print(acc)
-            print(str(i)+'/'+str(learningtime))
+            print(str(i)+'/'+str(learningtimes))
             print('======================')
 
-    torch.save(net, 'model/unet/2%s' % str(seed))
+    torch.save(net, 'model/unet2/%s' % str(seed))
 
     print('saved model as model/unet2/%s' % str(seed))
 
 
 def eval(seed):
-    #test_data_setは(n,1,572,572)の配列
-    #answersは(1,n)の配列
+    #imageは(n,1,360,360)
+    #answersは(1,n)
     #prediction
-    image, answers = pro.load_unet_data(seed,mode=1)
+    image, answers = pro.load_unet2_data(seed,mode=1)
 
     image = image.reshape(-1,1,360,360).astype(np.float32)
+    answers = answers.tolist()
 
     net = torch.load('model/unet2/%s' % str(seed))
-    net.cuda()
+    net2 = torch.load('model/wnet2/%s' % str(seed))
+
+    print('calculating first unet')
+    tmp_out = net(Variable(torch.from_numpy(image)))
+    print('done')
+    tmp_out = tmp_out.data.numpy()
+    tmp_out = np.hstack(image,tmp_out)
+
+    print('calculating second unet')
+    out = net2(Variable(torch.from_numpy(tmp_out)))
+    print('done')
+
+    _,pred = torch.max(out,1)
+    pred = pred.data.numpy()
 
     ncpred = []
 
-    for i in range(10):
-        start = i * 10
-        img = image[start:start+10]
-        out = net(Variable(torch.from_numpy(img).cuda()))
-        _, pred = torch.max(out,1) #(n,388,388)で要素は0,1,2の配列
-        pred = pred.cpu()
-        pred = pred.data.numpy()
-        for x in pred:
-            c = len(np.where(x>=1)[0])
-            n = len(np.where(x==2)[0])
-            ncr = (n / c) // 0.1
-            ncpred.append(int(ncr))
+    for x in pred:
+        c = len(np.where(x>=1)[0])
+        n = len(np.where(x==2)[0])
+        ncr = (n / c) // 0.01
+        ncpred.append(int(ncr))
 
-    ncpred = np.array(ncpred)
+    num_of_ans, num_of_correct, prob, diff_dict = pro.validate(answers, ncpred)
 
-    #check
-    correct = 0
-    diff_dict = defaultdict(int)
-
-    ###
-    target_names = list(map(str,range(100)))
-    print(classification_report(ncpred.tolist(), answers.tolist(), target_names=target_names))
-    ###
-    print(ncpred.tolist())
-    print(answers.tolist())
-
-    for p,a in zip(ncpred, answers):
-        diff = np.absolute(p-a)
-        if diff <= 5:
-            correct += 1
-        else:
-            pass
-        diff_dict[diff] += 1
-    data_num = len(answers)
-    accuracy = correct / data_num
-    print('%s / %s = %s' % (str(correct),str(data_num),str(accuracy)))
+    print(num_of_ans)
+    print(num_of_correct)
+    print(prob)
     print(diff_dict)
 
 
 def view(seed):
-    image, mask, ncratio = pro.load_unet_data(seed,mode=2)
+    image, mask = pro.load_unet2_data(seed,mode=2)
     image = image.reshape(-1,1,360,360).astype(np.float32)
     n = int(len(image) // 4)
     for i in range(n):
         start = i * 4
         img = image[start:start+4]
         msk = mask[start:start+4]
-        net = torch.load('model/unet/%s' % str(seed))
+        net = torch.load('model/unet2/%s' % str(seed))
+        net2 = torch.load('model/wnet2/%s' % str(seed))
         net.cuda()
+        net2.cuda()
         x = Variable(torch.from_numpy(img).cuda())
         out = net(x)
+        out.cpu()
+        out = out.data.numpy()
+        x = np.hstack(img,out)
+        out = net2(Variable(torch.from_numpy(out).cuda()))
         _, pred = torch.max(out,1) #(n,388,388)で要素は0,1,2の配列
         pred = pred.cpu()
         pred = pred.data.numpy()
         fig = plt.figure(figsize=(7,7))
         sub = fig.add_subplot(4,3,1)
-        sub.imshow(img[0].reshape(572,572),cmap='gray')
+        sub.imshow(img[0].reshape(360,360),cmap='gray')
         sub = fig.add_subplot(4,3,2)
         sub.imshow(msk[0,1],cmap='gray')
         sub = fig.add_subplot(4,3,3)
         sub.imshow(pred[0],cmap='gray')
         sub = fig.add_subplot(4,3,4)
-        sub.imshow(img[1].reshape(572,572),cmap='gray')
+        sub.imshow(img[1].reshape(360,360),cmap='gray')
         sub = fig.add_subplot(4,3,5)
         sub.imshow(msk[1,1],cmap='gray')
         sub = fig.add_subplot(4,3,6)
         sub.imshow(pred[1],cmap='gray')
         sub = fig.add_subplot(4,3,7)
-        sub.imshow(img[2].reshape(572,572),cmap='gray')
+        sub.imshow(img[2].reshape(360,360),cmap='gray')
         sub = fig.add_subplot(4,3,8)
         sub.imshow(msk[2,1],cmap='gray')
         sub = fig.add_subplot(4,3,9)
         sub.imshow(pred[2],cmap='gray')
         sub = fig.add_subplot(4,3,10)
-        sub.imshow(img[3].reshape(572,572),cmap='gray')
+        sub.imshow(img[3].reshape(360,360),cmap='gray')
         sub = fig.add_subplot(4,3,11)
         sub.imshow(msk[3,1],cmap='gray')
         sub = fig.add_subplot(4,3,12)
@@ -243,12 +310,15 @@ def view(seed):
 
 
 if __name__ == '__main__':
-    if os.path.exists('model/unet2'):
+    if os.path.exists('model/wnet2'):
         pass
     else:
-        os.mkdir('model/unet2')
-    files = os.listdir('model/unet2')
+        os.mkdir('model/wnet2')
+    files = os.listdir('model/wnet2')
     seed = len(files)
     train(seed)
     eval(seed)
+    view(seed)
+
+
 
