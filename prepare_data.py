@@ -18,7 +18,7 @@ for folder in folders:
     for aug in aug_type:
         try:
             image,mask,num_mask,ncratio,num_ncratio,num_ncratio10 = [],[],[],[],[],[]
-            files = os.listdir('picture/image/%s/%s' % (folder,augtype))
+            files = os.listdir('picture/image/%s/%s' % (folder,aug_type))
             for i,file in enumerate(files):
                 try:
                     #画像のパス
