@@ -131,8 +131,8 @@ def train(seed):
             _, pred = torch.max(out,1) #(n,388,388)のVariable, 一枚は、0,1,2でできた配列
             pred = pred.cpu()
             pred = pred.data.numpy()
-            pred.reshape(20,388,388)
-            tmp_num_mask = num_mask[r:r+20,...].reshape(20,388,388)
+            pred.reshape(20,360,360)
+            tmp_num_mask = num_mask[r:r+20,...].reshape(20,360,360)
             correct = len(np.where(pred==tmp_num_mask)[0])
             acc = correct / tmp_num_mask.size
             print('======================')
@@ -141,9 +141,9 @@ def train(seed):
             print(str(i)+'/'+str(learningtime))
             print('======================')
 
-    torch.save(net, 'model/unet/%s' % str(seed))
+    torch.save(net, 'model/unet/2%s' % str(seed))
 
-    print('saved model as model/unet/%s' % str(seed))
+    print('saved model as model/unet2/%s' % str(seed))
 
 
 def eval(seed):
@@ -152,9 +152,9 @@ def eval(seed):
     #prediction
     image, answers = pro.load_unet_data(seed,mode=1)
 
-    image = image.reshape(-1,1,572,572).astype(np.float32)
+    image = image.reshape(-1,1,360,360).astype(np.float32)
 
-    net = torch.load('model/unet/%s' % str(seed))
+    net = torch.load('model/unet2/%s' % str(seed))
     net.cuda()
 
     ncpred = []
@@ -200,7 +200,7 @@ def eval(seed):
 
 def view(seed):
     image, mask, ncratio = pro.load_unet_data(seed,mode=2)
-    image = image.reshape(-1,1,572,572).astype(np.float32)
+    image = image.reshape(-1,1,360,360).astype(np.float32)
     n = int(len(image) // 4)
     for i in range(n):
         start = i * 4
@@ -243,11 +243,11 @@ def view(seed):
 
 
 if __name__ == '__main__':
-    if os.path.exists('model/unet'):
+    if os.path.exists('model/unet2'):
         pass
     else:
-        os.mkdir('model/unet')
-    files = os.listdir('model/unet')
+        os.mkdir('model/unet2')
+    files = os.listdir('model/unet2')
     seed = len(files)
     train(seed)
     eval(seed)
