@@ -108,7 +108,7 @@ class Net(nn.Module):
 
 
 def train(seed):
-    image, mask, num_mask = pro.load_unet_data(seed,mode=0)
+    image, mask, num_mask = pro.load_unet2_data(seed,mode=0)
     image = image.reshape(250,1,572,572).astype(np.float32)
     mask = mask.reshape(250,3,388,388).astype(np.float32)
     net = Net()
