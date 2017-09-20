@@ -150,6 +150,9 @@ def train(seed):
 
     torch.save(net, 'model/unet/%s' % str(seed))
 
+    print('saved model as model/unet/%s' % str(seed))
+    
+
 def eval(seed):
     #test_data_setは(n,1,572,572)の配列
     #answersは(1,n)の配列
