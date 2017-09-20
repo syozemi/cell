@@ -170,7 +170,7 @@ def load_num_ncratio10():
 
     folders = os.listdir('data')
     for i,folder in enumerate(folders):
-        path = 'data/%s/num_ncratio10'
+        path = 'data/%s/num_ncratio10' % folder
         if i == 0:
             num_ncratio10 = load(path)
         else:
