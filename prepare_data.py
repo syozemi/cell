@@ -67,7 +67,7 @@ for folder in folders:
             pro.save(num_ncratio, 'data/%s' % folder, 'raw_num_ncratio')
             pro.save(num_ncratio10, 'data/%s' % folder, 'raw_num_ncratio10')
 
-            print('%s/%s done' % (folder,aug))
+            print('%s done' % folder)
                     
         except Exception as e:
             print(str(e))
