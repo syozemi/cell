@@ -147,7 +147,7 @@ def ncr_calculator(x):
     return ncr
 
 def train():
-    image, mask, ncratio = pro.load_data_unet_ncr()
+    image, mask, ncratio = pro.load_unet3_data()
 
     image = image.reshape(350,1,572,572).astype(np.float32)
     mask = mask.reshape(350,3,388,388).astype(np.float32)
@@ -191,19 +191,6 @@ def train():
             print(loss)
             print('===========================')
 
-def eval(model_path,test_data,answers):
-    net = torch.load(model_path)
-    net.cuda()
-    x = Variable(torch.from_numpy(test_data).cuda())
-    out = net(x)
-    ncr_prediction = ncr_calculator(out)
-    correct = 0
-    for p,a in zip(ncr_prediction,answers):
-        if np.absolute(p-a) <= 3:
-            correct += 1
-        else:
-            pass
-    print('%s / %s = %s' % (str(correct), str(len(answers)), str(correct/len(answers))))
 
 if __name__ == '__main__':
     train()

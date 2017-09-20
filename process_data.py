@@ -310,6 +310,39 @@ def load_unet2_data(seed,mode=0):
         print('loading done')
         return image[250:], mask[250:]
 
+def load_unet3_data(seed,mode=0):
+    if mode == 0:
+        print('loading training data for U-Net3')
+        image = load_raw_image()
+        mask = load_raw_mask()
+        num_mask = load_raw_num_mask()
+        ncratio = load_num_ncratio()
+        for x in [image,mask,num_mask,ncratio]:
+            np.random.seed(seed)
+            np.random.shuffle(x)
+        print('loading done')
+        return image[:250], mask[:250], num_mask[:250], ncratio[:250]
+
+    elif mode == 1:
+        print('loading test data for U-Net3')
+        image = load_raw_image()
+        ncratio = load_num_ncratio()
+        for x in [image,ncratio]:
+            np.random.seed(seed)
+            np.random.shuffle(x)
+        print('loading done')
+        return image[250:], ncratio[250:]
+
+    else:
+        print('loading view data for U-Net3')
+        image = load_raw_image()
+        mask = load_raw_mask()
+        for x in [image,mask]:
+            np.random.seed(seed)
+            np.random.shuffle(x)
+        print('loading done')
+        return image[250:], mask[250:]
+
 def load_cnn_data(seed,is_train=True):
     print('loading data for CNN')
     image = load_image()
