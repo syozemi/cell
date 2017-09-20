@@ -158,7 +158,7 @@ def eval(seed):
 
     net = torch.load('model/unet/%s' % str(seed))
     net.cuda()
-    
+
     ncpred = []
 
     for i in range(10):
@@ -204,7 +204,7 @@ def eval(seed):
 
 
 if __name__ == '__main__':
-    if os.exists('model/unet'):
+    if os.path.exists('model/unet'):
         pass
     else:
         os.mkdir('model/unet')
