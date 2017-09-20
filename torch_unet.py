@@ -177,7 +177,7 @@ def eval(seed):
         for x in pred:
             c = len(np.where(x>=1)[0])
             n = len(np.where(x==2)[0])
-            ncr = (n / c) // 0.01
+            ncr = (n / c) // 0.1
             ncpred.append(int(ncr))
 
     ncpred = np.array(ncpred)
