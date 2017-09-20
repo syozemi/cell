@@ -9,6 +9,7 @@ import pickle
 import random
 from collections import defaultdict
 import torch_unet
+import matplotlib.pyplot as plt
 
 
 class Conv(nn.Module):
