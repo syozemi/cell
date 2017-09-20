@@ -22,9 +22,9 @@ for folder in folders:
             for i,file in enumerate(files):
                 try:
                     #画像のパス
-                    ipath = 'picture/image/%s/%s/%s' % (folder,aug_type,file)
-                    cpath = 'picture/mask/%s/%s/%s' % (folder,aug_type,file.replace('.jpg', '.mask.0.png'))
-                    npath = 'picture/mask/%s/%s/%s' % (folder,aug_type,file.replace('.jpg', '.mask.1.png'))
+                    ipath = 'picture/image/%s/%s/%s' % (folder,aug,file)
+                    cpath = 'picture/mask/%s/%s/%s' % (folder,aug,file.replace('.jpg', '.mask.0.png'))
+                    npath = 'picture/mask/%s/%s/%s' % (folder,aug,file.replace('.jpg', '.mask.1.png'))
                     #ipath = 'cell_data/image/%s/%s' % (folder,file)
                     #cpath = 'cell_data/mask/%s/%s' % (folder,file.replace('.jpg', '.mask.0.png'))
                     #npath = 'cell_data/mask/%s/%s' % (folder,file.replace('.jpg', '.mask.1.png'))
@@ -59,12 +59,12 @@ for folder in folders:
             num_ncratio = np.array(num_ncratio)
             num_ncratio10 = np.array(num_ncratio10)
 
-            pro.save(image, 'data/%s/%s' % (folder,aug_type), 'image')
-            pro.save(mask, 'data/%s/%s' % (folder,aug_type), 'mask')
-            pro.save(num_mask, 'data/%s/%s' % (folder,aug_type), 'num_mask')
-            pro.save(ncratio, 'data/%s/%s' % (folder,aug_type), 'ncratio')
-            pro.save(num_ncratio, 'data/%s/%s' % (folder,aug_type), 'num_ncratio')
-            pro.save(num_ncratio10, 'data/%s/%s' % (folder,aug_type), 'num_ncratio10')
+            pro.save(image, 'data/%s/%s' % (folder,aug), 'image')
+            pro.save(mask, 'data/%s/%s' % (folder,aug), 'mask')
+            pro.save(num_mask, 'data/%s/%s' % (folder,aug), 'num_mask')
+            pro.save(ncratio, 'data/%s/%s' % (folder,aug), 'ncratio')
+            pro.save(num_ncratio, 'data/%s/%s' % (folder,aug), 'num_ncratio')
+            pro.save(num_ncratio10, 'data/%s/%s' % (folder,aug), 'num_ncratio10')
 
             print('%s done' % folder)
                     
