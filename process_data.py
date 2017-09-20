@@ -50,7 +50,7 @@ def save(obj,directory,filename):
 
 #マスクデータを作る
 def create_mask_label(cpath, npath, size):
-    cytoplasm,nucleus = [cv.imread(x)[3:,:,2]/255 for x in [cpath,npath]]
+    cytoplasm,nucleus = [cv.imread(x)[:,:,2]/255 for x in [cpath,npath]]
 
     cytoplasm,nucleus = [cv.resize(x,(size,size)) for x in [cytoplasm,nucleus]]
 
