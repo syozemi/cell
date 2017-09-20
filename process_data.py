@@ -180,10 +180,10 @@ def load_num_ncratio10():
     return num_ncratio10
 
 
-def load_unet_data(seed,is_train=True):
+def load_unet_data(seed,mode=0):
     print('loading data for U-Net')
 
-    if is_train:
+    if mode == 0:
         image = load_image()
         mask = load_mask()
         num_mask = load_num_mask()
@@ -192,7 +192,7 @@ def load_unet_data(seed,is_train=True):
             np.random.shuffle(x)
         print('loading done')
         return image[:250], mask[:250], num_mask[:250]
-    else:
+    elif mode == 1:
         image = load_image()
         ncratio = load_num_ncratio()
         for x in [image,ncratio]:
@@ -200,6 +200,15 @@ def load_unet_data(seed,is_train=True):
             np.random.shuffle(x)
         print('loading done')
         return image[250:], ncratio[250:]
+    else:
+        image = load_image()
+        mask = load_mask()
+        ncratio = load_num_ncratio()
+        for x in [image,mask,ncratio]:
+            np.random.seed(seed)
+            np.random.shuffle(x)
+        print('loading done')
+        return image[250:], mask[250:], ncratio[250:]
 
 def load_cnn_data(seed,is_train=True):
     print('loading data for CNN')
