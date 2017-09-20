@@ -157,7 +157,7 @@ def eval(seed):
     #test_data_setは(n,1,572,572)の配列
     #answersは(1,n)の配列
     #prediction
-    image, ncratio = pro.load_unet_data(seed,is_train=False)
+    image, answers = pro.load_unet_data(seed,is_train=False)
 
     image = image.reshape(-1,1,572,572).astype(np.float32)
 
@@ -175,11 +175,8 @@ def eval(seed):
         pred = pred.data.numpy()
         for x in pred:
             c = len(np.where(x>=1)[0])
-            print(c)
             n = len(np.where(x==2)[0])
-            print(n)
             ncr = (n / c) // 0.1
-            print(ncr)
             ncpred.append(int(ncr))
 
     ncpred = np.array(ncpred)
