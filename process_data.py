@@ -194,7 +194,7 @@ def load_unet_data(seed,is_train=True):
         return image[:250], mask[:250], num_mask[:250]
     else:
         image = load_image()
-        ncratio = load_num_ncratio10()
+        ncratio = load_num_ncratio()
         for x in [image,ncratio]:
             np.random.seed(seed)
             np.random.shuffle(x)
