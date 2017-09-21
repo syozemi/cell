@@ -112,14 +112,14 @@ def train(seed):
     #maskは教師用データ
     #num_maskはマスクの数字版で、validationに使う
     image, mask, num_mask = pro.load_unet2_data(seed,mode=0)
-    image = image.reshape(600,1,360,360).astype(np.float32)
-    mask = mask.reshape(600,3,360,360).astype(np.float32)
+    image = image.reshape(850,1,360,360).astype(np.float32)
+    mask = mask.reshape(850,3,360,360).astype(np.float32)
 
-    train_image = image[:580] #(230,1,360,360)
-    train_mask = mask[:580] #(230,3,360,360)
+    train_image = image[:830] #(230,1,360,360)
+    train_mask = mask[:830] #(230,3,360,360)
 
-    validation_image = image[580:] #(20,1,360,360)
-    validation_num_mask = num_mask[580:] #(20,360,360)
+    validation_image = image[830:] #(20,1,360,360)
+    validation_num_mask = num_mask[830:] #(20,360,360)
 
     net = Net()
     net.cuda()
@@ -131,7 +131,7 @@ def train(seed):
 
     learning_times = 10000
     for i in range(learning_times):
-        r = random.randint(0,559)
+        r = random.randint(0,809)
         tmp_image = image[r:r+20,...]
         tmp_mask = mask[r:r+20,...]
         #もっといいバッチの作り方はある(これだと端にあるデータの登場回数が少ない)
@@ -180,7 +180,7 @@ def eval(seed):
 
     ncpred = []
 
-    for i in range(10):
+    for i in range(20):
         start = i * 10
         img = image[start:start+10]
         out = net(Variable(torch.from_numpy(img).cuda()))

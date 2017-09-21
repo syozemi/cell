@@ -278,7 +278,7 @@ def load_unet2_data(seed,mode=0):
             np.random.seed(seed)
             np.random.shuffle(x)
         print('loading done')
-        return image[:600], mask[:600], num_mask[:600]
+        return image[:850], mask[:850], num_mask[:850]
 
     elif mode == 1:
         print('loading test data for U-Net2')
@@ -288,7 +288,7 @@ def load_unet2_data(seed,mode=0):
             np.random.seed(seed)
             np.random.shuffle(x)
         print('loading done')
-        return image[600:], ncratio[600:]
+        return image[850:], ncratio[850:]
 
     else:
         print('loading view data for U-Net2')
@@ -298,7 +298,7 @@ def load_unet2_data(seed,mode=0):
             np.random.seed(seed)
             np.random.shuffle(x)
         print('loading done')
-        return image[600:], mask[600:]
+        return image[850:], mask[850:]
 
 def load_unet3_data(seed,mode=0):
     if mode == 0:
