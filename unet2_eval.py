@@ -7,16 +7,18 @@ import numpy as np
 import process_data as pro
 import pickle
 import random
+import os
 from collections import defaultdict
-import unet
+from sklearn.metrics import classification_report
 import matplotlib.pyplot as plt
+import unet2
 
 
 class Conv(nn.Module):
     def __init__(self, ins, outs, activation=F.relu):
         super(Conv,self).__init__()
-        self.conv1 = nn.Conv2d(ins,outs,3)
-        self.conv2 = nn.Conv2d(outs,outs,3)
+        self.conv1 = nn.Conv2d(ins,outs,3,padding=1)
+        self.conv2 = nn.Conv2d(outs,outs,3,padding=1)
         self.activation = activation
         self.norm = nn.BatchNorm2d(outs)
 
@@ -29,8 +31,8 @@ class Up(nn.Module):
     def __init__(self, ins, outs, activation=F.relu):
         super(Up,self).__init__()
         self.up = nn.ConvTranspose2d(ins,outs,2,stride=2)
-        self.conv1 = nn.Conv2d(ins,outs,3)
-        self.conv2 = nn.Conv2d(outs,outs,3)
+        self.conv1 = nn.Conv2d(ins,outs,3,padding=1)
+        self.conv2 = nn.Conv2d(outs,outs,3,padding=1)
         self.activation = activation
         self.norm = nn.BatchNorm2d(outs)
 
@@ -72,15 +74,12 @@ class Net(nn.Module):
         self.conv_8_16 = Conv(8,16)
         self.conv_16_32 = Conv(16,32)
         self.conv_32_64 = Conv(32,64)
-        self.conv_64_128 = Conv(64,128)
         self.pool1 = nn.MaxPool2d(2)
         self.pool2 = nn.MaxPool2d(2)
         self.pool3 = nn.MaxPool2d(2)
-        self.pool4 = nn.MaxPool2d(2)
-        self.up1 = Up(128,64)
-        self.up2 = Up(64,32)
-        self.up3 = Up(32,16)
-        self.up4 = Up(16,8)
+        self.up1 = Up(64,32)
+        self.up2 = Up(32,16)
+        self.up3 = Up(16,8)
         self.last = nn.Conv2d(8,3,1)
         self.weight = MulWeight([0.8,1,1])
 
@@ -94,25 +93,19 @@ class Net(nn.Module):
         block3 = self.conv_16_32(pool2)
         pool3 = self.pool3(block3)
 
-        block4 = self.conv_32_64(pool3)
-        pool4 = self.pool4(block4)
+        bottom = self.conv_32_64(pool3)
 
-        bottom = self.conv_64_128(pool4)
+        up1 = self.up1(bottom,block3)
 
-        up1 = self.up1(bottom,block4)
+        up2 = self.up2(up1,block2)
 
-        up2 = self.up2(up1,block3)
+        up3 = self.up3(up2,block1)
 
-        up3 = self.up3(up2,block2)
-
-        up4 = self.up4(up3,block1)
-
-        raw_score = self.last(up4)
+        raw_score = self.last(up3)
 
         score = self.weight(raw_score)
 
         return F.softmax(score)
 
 
-unet.eval(0)
-
+unet2.eval(0)
