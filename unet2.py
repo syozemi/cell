@@ -11,6 +11,7 @@ import os
 from collections import defaultdict
 from sklearn.metrics import classification_report
 import matplotlib.pyplot as plt
+import time
 
 
 class Conv(nn.Module):
@@ -111,6 +112,9 @@ def train(seed):
     #imageは入力データ
     #maskは教師用データ
     #num_maskはマスクの数字版で、validationに使う
+
+    start_time = time.time()
+
     image, mask, num_mask = pro.load_unet2_data(seed,mode=0)
     image = image.reshape(850,1,360,360).astype(np.float32)
     mask = mask.reshape(850,3,360,360).astype(np.float32)
@@ -180,8 +184,13 @@ def train(seed):
     with open('log/unet2/%s' % str(seed)) as f:
         pickle.dump(validation_log, f)
 
+    end_time = time.time()
+
     print('saved model as model/unet2/%s' % str(seed))
 
+    took_time = (end_time - start_time) / 60
+
+    print('took %s minutes' % str(took_time))
 
 def eval(seed):
     #imageは(n,1,360,360)

@@ -154,6 +154,9 @@ def train(seed):
     #imageは入力データ
     #maskは教師用データ
     #num_maskはマスクの数字版で、validationに使う
+
+    start_time = time.time()
+
     net = torch.load('model/unet2/%s' % str(seed))
     image, mask, num_mask = pro.load_unet2_data(seed,mode=0)
     image = image.reshape(850,1,360,360).astype(np.float32)
@@ -162,16 +165,18 @@ def train(seed):
     validation_log = []
 
     tmp_x = Variable(torch.from_numpy(image))
-    tmp_out = net(tmp_x) #(250,3,360,360)
+    print('calculating first unet')
+    tmp_out = net(tmp_x) #(850,3,360,360)
+    print('done')
     tmp_out = tmp_out.data.numpy()
 
-    tmp_out = tmp_out[:,1:,:,:] #(250,2,360,360)
-    images = np.hstack(image,tmp_out) #(250,3,360,360)
+    tmp_out = tmp_out[:,1:,:,:] #(850,2,360,360)
+    images = np.hstack(image,tmp_out) #(850,3,360,360)
 
-    train_images = images[:830]
-    train_mask = mask[:830] #(230,3,360,360)
+    train_images = images[:830] #(830,3,360,360)
+    train_mask = mask[:830] #(830,3,360,360)
 
-    validation_images = images[830:] #(20,1,360,360)
+    validation_images = images[830:] #(20,3,360,360)
     validation_num_mask = num_mask[830:].reshape(20,360,360) #(20,360,360)
 
     net2 = Net2()
@@ -187,8 +192,6 @@ def train(seed):
         r = random.randint(0,829)
         tmp_images = train_images[r:r+20,...]
         tmp_mask = mask[r:r+20,...]
-        #もっといいバッチの作り方ある(これだと端にあるデータの登場回数が少ない)
-        #バッチを作ったのは、GPUのメモリに全部は乗らないから
 
         x = Variable(torch.from_numpy(tmp_images).cuda())
         y = Variable(torch.from_numpy(tmp_mask).cuda())
@@ -233,6 +236,10 @@ def train(seed):
 
     print('saved model as model/wnet2/%s' % str(seed))
 
+    took_time = (end_time - start_time) / 60
+
+    print('took %s minutes' % str(took_time))
+
 
 def eval(seed):
     #imageは(n,1,360,360)
@@ -241,7 +248,6 @@ def eval(seed):
     image, answers = pro.load_unet2_data(seed,mode=1)
 
     image = image.reshape(-1,1,360,360).astype(np.float32)
-    answers = answers.tolist()
 
     net = torch.load('model/unet2/%s' % str(seed))
     net2 = torch.load('model/wnet2/%s' % str(seed))
@@ -287,11 +293,15 @@ def view(seed):
         net.cuda()
         net2.cuda()
         x = Variable(torch.from_numpy(img).cuda())
+        print('calculating first unet')
         out = net(x)
+        print('done')
         out.cpu()
         out = out.data.numpy()
         x = np.hstack(img,out)
+        print('calculating second unet')
         out = net2(Variable(torch.from_numpy(out).cuda()))
+        print('done')
         _, pred = torch.max(out,1) #(n,388,388)で要素は0,1,2の配列
         pred = pred.cpu()
         pred = pred.data.numpy()
@@ -330,7 +340,7 @@ if __name__ == '__main__':
     else:
         os.mkdir('model/wnet2')
     files = os.listdir('model/wnet2')
-    seed = len(files)
+    seed = 1
     train(seed)
     eval(seed)
     view(seed)

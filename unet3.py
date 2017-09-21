@@ -147,6 +147,9 @@ def ncr_calculator(x):
     return ncr
 
 def train():
+
+    start_time = time.time()
+
     image, mask, ncratio = pro.load_unet3_data()
 
     image = image.reshape(350,1,572,572).astype(np.float32)
@@ -190,6 +193,10 @@ def train():
             print('%s/%s = %s' % (str(correct),str(len(ncratio)),str(acc)))
             print(loss)
             print('===========================')
+
+    took_time = (end_time - start_time) / 60
+
+    print('took %s minutes' % str(took_time))
 
 
 if __name__ == '__main__':
