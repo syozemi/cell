@@ -156,8 +156,10 @@ def train(seed):
     #num_maskはマスクの数字版で、validationに使う
     net = torch.load('model/unet2/%s' % str(seed))
     image, mask, num_mask = pro.load_unet2_data(seed,mode=0)
-    image = image.reshape(250,1,360,360).astype(np.float32)
-    mask = mask.reshape(250,3,360,360).astype(np.float32)
+    image = image.reshape(850,1,360,360).astype(np.float32)
+    mask = mask.reshape(850,3,360,360).astype(np.float32)
+
+    validation_log = []
 
     tmp_x = Variable(torch.from_numpy(image))
     tmp_out = net(tmp_x) #(250,3,360,360)
@@ -166,11 +168,11 @@ def train(seed):
     tmp_out = tmp_out[:,1:,:,:] #(250,2,360,360)
     images = np.hstack(image,tmp_out) #(250,3,360,360)
 
-    train_images = images[:230]
-    train_mask = mask[:230] #(230,3,360,360)
+    train_images = images[:830]
+    train_mask = mask[:830] #(230,3,360,360)
 
-    validation_images = images[230:] #(20,1,360,360)
-    validation_num_mask = num_mask[230:] #(20,360,360)
+    validation_images = images[830:] #(20,1,360,360)
+    validation_num_mask = num_mask[830:].reshape(20,360,360) #(20,360,360)
 
     net2 = Net2()
     net2.cuda()
@@ -180,7 +182,7 @@ def train(seed):
     #validation用に作っておく
     val_x = Variable(torch.from_numpy(validation_images).cuda())
 
-    learning_times = 10000
+    learning_times = 20000
     for i in range(learning_times):
         r = random.randint(0,209)
         tmp_images = train_images[r:r+20,...]
@@ -207,13 +209,27 @@ def train(seed):
             pred.reshape(20,360,360)
             correct = len(np.where(pred == validation_num_mask)[0])
             acc = correct / validation_num_mask.size
+            validation_log.append(acc)
             print('======================')
             print(loss)
             print(acc)
-            print(str(i)+'/'+str(learningtimes))
+            print(str(i)+'/'+str(learning_times))
             print('======================')
 
     torch.save(net, 'model/unet2/%s' % str(seed))
+
+    if os.path.exists('log'):
+        pass
+    else:
+        os.mkdir('log')
+
+    if os.path.exists('log/wnet2'):
+        pass
+    else:
+        os.mkdir('log/wnet2')
+
+    with open('log/wnet2/%s' % str(seed), 'wb') as f:
+        pickle.dump(validation_log, f)
 
     print('saved model as model/unet2/%s' % str(seed))
 
