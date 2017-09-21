@@ -159,21 +159,26 @@ def train(seed):
     start_time = time.time()
 
     net = torch.load('model/unet2/%s' % str(seed))
-    net.cpu()
     image, mask, num_mask = pro.load_unet2_data(seed,mode=0)
     image = image.reshape(850,1,360,360).astype(np.float32)
     mask = mask.reshape(850,3,360,360).astype(np.float32)
 
     validation_log = []
 
-    tmp_x = Variable(torch.from_numpy(image))
-    print('calculating first unet')
-    tmp_out = net(tmp_x) #(850,3,360,360)
-    print('done')
-    tmp_out = tmp_out.data.numpy()
+    tmp_image = np.array([]).reshape(0,2,360,360)
 
-    tmp_out = tmp_out[:,1:,:,:] #(850,2,360,360)
-    images = np.hstack(image,tmp_out) #(850,3,360,360)
+    print('start calculating first unet')
+
+    for i in range(50):
+        start = i * 17
+        tmp_x = Variable(torch.from_numpy(image[start:start+17]))
+        tmp_out = net(tmp_x)
+        tmp_out = tmp_out.data.numpy()
+        tmp_out = tmp_out[:,1:,:,:]
+        tmp_image = np.vstack((tmp_image,tmp_out))
+        print(i)
+
+    images = mp.hstack((image,tmp_image)) #(850,3,360,360)
 
     train_images = images[:830] #(830,3,360,360)
     train_mask = mask[:830] #(830,3,360,360)
