@@ -165,6 +165,7 @@ def train(seed):
     mask = mask.reshape(850,3,360,360).astype(np.float32)
 
     validation_log = []
+    loss_log = []
 
     tmp_image = np.array([]).reshape(0,2,360,360)
 
@@ -222,6 +223,7 @@ def train(seed):
             correct = len(np.where(pred == validation_num_mask)[0])
             acc = correct / validation_num_mask.size
             validation_log.append(acc)
+            loss_log.append(loss.data)
             print('======================')
             print(loss)
             print(acc)
@@ -240,8 +242,21 @@ def train(seed):
     else:
         os.mkdir('log/wnet2')
 
-    with open('log/wnet2/%s' % str(seed), 'wb') as f:
+    if os.path.exists('log/wnet2/val'):
+        pass
+    else:
+        os.mkdir('log/wnet2/val')
+
+    if os.path.exists('log/wnet2/loss'):
+        pass
+    else:
+        os.mkdir('log/wnet2/loss') 
+
+    with open('log/wnet2/val/%s' % str(seed), 'wb') as f:
         pickle.dump(validation_log, f)
+
+    with open('log/wnet2/loss/%s' % str(seed), 'wb') as f:
+        pickle.dump(loss_log, f)   
 
     print('saved model as model/wnet2/%s' % str(seed))
 
