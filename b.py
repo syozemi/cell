@@ -19,3 +19,8 @@ image, mask, num_mask = pro.load_unet2_data(0,mode=0)
 print(image.shape)
 print(mask.shape)
 print(num_mask.shape)
+
+
+plt.imshow(num_mask[0].reshape(360,360))
+plt.show()
+
