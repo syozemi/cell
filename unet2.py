@@ -121,7 +121,7 @@ def train(seed):
     train_mask = mask[:830] #(230,3,360,360)
 
     validation_image = image[830:] #(20,1,360,360)
-    validation_num_mask = num_mask[830:] #(20,360,360)
+    validation_num_mask = num_mask[830:].reshape(20,360,360) #(20,360,360)
 
     net = Net()
     net.cuda()
