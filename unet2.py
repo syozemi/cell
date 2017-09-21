@@ -114,12 +114,11 @@ def train(seed):
 
     start_time = time.time()
 
+    
     image, mask, num_mask = pro.load_unet2_data(seed,mode=0)
+
     image = image.reshape(850,1,360,360).astype(np.float32)
     mask = mask.reshape(850,3,360,360).astype(np.float32)
-
-    validation_log = []
-    loss_log = []
 
     train_image = image[:830] #(230,1,360,360)
     train_mask = mask[:830] #(230,3,360,360)
@@ -127,13 +126,17 @@ def train(seed):
     validation_image = image[830:] #(20,1,360,360)
     validation_num_mask = num_mask[830:].reshape(20,360,360) #(20,360,360)
 
+    #validation用に作っておく
+    val_x = Variable(torch.from_numpy(validation_image).cuda())
+
+
     net = Net()
     net.cuda()
     criterion = nn.MSELoss().cuda()
     optimizer = optim.Adam(net.parameters())
 
-    #validation用に作っておく
-    val_x = Variable(torch.from_numpy(validation_image).cuda())
+    validation_log, loss_log = [], []
+
 
     learning_times = 100000
     for i in range(learning_times):
@@ -156,7 +159,7 @@ def train(seed):
         #ピクセル単位でどれだけ正しく予測できているか
         if i % 10 == 0:
             out_val = net(val_x)
-            _, pred = torch.max(out_val,1) #(n,388,388)のVariable, 一枚は、0,1,2でできた配列
+            _, pred = torch.max(out_val,1) #(n,360,360), 一枚は、0,1,2でできた配列
             pred = pred.cpu()
             pred = pred.data.numpy()
             pred.reshape(20,360,360)
@@ -164,6 +167,7 @@ def train(seed):
             acc = correct / validation_num_mask.size
             validation_log.append(acc)
             loss_log.append(loss.data)
+
             print('======================')
             print(loss)
             print(loss.data)
@@ -173,44 +177,24 @@ def train(seed):
 
     torch.save(net, 'model/unet2/%s' % str(seed))
 
-    if os.path.exists('log'):
-        pass
-    else:
-        os.mkdir('log')
+    pro.make_dir('log')
+    pro.make_dir('log/unet2')
+    pro.make_dir('log/unet2/val')
+    pro.make_dir('log/unet2/log')
 
-    if os.path.exists('log/unet2'):
-        pass
-    else:
-        os.mkdir('log/unet2')
-
-    if os.path.exists('log/unet2/val'):
-        pass
-    else:
-        os.mkdir('log/unet2/val')
-
-    if os.path.exists('log/unet2/loss'):
-        pass
-    else:
-        os.mkdir('log/unet2/loss')    
-
-    with open('log/unet2/val/%s' % str(seed)) as f:
-        pickle.dump(validation_log, f)
-
-    with open('log/unet2/loss/%s' % str(seed)) as f:
-        pickle.dump(loss_log, f)
+    pro.save(validation_log,'log/unet2/val',str(seed))
+    pro.save(loss_log,'log/unet2/loss',str(seed))
 
     end_time = time.time()
+    time_taken = (end_time - start_time) / 60
 
     print('saved model as model/unet2/%s' % str(seed))
-
-    took_time = (end_time - start_time) / 60
-
-    print('took %s minutes' % str(took_time))
+    print('took %s minutes' % str(time_taken))
 
 def eval(seed):
     #imageは(n,1,360,360)
     #answersは(1,n)
-    #prediction
+
     image, answers = pro.load_unet2_data(seed,mode=1)
 
     image = image.reshape(-1,1,360,360).astype(np.float32)
@@ -224,7 +208,7 @@ def eval(seed):
         start = i * 10
         img = image[start:start+10]
         out = net(Variable(torch.from_numpy(img).cuda()))
-        _, pred = torch.max(out,1) #(n,388,388)で要素は0,1,2の配列
+        _, pred = torch.max(out,1) #(n,360,360)で要素は0,1,2の配列
         pred = pred.cpu()
         pred = pred.data.numpy()
         for x in pred:
@@ -252,7 +236,7 @@ def view(seed):
         net.cuda()
         x = Variable(torch.from_numpy(img).cuda())
         out = net(x)
-        _, pred = torch.max(out,1) #(n,388,388)で要素は0,1,2の配列
+        _, pred = torch.max(out,1) #(n,360,360)で要素は0,1,2の配列
         pred = pred.cpu()
         pred = pred.data.numpy()
         fig = plt.figure(figsize=(7,7))

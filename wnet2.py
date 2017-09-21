@@ -163,9 +163,6 @@ def train(seed):
     image = image.reshape(850,1,360,360).astype(np.float32)
     mask = mask.reshape(850,3,360,360).astype(np.float32)
 
-    validation_log = []
-    loss_log = []
-
     tmp_image = np.array([]).reshape(0,2,360,360)
 
     print('start calculating first unet')
@@ -199,6 +196,9 @@ def train(seed):
 
     #validation用に作っておく
     val_x = Variable(torch.from_numpy(validation_images).cuda())
+
+    validation_log = []
+    loss_log = []
 
     #学習のループ
     learning_times = 100000
@@ -237,31 +237,13 @@ def train(seed):
     torch.save(net, 'model/wnet2/%s' % str(seed))
 
     #lossとvalidation(ピクセル単位の正解率)のログを保存しておく。
-    if os.path.exists('log'):
-        pass
-    else:
-        os.mkdir('log')
+    pro.make_dir('log')
+    pro.make_dir('log/wnet2')
+    pro.make_dir('log/wnet2/val')
+    pro.make_dir('log/wnet2/loss')
 
-    if os.path.exists('log/wnet2'):
-        pass
-    else:
-        os.mkdir('log/wnet2')
-
-    if os.path.exists('log/wnet2/val'):
-        pass
-    else:
-        os.mkdir('log/wnet2/val')
-
-    if os.path.exists('log/wnet2/loss'):
-        pass
-    else:
-        os.mkdir('log/wnet2/loss') 
-
-    with open('log/wnet2/val/%s' % str(seed), 'wb') as f:
-        pickle.dump(validation_log, f)
-
-    with open('log/wnet2/loss/%s' % str(seed), 'wb') as f:
-        pickle.dump(loss_log, f)   
+    pro.save(validation_log, 'log/wnet2/val', str(seed))
+    pro.save(loss_log, 'log/wnet2/loss', str(seed))   
 
     print('saved model as model/wnet2/%s' % str(seed))
 

@@ -26,7 +26,7 @@ for name in ['image','image02']:
         #for aug in aug_type:
         files = os.listdir('cell_data/%s/%s' % (name,folder))
         try:
-            image360,image572,mask360,mask572,num_mask360,num_mask572,num_ncratio360,num_ncratio572 = [],[],[],[],[],[],[],[]
+            image360,image572,mask360,mask388,num_mask360,num_mask388,num_ncratio360,num_ncratio388 = [],[],[],[],[],[],[],[]
             #files = os.listdir('picture/image/%s/%s' % (folder,aug))
             for i,file in enumerate(files):
                 try:
@@ -45,15 +45,15 @@ for name in ['image','image02']:
 
                     #３クラスのマスクを作る
                     msk360, num_msk360 = pro.create_mask_label(cpath,npath,360)
-                    msk572, num_msk572 = pro.create_mask_label(cpath,npath,572)
+                    msk388, num_msk388 = pro.create_mask_label(cpath,npath,388)
 
                     #マスクからnc比を計算する
                     num_ncr360 = pro.create_ncratio(msk360)
-                    num_ncr572 = pro.create_ncratio(msk572)
+                    num_ncr388 = pro.create_ncratio(msk388)
 
                     _ = [x.append(y) for x,y in [(image360,img360),(image572,img572),(mask360,msk360),
-                        (mask572,msk572),(num_mask360,num_msk360),(num_mask572,num_msk572),
-                        (num_ncratio360,num_ncr360),(num_ncratio572,num_ncr572)]]
+                        (mask388,msk388),(num_mask360,num_msk360),(num_mask388,num_msk388),
+                        (num_ncratio360,num_ncr360),(num_ncratio388,num_ncr388)]]
 
                 except Exception as e:
                     print(str(e))
@@ -61,9 +61,9 @@ for name in ['image','image02']:
 
                 print(str(i), '\r', end='')
 
-            image360,image572,mask360,mask572,num_mask360,num_mask572 = [np.array(x) for x in [image360,image572,mask360,mask572,num_mask360,num_mask572]]
+            image360,image572,mask360,mask388,num_mask360,num_mask388 = [np.array(x) for x in [image360,image572,mask360,mask388,num_mask360,num_mask388]]
 
-            _ = [pro.save(x, 'data/%s/%s' % (name,folder), y) for x,y in [(image360,'image360'), (image572, 'image572'), (mask360,'mask360'), (mask572,'mask572'), (num_mask360, 'num_mask360'), (num_mask572, 'num_mask572'), (num_ncratio360, 'num_ncratio360'), (num_ncratio572, 'num_ncratio572')]]
+            _ = [pro.save(x, 'data/%s/%s' % (name,folder), y) for x,y in [(image360,'image360'), (image572, 'image572'), (mask360,'mask360'), (mask388,'mask388'), (num_mask360, 'num_mask360'), (num_mask388, 'num_mask388'), (num_ncratio360, 'num_ncratio360'), (num_ncratio388, 'num_ncratio388')]]
 
             print('%s done' % folder)
                     

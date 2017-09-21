@@ -107,6 +107,11 @@ def validate(answer_list, prediction_list):
             pass
     return a,b,d
 
+def make_dir(directory):
+    if os.path.exists(directory):
+        pass
+    else:
+        os.mkdir(directory)
 
     
 
@@ -166,14 +171,14 @@ def load_mask360():
 
     return x
 
-def load_mask572():
-    print('loading mask572 data')
+def load_mask388():
+    print('loading mask388 data')
     
-    x = np.array([]).reshape(0,3,572,572)
+    x = np.array([]).reshape(0,3,388,388)
     for name in ['image', 'image02']:
         folders = os.listdir('data/%s' % name)
         for i,folder in enumerate(folders):
-            path = 'data/%s/%s/mask572' % (name,folder)
+            path = 'data/%s/%s/mask388' % (name,folder)
             x = np.vstack((x,load(path)))
 
     print('loading done')
@@ -195,15 +200,15 @@ def load_num_mask360():
 
     return x
 
-def load_num_mask572():
+def load_num_mask388():
     print('loading num_mask572 data')
     
-    x = np.array([]).reshape(0,1,572,572)
+    x = np.array([]).reshape(0,1,388,388)
     for name in ['image', 'image02']:
         folders = os.listdir('data/%s' % name)
         for i,folder in enumerate(folders):
-            path = 'data/%s/%s/num_mask572' % (name,folder)
-            msk = load(path).reshape(-1,1,360,360)
+            path = 'data/%s/%s/num_mask388' % (name,folder)
+            msk = load(path).reshape(-1,1,388,388)
             x = np.vstack((x,msk))
 
     print('loading done')
@@ -224,14 +229,14 @@ def load_num_ncratio360():
 
     return x
 
-def load_num_ncratio572():
-    print('loading num_ncratio572 data')
+def load_num_ncratio388():
+    print('loading num_ncratio388 data')
     
     x = []
     for name in ['image', 'image02']:
         folders = os.listdir('data/%s' % name)
         for i,folder in enumerate(folders):
-            path = 'data/%s/%s/num_ncratio572' % (name,folder)
+            path = 'data/%s/%s/num_ncratio388' % (name,folder)
             x = np.hstack((x,load(path)))
 
     print('loading done')
@@ -243,33 +248,32 @@ def load_unet_data(seed,mode=0):
     print('loading data for U-Net')
 
     if mode == 0:
-        image = load_image()
-        mask = load_mask()
-        num_mask = load_num_mask()
+        image = load_image572()
+        mask = load_mask388()
+        num_mask = load_num_mask388()
         for x in [image,mask,num_mask]:
             np.random.seed(seed)
             np.random.shuffle(x)
         print('loading done')
-        return image[:250], mask[:250], num_mask[:250]
+        return image[:850], mask[:850], num_mask[:850]
 
     elif mode == 1:
-        image = load_image()
-        ncratio = load_num_ncratio10()
+        image = load_image572()
+        ncratio = load_num_ncratio360()
         for x in [image,ncratio]:
             np.random.seed(seed)
             np.random.shuffle(x)
         print('loading done')
-        return image[250:], ncratio[250:]
+        return image[850:], ncratio[850:]
 
     else:
-        image = load_image()
-        mask = load_mask()
-        ncratio = load_num_ncratio()
-        for x in [image,mask,ncratio]:
+        image = load_image572()
+        mask = load_num_mask388()
+        for x in [image,mask]:
             np.random.seed(seed)
             np.random.shuffle(x)
         print('loading done')
-        return image[250:], mask[250:], ncratio[250:]
+        return image[850:], mask[850:]
 
 def load_unet2_data(seed,mode=0):
     if mode == 0:
