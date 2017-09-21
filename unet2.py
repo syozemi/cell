@@ -4,14 +4,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import numpy as np
-import process_data as pro
 import pickle
 import random
 import os
 from collections import defaultdict
-from sklearn.metrics import classification_report
 import matplotlib.pyplot as plt
 import time
+import process_data as pro
 
 
 class Conv(nn.Module):
@@ -231,8 +230,8 @@ def eval(seed):
         for x in pred:
             c = len(np.where(x>=1)[0])
             n = len(np.where(x==2)[0])
-            ncr = (n / c) // 0.01
-            ncpred.append(int(ncr))
+            ncr = n / c
+            ncpred.append(ncr)
 
     num_of_ans, num_of_correct, diff_dict = pro.validate(answers, ncpred)
 

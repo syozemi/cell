@@ -4,15 +4,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import numpy as np
-import process_data as pro
 import pickle
 import random
 import os
 from collections import defaultdict
-from sklearn.metrics import classification_report
 import matplotlib.pyplot as plt
 import time
-
+import process_data as pro
 
 class Conv(nn.Module):
     def __init__(self, ins, outs, activation=F.relu):
@@ -158,6 +156,7 @@ def train(seed):
 
     start_time = time.time()
 
+    #まず、unet2を使って、入力用のデータを作る
     net = torch.load('model/unet2/%s' % str(seed))
     net.cuda()
     image, mask, num_mask = pro.load_unet2_data(seed,mode=0)
@@ -181,8 +180,12 @@ def train(seed):
         tmp_image = np.vstack((tmp_image,tmp_out))
         print(i)
 
+    print('done')
+
     images = np.hstack((image,tmp_image)) #(850,3,360,360)
 
+    #train用のとvalidation用に分ける
+    #validationはとりあえずgpuのメモリに乗る範囲で20にした。loopを回したらもっと多くできるけど、とりあえず。
     train_images = images[:830].astype(np.float32) #(830,3,360,360)
     train_mask = mask[:830].astype(np.float32) #(830,3,360,360)
 
@@ -197,6 +200,7 @@ def train(seed):
     #validation用に作っておく
     val_x = Variable(torch.from_numpy(validation_images).cuda())
 
+    #学習のループ
     learning_times = 100000
     for i in range(learning_times):
         r = random.randint(0,809)
@@ -232,6 +236,7 @@ def train(seed):
 
     torch.save(net, 'model/wnet2/%s' % str(seed))
 
+    #lossとvalidation(ピクセル単位の正解率)のログを保存しておく。
     if os.path.exists('log'):
         pass
     else:
@@ -260,15 +265,18 @@ def train(seed):
 
     print('saved model as model/wnet2/%s' % str(seed))
 
-    took_time = (end_time - start_time) / 60
+    #かかった時間を出力する
+    time_taken = (end_time - start_time) / 60
 
-    print('took %s minutes' % str(took_time))
+    print('took %s minutes' % str(time_taken))
 
 
 def eval(seed):
     #imageは(n,1,360,360)
     #answersは(1,n)
+
     #prediction
+    #データをロード
     image, answers = pro.load_unet2_data(seed,mode=1)
 
     image = image.reshape(-1,1,360,360).astype(np.float32)
@@ -276,26 +284,31 @@ def eval(seed):
     net = torch.load('model/unet2/%s' % str(seed))
     net2 = torch.load('model/wnet2/%s' % str(seed))
 
-    print('calculating first unet')
-    tmp_out = net(Variable(torch.from_numpy(image)))
-    print('done')
-    tmp_out = tmp_out.data.numpy()
-    tmp_out = np.hstack(image,tmp_out)
-
-    print('calculating second unet')
-    out = net2(Variable(torch.from_numpy(tmp_out)))
-    print('done')
-
-    _,pred = torch.max(out,1)
-    pred = pred.data.numpy()
+    print('calculating wnet')
 
     ncpred = []
+    for i in range(10):
+        start = i * 20
+        tmp_image = image[start:start+20]
+        tmp_x = Variable(torch.from_numpy(tmp_image).cuda())
+        tmp_out = net(tmp_x)
+        tmp_out = tmp_out.cpu()
+        tmp_out = tmp_out.data.numpy()
+        tmp_out = tmp_out[:,1:,:,:]
+        first_out = np.hstack((tmp_image,tmp_out))
+        first_out = first_out.astype(np.float32)
+        x = Variable(torch.from_numpy(first_out).cuda())
+        out = net2(x)
+        _,pred = torch.max(out,1)
+        pred = pred.data.numpy()
+        for x in pred:
+            c = len(np.where(x>=1)[0])
+            n = len(np.where(x==2)[0])
+            ncr = n / c
+            ncpred.append(ncr)
+        print(i)            
 
-    for x in pred:
-        c = len(np.where(x>=1)[0])
-        n = len(np.where(x==2)[0])
-        ncr = (n / c) // 0.01
-        ncpred.append(int(ncr))
+    print('done')
 
     num_of_ans, num_of_correct, diff_dict = pro.validate(answers, ncpred)
 

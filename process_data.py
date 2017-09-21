@@ -84,7 +84,7 @@ def create_ncratio(mask):
     nucleus = mask[2]
     c = np.sum(cytoplasm + nucleus)
     n = np.sum(nucleus)
-    percentage = int((n / c) // 0.01)
+    percentage = n / c
     #ncr = [0]*100
     #ncr[p] += 1
 
@@ -97,11 +97,12 @@ def validate(answer_list, prediction_list):
     b = [0] * 10
     d = defaultdict(int)
     for x,y in zip(answer_list, prediction_list):
-        i = int(x // 10)
+        i = int(x // 0.1)
         a[i] += 1
         diff = np.absolute(x-y)
-        d[diff] += 1
-        if diff <= 5:
+        j = int(diff // 0.01)
+        d[j] += 1
+        if diff <= 0.05:
             b[i] += 1
         else:
             pass
