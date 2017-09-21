@@ -180,7 +180,7 @@ def train(seed):
         tmp_image = np.vstack((tmp_image,tmp_out))
         print(i)
 
-    images = mp.hstack((image,tmp_image)) #(850,3,360,360)
+    images = np.hstack((image,tmp_image)) #(850,3,360,360)
 
     train_images = images[:830] #(830,3,360,360)
     train_mask = mask[:830] #(830,3,360,360)
