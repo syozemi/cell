@@ -40,10 +40,10 @@ def mirror(input_array, output_size):
     return input_array
 
 def save(obj,directory,filename):
-    if not os.path.exists(directory):
-        os.mkdir(directory)
-    else:
+    if os.path.exists(directory):
         pass
+    else:
+        os.mkdir(directory)
 
     path = '%s/%s' % (directory, filename)
 
@@ -56,7 +56,6 @@ def create_mask_label(cpath, npath, size):
 
     cytoplasm,nucleus = [cv.resize(x,(size,size)) for x in [cytoplasm,nucleus]]
 
-    #cytoplasm, nucleus = [cv.adaptiveThreshold(x, 1, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 20, 2) for x in [cytoplasm,nucleus]]
     cytoplasm,nucleus = [np.round(x) for x in [cytoplasm,nucleus]]
 
     for i in range(size):
