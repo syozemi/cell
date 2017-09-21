@@ -135,7 +135,7 @@ def train(seed):
     #validation用に作っておく
     val_x = Variable(torch.from_numpy(validation_image).cuda())
 
-    learning_times = 20000
+    learning_times = 100000
     for i in range(learning_times):
         r = random.randint(0,809)
         tmp_image = image[r:r+20,...]
