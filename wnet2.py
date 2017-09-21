@@ -174,6 +174,7 @@ def train(seed):
         start = i * 17
         tmp_x = Variable(torch.from_numpy(image[start:start+17]).cuda())
         tmp_out = net(tmp_x)
+        tmp_out.cpu()
         tmp_out = tmp_out.data.numpy()
         tmp_out = tmp_out[:,1:,:,:]
         tmp_image = np.vstack((tmp_image,tmp_out))
