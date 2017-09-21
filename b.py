@@ -16,11 +16,15 @@ import process_data as pro
 
 image, mask, num_mask = pro.load_unet2_data(0,mode=0)
 
-print(image.shape)
-print(mask.shape)
-print(num_mask.shape)
+b = mask[:,0,:,:]
+c = mask[:,1,:,:]
+n = mask[:,2,:,:]
 
+bb = np.sum(b)
+cc = np.sum(c)
+nn = np.sum(n)
 
-plt.imshow(num_mask[0].reshape(360,360))
-plt.show()
+print(bb)
+print(cc)
+print(nn)
 

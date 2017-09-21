@@ -338,16 +338,16 @@ def load_unet3_data(seed,mode=0):
 
 def load_cnn_data(seed,is_train=True):
     print('loading data for CNN')
-    image = load_image()
-    ncratio = load_num_ncratio10()
+    image = load_image360()
+    ncratio = load_num_ncratio()
     for x in [image,ncratio]:
         np.random.seed(seed)
         np.random.shuffle(x)
     if is_train:
         print('loading done')
-        return image[:250], ncratio[:250]
+        return image[:850], ncratio[:850]
     else:
         print('loading done')
-        return image[250:], ncratio[250:]
+        return image[850:], ncratio[850:]
 
 
