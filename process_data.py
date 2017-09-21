@@ -123,7 +123,7 @@ def load(path):
     return a
 
 def load_image360():
-    print('loading image data')
+    print('loading image360 data')
 
     image = np.array([]).reshape(0,1,360,360)
     for name in ['image', 'image02']:
@@ -138,21 +138,22 @@ def load_image360():
     return image
 
 def load_image572():
-    print('loading image data')
+    print('loading image572 data')
     
     image = np.array([]).reshape(0,1,572,572)
     for name in ['image', 'image02']:
         folders = os.listdir('data/%s' % name)
         for i,folder in enumerate(folders):
             path = 'data/%s/%s/image572' % (name,folder)
-            image = np.vstack((image,load(path)))
+            img = load(path).reshape(-1,1,572,572)
+            image = np.vstack((image,img))
 
     print('loading done')
 
     return image
 
 def load_mask360():
-    print('loading image data')
+    print('loading mask360 data')
     
     x = np.array([]).reshape(0,3,360,360)
     for name in ['image', 'image02']:
@@ -166,7 +167,7 @@ def load_mask360():
     return x
 
 def load_mask572():
-    print('loading image data')
+    print('loading mask572 data')
     
     x = np.array([]).reshape(0,3,572,572)
     for name in ['image', 'image02']:
@@ -180,35 +181,37 @@ def load_mask572():
     return x
 
 def load_num_mask360():
-    print('loading image data')
+    print('loading num_mask360 data')
     
     x = np.array([]).reshape(0,1,360,360)
     for name in ['image', 'image02']:
         folders = os.listdir('data/%s' % name)
         for i,folder in enumerate(folders):
             path = 'data/%s/%s/num_mask360' % (name,folder)
-            x = np.vstack((x,load(path)))
+            msk = load(path).reshape(-1,1,360,360)
+            x = np.vstack((x,msk))
 
     print('loading done')
 
     return x
 
 def load_num_mask572():
-    print('loading image data')
+    print('loading num_mask572 data')
     
     x = np.array([]).reshape(0,1,572,572)
     for name in ['image', 'image02']:
         folders = os.listdir('data/%s' % name)
         for i,folder in enumerate(folders):
             path = 'data/%s/%s/num_mask572' % (name,folder)
-            x = np.vstack((x,load(path)))
+            msk = load(path).reshape(-1,1,360,360)
+            x = np.vstack((x,msk))
 
     print('loading done')
 
     return x
 
 def load_num_ncratio360():
-    print('loading image data')
+    print('loading num_ncratio360 data')
     
     x = []
     for name in ['image', 'image02']:
@@ -222,7 +225,7 @@ def load_num_ncratio360():
     return x
 
 def load_num_ncratio572():
-    print('loading image data')
+    print('loading num_ncratio572 data')
     
     x = []
     for name in ['image', 'image02']:
