@@ -182,10 +182,10 @@ def train(seed):
 
     images = np.hstack((image,tmp_image)) #(850,3,360,360)
 
-    train_images = images[:830] #(830,3,360,360)
-    train_mask = mask[:830] #(830,3,360,360)
+    train_images = images[:830].astype(np.float32) #(830,3,360,360)
+    train_mask = mask[:830].astype(np.float32) #(830,3,360,360)
 
-    validation_images = images[830:] #(20,3,360,360)
+    validation_images = images[830:].astype(np.float32) #(20,3,360,360)
     validation_num_mask = num_mask[830:].reshape(20,360,360) #(20,360,360)
 
     net2 = Net2()
