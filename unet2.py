@@ -156,7 +156,7 @@ def train(seed):
             pred = pred.cpu()
             pred = pred.data.numpy()
             pred.reshape(20,360,360)
-            correct = len(np.where(pred == validation_num_mask)[0])
+            correct = len(np.where(pred==validation_num_mask)[0])
             acc = correct / validation_num_mask.size
             validation_log.append(acc)
             print('======================')
