@@ -159,6 +159,7 @@ def train(seed):
     start_time = time.time()
 
     net = torch.load('model/unet2/%s' % str(seed))
+    net.cpu()
     image, mask, num_mask = pro.load_unet2_data(seed,mode=0)
     image = image.reshape(850,1,360,360).astype(np.float32)
     mask = mask.reshape(850,3,360,360).astype(np.float32)
