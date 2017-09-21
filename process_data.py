@@ -130,7 +130,8 @@ def load_image360():
         folders = os.listdir('data/%s' % name)
         for i,folder in enumerate(folders):
             path = 'data/%s/%s/image360' % (name,folder)
-            image = np.vstack((image,load(path)))
+            img = load(path).reshape(-1,1,360,360)
+            image = np.vstack((image,img))
 
     print('loading done')
 
