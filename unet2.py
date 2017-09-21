@@ -112,14 +112,14 @@ def train(seed):
     #maskは教師用データ
     #num_maskはマスクの数字版で、validationに使う
     image, mask, num_mask = pro.load_unet2_data(seed,mode=0)
-    image = image.reshape(250,1,360,360).astype(np.float32)
-    mask = mask.reshape(250,3,360,360).astype(np.float32)
+    image = image.reshape(600,1,360,360).astype(np.float32)
+    mask = mask.reshape(600,3,360,360).astype(np.float32)
 
-    train_image = image[:230] #(230,1,360,360)
-    train_mask = mask[:230] #(230,3,360,360)
+    train_image = image[:580] #(230,1,360,360)
+    train_mask = mask[:580] #(230,3,360,360)
 
-    validation_image = image[230:] #(20,1,360,360)
-    validation_num_mask = num_mask[230:] #(20,360,360)
+    validation_image = image[580:] #(20,1,360,360)
+    validation_num_mask = num_mask[580:] #(20,360,360)
 
     net = Net()
     net.cuda()
@@ -131,7 +131,7 @@ def train(seed):
 
     learning_times = 10000
     for i in range(learning_times):
-        r = random.randint(0,209)
+        r = random.randint(0,559)
         tmp_image = image[r:r+20,...]
         tmp_mask = mask[r:r+20,...]
         #もっといいバッチの作り方はある(これだと端にあるデータの登場回数が少ない)
@@ -174,7 +174,6 @@ def eval(seed):
     image, answers = pro.load_unet2_data(seed,mode=1)
 
     image = image.reshape(-1,1,360,360).astype(np.float32)
-    answers = answers.tolist()
 
     net = torch.load('model/unet2/%s' % str(seed))
     net.cuda()
@@ -194,11 +193,10 @@ def eval(seed):
             ncr = (n / c) // 0.01
             ncpred.append(int(ncr))
 
-    num_of_ans, num_of_correct, prob, diff_dict = pro.validate(answers, ncpred)
+    num_of_ans, num_of_correct, diff_dict = pro.validate(answers, ncpred)
 
     print(num_of_ans)
     print(num_of_correct)
-    print(prob)
     print(diff_dict)
 
 

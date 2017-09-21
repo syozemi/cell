@@ -82,16 +82,13 @@ def create_ncratio(mask):
     #maskは(3,n,n)
     cytoplasm = mask[1]
     nucleus = mask[2]
-
     c = np.sum(cytoplasm + nucleus)
     n = np.sum(nucleus)
+    percentage = int((n / c) // 0.01)
+    #ncr = [0]*100
+    #ncr[p] += 1
 
-    d = int((n / c) // 0.1)
-    p = int((n / c) // 0.01)
-    ncr = [0]*100
-    ncr[p] += 1
-
-    return np.array(ncr), p, d
+    return percentage
 
 
 #answerの値を10段階に分け、それぞれの正解率をだす
@@ -108,8 +105,7 @@ def validate(answer_list, prediction_list):
             b[i] += 1
         else:
             pass
-    c = [x/y for x,y in zip(b,a)]
-    return a,b,c,d
+    return a,b,d
 
 
     
@@ -126,124 +122,117 @@ def load(path):
         a = pickle.load(f)
     return a
 
-def load_image():
+def load_image360():
     print('loading image data')
 
-    folders = os.listdir('data')
-    for i,folder in enumerate(folders):
-        path = 'data/%s/image' % folder
-        if i == 0:
-            image = load(path)
-        else:
+    image = np.array([]).reshape(0,1,360,360)
+    for name in ['image', 'image02']:
+        folders = os.listdir('data/%s' % name)
+        for i,folder in enumerate(folders):
+            path = 'data/%s/%s/image360' % (name,folder)
             image = np.vstack((image,load(path)))
 
     print('loading done')
 
     return image
 
-def load_mask():
-    print('loading mask data')
-
-    folders = os.listdir('data')
-    for i,folder in enumerate(folders):
-        path = 'data/%s/mask' % folder
-        if i == 0:
-            mask = load(path)
-        else:
-            mask = np.vstack((mask,load(path)))
-
-    print('loading done')
-
-    return mask
-
-def load_num_mask():
-    print('loading num_mask data')
-
-    folders = os.listdir('data')
-    for i,folder in enumerate(folders):
-        path = 'data/%s/num_mask' % folder
-        if i == 0:
-            num_mask = load(path)
-        else:
-            num_mask = np.vstack((num_mask,load(path)))
-
-    print('loading done')
-
-    return num_mask
-
-def load_num_ncratio():
-    print('loading ncratio data')
-
-    folders = os.listdir('data')
-    for i,folder in enumerate(folders):
-        path = 'data/%s/num_ncratio' % folder
-        if i == 0:
-            num_ncratio = load(path)
-        else:
-            num_ncratio = np.hstack((num_ncratio, load(path)))
-
-    print('loading done')
-
-    return num_ncratio
-
-def load_num_ncratio10():
-    print('loading num_ncratio10 data')
-
-    folders = os.listdir('data')
-    for i,folder in enumerate(folders):
-        path = 'data/%s/num_ncratio10' % folder
-        if i == 0:
-            num_ncratio10 = load(path)
-        else:
-            num_ncratio10 = np.hstack((num_ncratio10, load(path)))
-    print('loading done')
-
-    return num_ncratio10
-
-def load_raw_image():
+def load_image572():
     print('loading image data')
-
-    folders = os.listdir('data')
-    for i,folder in enumerate(folders):
-        path = 'data/%s/raw_image' % folder
-        if i == 0:
-            image = load(path)
-        else:
+    
+    image = np.array([]).reshape(0,1,572,572)
+    for name in ['image', 'image02']:
+        folders = os.listdir('data/%s' % name)
+        for i,folder in enumerate(folders):
+            path = 'data/%s/%s/image572' % (name,folder)
             image = np.vstack((image,load(path)))
 
     print('loading done')
 
     return image
 
-def load_raw_mask():
-    print('loading mask data')
-
-    folders = os.listdir('data')
-    for i,folder in enumerate(folders):
-        path = 'data/%s/raw_mask' % folder
-        if i == 0:
-            mask = load(path)
-        else:
-            mask = np.vstack((mask,load(path)))
-
-    print('loading done')
-
-    return mask
-
-def load_raw_num_mask():
-    print('loading num_mask data')
-
-    folders = os.listdir('data')
-    for i,folder in enumerate(folders):
-        path = 'data/%s/raw_num_mask' % folder
-        if i == 0:
-            num_mask = load(path)
-        else:
-            num_mask = np.vstack((num_mask,load(path)))
+def load_mask360():
+    print('loading image data')
+    
+    x = np.array([]).reshape(0,3,360,360)
+    for name in ['image', 'image02']:
+        folders = os.listdir('data/%s' % name)
+        for i,folder in enumerate(folders):
+            path = 'data/%s/%s/mask360' % (name,folder)
+            x = np.vstack((x,load(path)))
 
     print('loading done')
 
-    return num_mask
+    return x
+
+def load_mask572():
+    print('loading image data')
+    
+    x = np.array([]).reshape(0,3,572,572)
+    for name in ['image', 'image02']:
+        folders = os.listdir('data/%s' % name)
+        for i,folder in enumerate(folders):
+            path = 'data/%s/%s/mask572' % (name,folder)
+            x = np.vstack((x,load(path)))
+
+    print('loading done')
+
+    return x
+
+def load_num_mask360():
+    print('loading image data')
+    
+    x = np.array([]).reshape(0,1,360,360)
+    for name in ['image', 'image02']:
+        folders = os.listdir('data/%s' % name)
+        for i,folder in enumerate(folders):
+            path = 'data/%s/%s/num_mask360' % (name,folder)
+            x = np.vstack((x,load(path)))
+
+    print('loading done')
+
+    return x
+
+def load_num_mask572():
+    print('loading image data')
+    
+    x = np.array([]).reshape(0,1,572,572)
+    for name in ['image', 'image02']:
+        folders = os.listdir('data/%s' % name)
+        for i,folder in enumerate(folders):
+            path = 'data/%s/%s/num_mask572' % (name,folder)
+            x = np.vstack((x,load(path)))
+
+    print('loading done')
+
+    return x
+
+def load_num_ncratio360():
+    print('loading image data')
+    
+    x = []
+    for name in ['image', 'image02']:
+        folders = os.listdir('data/%s' % name)
+        for i,folder in enumerate(folders):
+            path = 'data/%s/%s/num_ncratio360' % (name,folder)
+            x = np.hstack((x,load(path)))
+
+    print('loading done')
+
+    return x
+
+def load_num_ncratio572():
+    print('loading image data')
+    
+    x = []
+    for name in ['image', 'image02']:
+        folders = os.listdir('data/%s' % name)
+        for i,folder in enumerate(folders):
+            path = 'data/%s/%s/num_ncratio572' % (name,folder)
+            x = np.hstack((x,load(path)))
+
+    print('loading done')
+
+    return x
 
 
 def load_unet_data(seed,mode=0):
@@ -281,34 +270,34 @@ def load_unet_data(seed,mode=0):
 def load_unet2_data(seed,mode=0):
     if mode == 0:
         print('loading training data for U-Net2')
-        image = load_raw_image()
-        mask = load_raw_mask()
-        num_mask = load_raw_num_mask()
+        image = load_image360()
+        mask = load_mask360()
+        num_mask = load_num_mask360()
         for x in [image,mask,num_mask]:
             np.random.seed(seed)
             np.random.shuffle(x)
         print('loading done')
-        return image[:250], mask[:250], num_mask[:250]
+        return image[:600], mask[:600], num_mask[:600]
 
     elif mode == 1:
         print('loading test data for U-Net2')
-        image = load_raw_image()
-        ncratio = load_num_ncratio()
+        image = load_image360()
+        ncratio = load_num_ncratio360()
         for x in [image,ncratio]:
             np.random.seed(seed)
             np.random.shuffle(x)
         print('loading done')
-        return image[250:], ncratio[250:]
+        return image[600:], ncratio[600:]
 
     else:
         print('loading view data for U-Net2')
-        image = load_raw_image()
-        mask = load_raw_mask()
+        image = load_image360()
+        mask = load_mask360()
         for x in [image,mask]:
             np.random.seed(seed)
             np.random.shuffle(x)
         print('loading done')
-        return image[250:], mask[250:]
+        return image[600:], mask[600:]
 
 def load_unet3_data(seed,mode=0):
     if mode == 0:
