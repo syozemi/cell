@@ -124,7 +124,7 @@ class Net2(nn.Module):
         self.up2 = Up(32,16)
         self.up3 = Up(16,8)
         self.last = nn.Conv2d(8,3,1)
-        self.weight = MulWeight([0.8,1,1])
+        self.weight = MulWeight([0.5,1,1])
 
     def forward(self, x):
         block1 = self.conv_3_8(x)
@@ -198,7 +198,7 @@ def train(seed):
 
     learning_times = 20000
     for i in range(learning_times):
-        r = random.randint(0,829)
+        r = random.randint(0,809)
         tmp_images = train_images[r:r+20,...]
         tmp_mask = mask[r:r+20,...]
 
