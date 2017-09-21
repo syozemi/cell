@@ -127,7 +127,7 @@ class Net2(nn.Module):
         self.weight = MulWeight([0.8,1,1])
 
     def forward(self, x):
-        block1 = self.conv_1_8(x)
+        block1 = self.conv_3_8(x)
         pool1 = self.pool1(block1)
 
         block2 = self.conv_8_16(pool1)
