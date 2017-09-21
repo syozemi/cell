@@ -14,7 +14,7 @@ import torch.optim as optim
 from collections import defaultdict
 import process_data as pro
 
-image, mask, num_mask = pro.load_unet2_data(seed,mode=0)
+image, mask, num_mask = pro.load_unet2_data(0,mode=0)
 
 print(image.shape)
 print(mask.shape)
