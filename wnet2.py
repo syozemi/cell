@@ -184,7 +184,7 @@ def train(seed):
 
     learning_times = 20000
     for i in range(learning_times):
-        r = random.randint(0,209)
+        r = random.randint(0,829)
         tmp_images = train_images[r:r+20,...]
         tmp_mask = mask[r:r+20,...]
         #もっといいバッチの作り方ある(これだと端にあるデータの登場回数が少ない)
@@ -216,7 +216,7 @@ def train(seed):
             print(str(i)+'/'+str(learning_times))
             print('======================')
 
-    torch.save(net, 'model/unet2/%s' % str(seed))
+    torch.save(net, 'model/wnet2/%s' % str(seed))
 
     if os.path.exists('log'):
         pass
@@ -231,7 +231,7 @@ def train(seed):
     with open('log/wnet2/%s' % str(seed), 'wb') as f:
         pickle.dump(validation_log, f)
 
-    print('saved model as model/unet2/%s' % str(seed))
+    print('saved model as model/wnet2/%s' % str(seed))
 
 
 def eval(seed):
@@ -267,11 +267,10 @@ def eval(seed):
         ncr = (n / c) // 0.01
         ncpred.append(int(ncr))
 
-    num_of_ans, num_of_correct, prob, diff_dict = pro.validate(answers, ncpred)
+    num_of_ans, num_of_correct, diff_dict = pro.validate(answers, ncpred)
 
     print(num_of_ans)
     print(num_of_correct)
-    print(prob)
     print(diff_dict)
 
 
