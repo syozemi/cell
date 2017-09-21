@@ -120,6 +120,7 @@ def train(seed):
     mask = mask.reshape(850,3,360,360).astype(np.float32)
 
     validation_log = []
+    loss_log = []
 
     train_image = image[:830] #(230,1,360,360)
     train_mask = mask[:830] #(230,3,360,360)
@@ -163,8 +164,10 @@ def train(seed):
             correct = len(np.where(pred==validation_num_mask)[0])
             acc = correct / validation_num_mask.size
             validation_log.append(acc)
+            loss_log.append(loss.data)
             print('======================')
             print(loss)
+            print(loss.data)
             print(acc)
             print(str(i)+'/'+str(learning_times))
             print('======================')
@@ -181,8 +184,21 @@ def train(seed):
     else:
         os.mkdir('log/unet2')
 
-    with open('log/unet2/%s' % str(seed)) as f:
+    if os.path.exists('log/unet2/val'):
+        pass
+    else:
+        os.mkdir('log/unet2/val')
+
+    if os.path.exists('log/unet2/loss'):
+        pass
+    else:
+        os.mkdir('log/unet2/loss')    
+
+    with open('log/unet2/val/%s' % str(seed)) as f:
         pickle.dump(validation_log, f)
+
+    with open('log/unet2/loss/%s' % str(seed)) as f:
+        pickle.dump(loss_log, f)
 
     end_time = time.time()
 
