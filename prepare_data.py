@@ -52,8 +52,8 @@ for name in ['image','image02']:
                     num_ncr572 = pro.create_ncratio(msk572)
 
                     _ = [x.append(y) for x,y in [(image360,img360),(image572,img572),(mask360,msk360),
-                    (mask572,msk572),(num_mask360,num_msk360),(num_mask572,num_msk572),
-                    (num_ncratio360,num_ncr360),(num_ncratio572,num_ncr572)]]
+                        (mask572,msk572),(num_mask360,num_msk360),(num_mask572,num_msk572),
+                        (num_ncratio360,num_ncr360),(num_ncratio572,num_ncr572)]]
 
                 except Exception as e:
                     print(str(e))
@@ -61,12 +61,9 @@ for name in ['image','image02']:
 
                 print(str(i), '\r', end='')
 
-            image360,image572,mask360,mask572,num_mask360,num_mask572 = 
-            [np.array(x) for x in [image360,image572,mask360,mask572,num_mask360,num_mask572]]
+            image360,image572,mask360,mask572,num_mask360,num_mask572 = [np.array(x) for x in [image360,image572,mask360,mask572,num_mask360,num_mask572]]
 
-            _ = [pro.save(x, 'data/%s/%s' % (name,folder), y) for x,y in [(image360,'image360'), (image572, 'image572'), 
-            (mask360,'mask360'), (mask572,'mask572'), (num_mask360, 'num_mask360'), (num_mask572, 'num_mask572'), 
-            (num_ncratio360, 'num_ncratio360'), (num_ncratio572, 'num_ncratio572')]]
+            _ = [pro.save(x, 'data/%s/%s' % (name,folder), y) for x,y in [(image360,'image360'), (image572, 'image572'), (mask360,'mask360'), (mask572,'mask572'), (num_mask360, 'num_mask360'), (num_mask572, 'num_mask572'), (num_ncratio360, 'num_ncratio360'), (num_ncratio572, 'num_ncratio572')]]
 
             print('%s done' % folder)
                     
