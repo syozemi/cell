@@ -297,7 +297,7 @@ def load_unet2_data(seed,mode=0):
     else:
         print('loading view data for U-Net2')
         image = load_image360()
-        mask = load_mask360()
+        mask = load_num_mask360()
         for x in [image,mask]:
             np.random.seed(seed)
             np.random.shuffle(x)
