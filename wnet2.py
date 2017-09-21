@@ -159,6 +159,7 @@ def train(seed):
     start_time = time.time()
 
     net = torch.load('model/unet2/%s' % str(seed))
+    net.cuda()
     image, mask, num_mask = pro.load_unet2_data(seed,mode=0)
     image = image.reshape(850,1,360,360).astype(np.float32)
     mask = mask.reshape(850,3,360,360).astype(np.float32)
@@ -171,7 +172,7 @@ def train(seed):
 
     for i in range(50):
         start = i * 17
-        tmp_x = Variable(torch.from_numpy(image[start:start+17]))
+        tmp_x = Variable(torch.from_numpy(image[start:start+17]).cuda())
         tmp_out = net(tmp_x)
         tmp_out = tmp_out.data.numpy()
         tmp_out = tmp_out[:,1:,:,:]
