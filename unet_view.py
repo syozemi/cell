@@ -114,7 +114,9 @@ class Net(nn.Module):
         return F.softmax(score)
 
 
-unet.view(0)
+n = int(input())
+
+unet.view(n)
 
 
 

@@ -113,6 +113,6 @@ class Net(nn.Module):
 
         return F.softmax(score)
 
-
-unet.eval(0)
+n = int(input())
+unet.eval(n)
 
