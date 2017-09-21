@@ -111,7 +111,7 @@ class Net(nn.Module):
 
 class Net2(nn.Module):
     def __init__(self):
-        super(Net, self).__init__()
+        super(Net2, self).__init__()
         self.activation = F.relu
         self.conv_3_8 = Conv(3,8)
         self.conv_8_16 = Conv(8,16)
