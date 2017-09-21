@@ -12,6 +12,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from collections import defaultdict
+import process_data as pro
 
 image, mask, num_mask = pro.load_unet2_data(seed,mode=0)
 
