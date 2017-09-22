@@ -29,6 +29,7 @@ for x in tqdm(cell_list1):
     mean = sum(ncr) / n
     for y in ncr:
         d[int(y//0.1)] += 1
+    d = sorted(d.items())
     res = (n,mean,d)
     result[x] = res
 
