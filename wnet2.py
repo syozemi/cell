@@ -202,7 +202,7 @@ def train(seed):
     loss_log = []
 
     #学習のループ
-    learning_times = 100000
+    learning_times = 20000
     for i in range(learning_times):
         r = random.randint(0,809)
         tmp_images = train_images[r:r+20,...]
