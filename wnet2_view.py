@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import time
 import process_data as pro
 import unet2
+import wnet2
 
 class Conv(nn.Module):
     def __init__(self, ins, outs, activation=F.relu):
@@ -148,6 +149,6 @@ class Net2(nn.Module):
         score = self.weight(raw_score)
 
         return F.softmax(score)
-        
+
 n = int(input())
 wnet2.view(n)
