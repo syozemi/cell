@@ -202,7 +202,7 @@ def train(seed):
     loss_log = []
 
     #学習のループ
-    learning_times = 20000
+    learning_times = 1000
     for i in range(learning_times):
         r = random.randint(0,809)
         tmp_images = train_images[r:r+20,...]
@@ -361,7 +361,8 @@ if __name__ == '__main__':
     else:
         os.mkdir('model/wnet2')
     files = os.listdir('model/wnet2')
-    seed = len(files)
+    #seed = len(files)
+    seed = 0
     train(seed)
     eval(seed)
     view(seed)
