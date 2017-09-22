@@ -266,7 +266,7 @@ def view(seed):
         sub.imshow(pred[3],cmap='gray')
     plt.show()
 
-def make_data_for_wnet2(seed):
+def make_data_for_wnet2(seed):  
     print('making data for wnet2')
     net = Net()
     net = torch.load('model/unet2/%s' % str(seed))
