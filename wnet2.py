@@ -321,7 +321,7 @@ def view(seed):
         print('done')
         out = out.cpu()
         out = out.data.numpy()
-        x = np.hstack(img,out)
+        x = np.hstack((img,out))
         print('calculating second unet')
         out = net2(Variable(torch.from_numpy(out).cuda()))
         print('done')
