@@ -324,7 +324,7 @@ def view(seed):
         out = out[:,1:,:,:]
         x = np.hstack((img,out))
         print('calculating second unet')
-        out = net2(Variable(torch.from_numpy(out).cuda()))
+        out = net2(Variable(torch.from_numpy(x).cuda()))
         print('done')
         _, pred = torch.max(out,1) #(n,388,388)で要素は0,1,2の配列
         pred = pred.cpu()
