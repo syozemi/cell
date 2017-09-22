@@ -277,7 +277,7 @@ def make_data_for_wnet2(seed):
         tmp_image = image[start:start+20]
         tmp_out = net(Variable(torch.from_numpy(tmp_image).cuda()))
         tmp_out = tmp_out.cpu()
-        tmp_out = tmp_out.data.numpy()
+        tmp_out = tmp_out.data.numpy()[:,1:,:,:]
         out = np.vstack((out,tmp_out))
     print('done')
     print(out.shape)
