@@ -217,10 +217,11 @@ def eval(seed):
             ncr = n / c
             ncpred.append(ncr)
 
-    num_of_ans, num_of_correct, diff_dict = pro.validate(answers, ncpred)
+    num_of_ans, num_of_correct,prob, diff_dict = pro.validate(answers, ncpred)
 
     print(num_of_ans)
     print(num_of_correct)
+    print(prob)
     print(diff_dict)
 
 

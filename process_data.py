@@ -105,7 +105,14 @@ def validate(answer_list, prediction_list):
             b[i] += 1
         else:
             pass
-    return a,b,d
+    c = []
+    for x,y in zip(a,b):
+        if x == 0:
+            c.append(0)
+        else:
+            c.append(y/x)
+
+    return a,b,c,d
 
 def make_dir(directory):
     if os.path.exists(directory):
