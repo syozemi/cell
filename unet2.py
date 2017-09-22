@@ -268,6 +268,7 @@ def view(seed):
 
 def make_data_for_wnet2(seed):
     print('making data for wnet2')
+    net = Net()
     net = torch.load('model/unet2/%s' % str(seed))
     image, answers = pro.load_unet2_data(seed,mode=1)
     image = image.reshape(-1,1,360,360).astype(np.float32)
