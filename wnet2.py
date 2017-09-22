@@ -306,7 +306,7 @@ def view(seed):
     image, mask = pro.load_unet2_data(seed,mode=2)
     image = image.reshape(-1,1,360,360).astype(np.float32)
     n = int(len(image) // 4)
-    for i in range(n):
+    for i in tqdm(range(n)):
         start = i * 4
         img = image[start:start+4]
         msk = mask[start:start+4]
