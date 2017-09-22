@@ -24,7 +24,7 @@ for x in tqdm(cell_list1):
     else:
         path = 'data/image/%s/num_ncratio360' % x
         ncr = pro.load(path)
-    print(ncr.shape)
+
     n = len(ncr)
     mean = sum(ncr) / n
     for y in ncr:
