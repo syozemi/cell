@@ -263,7 +263,12 @@ def eval(seed):
 
     image = image.reshape(-1,1,360,360).astype(np.float32)
 
-    net = torch.load('model/unet2/%s' % str(seed))
+    tmp = unet2.make_data_for_wnet2(seed)
+    tmp = tmp.astype(np.float32)
+
+    images = np.hstack((image,tmp))
+
+    net2 = Net2()
     net2 = torch.load('model/wnet2/%s' % str(seed))
 
     print('calculating wnet')
@@ -271,18 +276,11 @@ def eval(seed):
     ncpred = []
     for i in range(10):
         start = i * 20
-        tmp_image = image[start:start+20]
+        tmp_image = images[start:start+20]
         tmp_x = Variable(torch.from_numpy(tmp_image).cuda())
-        tmp_out = net(tmp_x)
-        tmp_out = tmp_out.cpu()
-        tmp_out = tmp_out.data.numpy()
-        tmp_out = tmp_out[:,1:,:,:]
-        print(tmp_out.shape)
-        first_out = np.hstack((tmp_image,tmp_out))
-        print(first_out.shape)
-        first_out = first_out.astype(np.float32)
-        x = Variable(torch.from_numpy(first_out).cuda())
-        out = net2(x)
+        out = net(tmp_x)
+        out = out.cpu()
+        out = out.data.numpy()
         _,pred = torch.max(out,1)
         pred = pred.data.numpy()
         for x in pred:

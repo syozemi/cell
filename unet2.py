@@ -266,7 +266,22 @@ def view(seed):
         sub.imshow(pred[3],cmap='gray')
     plt.show()
 
-
+def make_data_for_wnet2(seed):
+    print('making data for wnet2')
+    net = torch.load('model/unet2/%s' % str(seed))
+    image, answers = pro.load_unet2_data(seed,mode=1)
+    image = image.reshape(-1,1,360,360).astype(np.float32)
+    out = np.array([]).reshape(0,2,360,360)
+    for i in range(10):
+        start = i * 20
+        tmp_image = image[start:start+20]
+        tmp_out = net(Variable(torch.from_numpy(tmp_image).cuda()))
+        tmp_out = tmp_out.cpu()
+        tmp_out = tmp_out.data.numpy()
+        out = np.vstack((out,tmp_out))
+    print('done')
+    print(out.shape)
+    return out
 
 if __name__ == '__main__':
     if os.path.exists('model/unet2'):

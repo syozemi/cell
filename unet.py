@@ -274,6 +274,22 @@ def view(seed):
         sub.imshow(pred[3],cmap='gray')
     plt.show()
 
+def make_data_for_wnet(seed):
+    print('making data for wnet')
+    net = torch.load('model/unet/%s' % str(seed))
+    image, answers = pro.load_unet_data(seed,mode=1)
+    image = image.reshape(-1,1,572,572).astype(np.float32)
+    out = np.array([]).reshape(0,2,572,572)
+    for i in range(10):
+        start = i * 20
+        tmp_image = image[start:start+20]
+        tmp_out = net(Variable(torch.from_numpy(tmp_image).cuda()))
+        tmp_out = tmp_out.cpu()
+        tmp_out = tmp_out.data.numpy()
+        out = np.vstack((out,tmp_out))
+    print('done')
+    print(out.shape)
+    return out
 
 
 if __name__ == '__main__':
