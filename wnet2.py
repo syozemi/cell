@@ -11,6 +11,7 @@ from collections import defaultdict
 import matplotlib.pyplot as plt
 import time
 import process_data as pro
+import unet2
 
 class Conv(nn.Module):
     def __init__(self, ins, outs, activation=F.relu):
