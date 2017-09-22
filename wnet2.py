@@ -65,7 +65,7 @@ class MulWeight(nn.Module):
         out = torch.stack([s0,s1,s2],1)
         return out
 
-
+'''
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
@@ -106,7 +106,7 @@ class Net(nn.Module):
         score = self.weight(raw_score)
 
         return F.softmax(score)
-
+'''
 
 class Net2(nn.Module):
     def __init__(self):
