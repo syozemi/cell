@@ -291,8 +291,7 @@ def eval(seed):
             c = len(np.where(x>=1)[0])
             n = len(np.where(x==2)[0])
             ncr = n / c
-            ncpred.append(ncr)
-        print(i)            
+            ncpred.append(ncr)          
 
     print('done')
 
