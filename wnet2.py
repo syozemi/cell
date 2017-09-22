@@ -235,7 +235,7 @@ def train(seed):
             print(str(i)+'/'+str(learning_times))
             print('======================')
 
-    torch.save(net, 'model/wnet2/%s' % str(seed))
+    torch.save(net2, 'model/wnet2/%s' % str(seed))
 
     #lossとvalidation(ピクセル単位の正解率)のログを保存しておく。
     pro.make_dir('log')
@@ -265,11 +265,11 @@ def eval(seed):
     image = image.reshape(-1,1,360,360).astype(np.float32)
 
     tmp = unet2.make_data_for_wnet2(seed)
+
     tmp = tmp.astype(np.float32)
 
     images = np.hstack((image,tmp))
 
-    net2 = Net2()
     net2 = torch.load('model/wnet2/%s' % str(seed))
 
     print('calculating wnet')
