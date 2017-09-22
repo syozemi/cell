@@ -212,7 +212,7 @@ def eval(seed):
 
     ncpred = []
 
-    for i in range(20):
+    for i in tqdm(range(20)):
         start = i * 10
         img = image[start:start+10]
         out = net(Variable(torch.from_numpy(img).cuda()))

@@ -279,7 +279,7 @@ def eval(seed):
     print('calculating wnet')
 
     ncpred = []
-    for i in range(10):
+    for i in tqdm(range(10)):
         start = i * 20
         tmp_image = images[start:start+20]
         tmp_x = Variable(torch.from_numpy(tmp_image).cuda())
