@@ -16,13 +16,13 @@ cell_list2 = os.listdir('data/image02')
 for x in tqdm(cell_list1):
     if x in cell_list2:
         d = defaultdict(int)
-        path1 = 'data/image/%s/%s' % (x,num_ncratio360)
-        path2 = 'data/image02/%s' % (x,num_ncratio360)
+        path1 = 'data/image/%s/num_ncratio360' % x
+        path2 = 'data/image02/%s/num_ncratio360' % x
         ncr1 = load(path1)
         ncr2 = load(path2)
         ncr = np.hstack((ncr1,ncr2))
     else:
-        path = 'data/image/%s/%s' % (x,num_ncratio360)
+        path = 'data/image/%s/num_ncratio360' % x
         ncr = load(path)
     print(ncr.shape)
     n = len(ncr)
