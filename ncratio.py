@@ -28,7 +28,7 @@ for x in tqdm(cell_list1):
     n = len(ncr)
     mean = sum(ncr) / n
     for y in ncr:
-        d[int(y//0.01)] += 1
+        d[int(y//0.1)] += 1
     res = (n,mean,d)
     result[x] = res
 
