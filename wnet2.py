@@ -168,7 +168,7 @@ def train(seed):
 
     print('start calculating first unet')
 
-    for i in range(50):
+    for i in tqdm(range(50)):
         start = i * 17
         tmp_x = Variable(torch.from_numpy(image[start:start+17]).cuda())
         tmp_out = net(tmp_x)
@@ -318,7 +318,7 @@ def view(seed):
         print('calculating first unet')
         out = net(x)
         print('done')
-        out.cpu()
+        out = out.cpu()
         out = out.data.numpy()
         x = np.hstack(img,out)
         print('calculating second unet')

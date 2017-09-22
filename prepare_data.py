@@ -28,7 +28,7 @@ for name in ['image','image02']:
         try:
             image360,image572,mask360,mask388,num_mask360,num_mask388,num_ncratio360,num_ncratio388 = [],[],[],[],[],[],[],[]
             #files = os.listdir('picture/image/%s/%s' % (folder,aug))
-            for i,file in enumerate(files):
+            for file in tqdm(files):
                 try:
                     #画像のパス
                     #ipath = 'picture/image/%s/%s/%s' % (folder,aug,file)
@@ -58,8 +58,6 @@ for name in ['image','image02']:
                 except Exception as e:
                     print(str(e))
                     print(files+' error')
-
-                print(str(i), '\r', end='')
 
             image360,image572,mask360,mask388,num_mask360,num_mask388 = [np.array(x) for x in [image360,image572,mask360,mask388,num_mask360,num_mask388]]
 
