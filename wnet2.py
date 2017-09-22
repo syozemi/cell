@@ -269,8 +269,8 @@ def eval(seed):
 
     images = np.hstack((image,tmp))
 
-    net2 = Net2()
-    net2 = torch.load('model/wnet2/%s' % str(seed))
+    net = Net2()
+    net = torch.load('model/wnet2/%s' % str(seed))
 
     print('calculating wnet')
 
