@@ -310,7 +310,7 @@ def view(seed):
     for i in tqdm(range(n)):
         start = i * 4
         img = image[start:start+4]
-        msk = mask[start:start+4]
+        msk = mask[start:start+4].reshape(4,360,360)
         net = torch.load('model/unet2/%s' % str(seed))
         net2 = torch.load('model/wnet2/%s' % str(seed))
         net.cuda()

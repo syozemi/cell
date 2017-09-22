@@ -239,7 +239,7 @@ def view(seed):
     for i in range(n):
         start = i * 4
         img = image[start:start+4]
-        msk = mask[start:start+4]
+        msk = mask[start:start+4].reshape(4,360,360)
         net = torch.load('model/unet/%s' % str(seed))
         net.cuda()
         x = Variable(torch.from_numpy(img).cuda())
