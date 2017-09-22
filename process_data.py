@@ -111,7 +111,7 @@ def validate(answer_list, prediction_list):
             c.append(0)
         else:
             p = np.round(y/x,decimals=3)
-            c.append(y/x)
+            c.append(p)
 
     return a,b,c,d
 
