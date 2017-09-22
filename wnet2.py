@@ -277,7 +277,9 @@ def eval(seed):
         tmp_out = tmp_out.cpu()
         tmp_out = tmp_out.data.numpy()
         tmp_out = tmp_out[:,1:,:,:]
+        print(tmp_out.shape)
         first_out = np.hstack((tmp_image,tmp_out))
+        print(first_out.shape)
         first_out = first_out.astype(np.float32)
         x = Variable(torch.from_numpy(first_out).cuda())
         out = net2(x)
