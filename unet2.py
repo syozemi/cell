@@ -138,7 +138,7 @@ def train(seed):
     validation_log, loss_log = [], []
 
 
-    learning_times = 100000
+    learning_times = 30000
     for i in range(learning_times):
         r = random.randint(0,809)
         tmp_image = image[r:r+20,...]
