@@ -5,6 +5,7 @@ import pickle
 import matplotlib.pyplot as plt
 import random
 import cv2 as cv
+from tqdm import tqdm
 
 
 if os.path.exists('data'):
