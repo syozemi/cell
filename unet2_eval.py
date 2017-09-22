@@ -12,6 +12,7 @@ from collections import defaultdict
 from sklearn.metrics import classification_report
 import matplotlib.pyplot as plt
 import unet2
+from tqdm import tqdm
 
 
 class Conv(nn.Module):

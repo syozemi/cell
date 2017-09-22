@@ -10,6 +10,7 @@ import random
 from collections import defaultdict
 import unet
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 
 class Conv(nn.Module):

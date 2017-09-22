@@ -11,6 +11,7 @@ from collections import defaultdict
 import matplotlib.pyplot as plt
 import time
 import process_data as pro
+from tqdm import tqdm
 
 
 class Conv(nn.Module):
