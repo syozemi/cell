@@ -248,6 +248,8 @@ def train(seed):
 
     print('saved model as model/wnet2/%s' % str(seed))
 
+    end_time = time.time()
+
     #かかった時間を出力する
     time_taken = (end_time - start_time) / 60
 
