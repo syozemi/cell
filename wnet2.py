@@ -65,7 +65,7 @@ class MulWeight(nn.Module):
         out = torch.stack([s0,s1,s2],1)
         return out
 
-'''
+
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
@@ -106,7 +106,7 @@ class Net(nn.Module):
         score = self.weight(raw_score)
 
         return F.softmax(score)
-'''
+
 
 class Net2(nn.Module):
     def __init__(self):
@@ -359,7 +359,6 @@ if __name__ == '__main__':
     else:
         os.mkdir('model/wnet2')
     files = os.listdir('model/wnet2')
-    seed = 1
     train(seed)
     eval(seed)
     view(seed)
