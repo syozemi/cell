@@ -150,4 +150,4 @@ class Net2(nn.Module):
         return F.softmax(score)
 
 n = int(input())
-wnet2.eval(1)
+wnet2.eval(n)
