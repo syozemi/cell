@@ -18,12 +18,12 @@ for x in tqdm(cell_list1):
         d = defaultdict(int)
         path1 = 'data/image/%s/num_ncratio360' % x
         path2 = 'data/image02/%s/num_ncratio360' % x
-        ncr1 = load(path1)
-        ncr2 = load(path2)
+        ncr1 = pro.load(path1)
+        ncr2 = pro.load(path2)
         ncr = np.hstack((ncr1,ncr2))
     else:
         path = 'data/image/%s/num_ncratio360' % x
-        ncr = load(path)
+        ncr = pro.load(path)
     print(ncr.shape)
     n = len(ncr)
     mean = sum(ncr) / n
