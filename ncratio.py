@@ -14,8 +14,8 @@ cell_list1 = os.listdir('data/image')
 cell_list2 = os.listdir('data/image02')
 
 for x in tqdm(cell_list1):
+    d = defaultdict(int)
     if x in cell_list2:
-        d = defaultdict(int)
         path1 = 'data/image/%s/num_ncratio360' % x
         path2 = 'data/image02/%s/num_ncratio360' % x
         ncr1 = pro.load(path1)
