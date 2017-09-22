@@ -361,8 +361,7 @@ if __name__ == '__main__':
     else:
         os.mkdir('model/wnet2')
     files = os.listdir('model/wnet2')
-    #seed = len(files)
-    seed = 0
+    seed = len(files)
     train(seed)
     eval(seed)
     view(seed)
