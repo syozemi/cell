@@ -269,8 +269,8 @@ def eval(seed):
 
     images = np.hstack((image,tmp))
 
-    net = Net2()
-    net = torch.load('model/wnet2/%s' % str(seed))
+    net2 = Net2()
+    net2 = torch.load('model/wnet2/%s' % str(seed))
 
     print('calculating wnet')
 
@@ -279,7 +279,7 @@ def eval(seed):
         start = i * 20
         tmp_image = images[start:start+20]
         tmp_x = Variable(torch.from_numpy(tmp_image).cuda())
-        out = net(tmp_x)
+        out = net2(tmp_x)
         out = out.cpu()
         out = out.data.numpy()
         _,pred = torch.max(out,1)
