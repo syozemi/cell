@@ -114,32 +114,28 @@ def train(seed):
     #num_maskはマスクの数字版で、validationに使う
 
     start_time = time.time()
-
-    
+  
     image, mask, num_mask = pro.load_unet2_data(seed,mode=0)
-
-    image = image.reshape(850,1,360,360).astype(np.float32)
-    mask = mask.reshape(850,3,360,360).astype(np.float32)
 
     train_image = image[:830] #(230,1,360,360)
     train_mask = mask[:830] #(230,3,360,360)
 
     validation_image = image[830:] #(20,1,360,360)
-    validation_num_mask = num_mask[830:].reshape(20,360,360) #(20,360,360)
+    validation_num_mask = num_mask[830:] #(20,360,360)
 
     #validation用に作っておく
     val_x = Variable(torch.from_numpy(validation_image).cuda())
-
 
     net = Net()
     net.cuda()
     criterion = nn.MSELoss().cuda()
     optimizer = optim.Adam(net.parameters())
 
-    validation_log, loss_log = [], []
-
-
     learning_times = 30000
+    log_frequency = 10
+
+    log = pro.Log(seed, learning_times, log_frequency)
+
     for i in range(learning_times):
         r = random.randint(0,809)
         tmp_image = image[r:r+20,...]
@@ -158,33 +154,33 @@ def train(seed):
 
         #10回に一回validateする
         #ピクセル単位でどれだけ正しく予測できているか
-        if i % 10 == 0:
-            out_val = net(val_x)
-            _, pred = torch.max(out_val,1) #(n,360,360), 一枚は、0,1,2でできた配列
-            pred = pred.cpu()
-            pred = pred.data.numpy()
-            pred.reshape(20,360,360)
-            correct = len(np.where(pred==validation_num_mask)[0])
-            acc = correct / validation_num_mask.size
-            validation_log.append(acc)
-            loss_log.append(loss.data)
+        if i % log_frequency == 0:
 
-            print('======================')
-            print(loss)
-            print(loss.data)
-            print(acc)
-            print(str(i)+'/'+str(learning_times))
-            print('======================')
+            tmp_num_mask = num_mask[r:r+20]
+
+            out_val = net(val_x)
+
+            training_accuracy = pro.calculate_accuracy(out, tmp_num_mask)
+            validation_accuracy = pro.calculate_accuracy(out_val, validation_num_mask)
+
+            log.loss.append(loss.data[0])
+            log.training_accuracy.append(training_accuracy)
+            log.validation_accuracy.append(validation_accuracy)
+
+            print('=========================================================')
+            print('training times:      %s/%s' % (str(i), str(learning_times)))
+            print('training accuracy:   %s' % str(training_accuracy))
+            print('validation accuracy: %s' % str(validation_accuracy))
+            print('loss:                %s' % str(loss.data[0]))
+            print('estimated time:      %s' % str(est_time))
+            print('=========================================================')
 
     torch.save(net, 'model/unet2/%s' % str(seed))
 
     pro.make_dir('log')
     pro.make_dir('log/unet2')
-    pro.make_dir('log/unet2/val')
-    pro.make_dir('log/unet2/log')
 
-    pro.save(validation_log,'log/unet2/val',str(seed))
-    pro.save(loss_log,'log/unet2/loss',str(seed))
+    pro.save(log, 'log/unet2', str(seed))
 
     end_time = time.time()
     time_taken = (end_time - start_time) / 60
@@ -196,7 +192,7 @@ def eval(seed):
     #imageは(n,1,360,360)
     #answersは(1,n)
 
-    image, answers = pro.load_unet2_data(seed,mode=1)
+    image, answers, num_mask = pro.load_unet2_data(seed,mode=1)
 
     image = image.reshape(-1,1,360,360).astype(np.float32)
 
@@ -204,36 +200,40 @@ def eval(seed):
     net.cuda()
 
     ncpred = []
+    mask_pred = np.array([]).reshape(0,360,360)
 
-    for i in tqdm(range(20)):
-        start = i * 10
-        img = image[start:start+10]
+    for i in tqdm(range(10)):
+        start = i * 20
+        img = image[start:start+20]
         out = net(Variable(torch.from_numpy(img).cuda()))
         _, pred = torch.max(out,1) #(n,360,360)で要素は0,1,2の配列
         pred = pred.cpu()
         pred = pred.data.numpy()
+        pred = pred.reshape(-1,360,360)
+        mask_pred = np.vstack((mask_pred,pred))
         for x in pred:
             c = len(np.where(x>=1)[0])
             n = len(np.where(x==2)[0])
             ncr = n / c
             ncpred.append(ncr)
 
-    num_of_ans, num_of_correct,prob, diff_dict = pro.validate(answers, ncpred)
+    num_of_ans, num_of_correct,prob, diff_dict = pro.validate_ncr(answers, ncpred)
+    f_measure = pro.validate_mask(num_mask, mask_pred.astype(np.int32))
 
     print(num_of_ans)
     print(num_of_correct)
     print(prob)
     print(diff_dict)
+    print(f_measure)
 
 
 def view(seed):
     image, mask = pro.load_unet2_data(seed,mode=2)
-    image = image.reshape(-1,1,360,360).astype(np.float32)
     n = int(len(image) // 4)
     for i in range(n):
         start = i * 4
         img = image[start:start+4]
-        msk = mask[start:start+4].reshape(4,360,360)
+        msk = mask[start:start+4]
         net = torch.load('model/unet2/%s' % str(seed))
         net.cuda()
         x = Variable(torch.from_numpy(img).cuda())
@@ -287,10 +287,7 @@ def make_data_for_wnet2(seed):
     return out
 
 if __name__ == '__main__':
-    if os.path.exists('model/unet2'):
-        pass
-    else:
-        os.mkdir('model/unet2')
+    pro.make_dir('model/unet2')
     files = os.listdir('model/unet2')
     seed = len(files)
     train(seed)

@@ -162,8 +162,6 @@ def train(seed):
     net = torch.load('model/unet2/%s' % str(seed))
     net.cuda()
     image, mask, num_mask = pro.load_unet2_data(seed,mode=0)
-    image = image.reshape(850,1,360,360).astype(np.float32)
-    mask = mask.reshape(850,3,360,360).astype(np.float32)
 
     tmp_image = np.array([]).reshape(0,2,360,360)
 
@@ -199,15 +197,16 @@ def train(seed):
     #validation用に作っておく
     val_x = Variable(torch.from_numpy(validation_images).cuda())
 
-    validation_log = []
-    loss_log = []
+    learning_times = 1000
+    log_frequency = 10
+
+    log = pro.Log(seed, learning_times, log_frequency)
 
     #学習のループ
-    learning_times = 1000
     for i in range(learning_times):
         r = random.randint(0,809)
-        tmp_images = train_images[r:r+20,...]
-        tmp_mask = mask[r:r+20,...]
+        tmp_images = train_images[r:r+20]
+        tmp_mask = mask[r:r+20]
 
         x = Variable(torch.from_numpy(tmp_images).cuda())
         y = Variable(torch.from_numpy(tmp_mask).cuda())
@@ -220,32 +219,31 @@ def train(seed):
 
         #10回に一回validateする
         #ピクセル単位でどれだけ正しく予測できているか
-        if i % 10 == 0:
+        if i % log_frequency == 0:
+            tmp_num_mask = num_mask[r:r+20]
             out_val = net2(val_x)
-            _, pred = torch.max(out_val,1) #(n,388,388)のVariable, 一枚は、0,1,2でできた配列
-            pred = pred.cpu()
-            pred = pred.data.numpy()
-            pred.reshape(20,360,360)
-            correct = len(np.where(pred == validation_num_mask)[0])
-            acc = correct / validation_num_mask.size
-            validation_log.append(acc)
-            loss_log.append(loss.data)
-            print('======================')
-            print(loss)
-            print(acc)
-            print(str(i)+'/'+str(learning_times))
-            print('======================')
+            training_accuracy = pro.calculate_accuracy(out, tmp_num_mask)
+            validation_accuracy = pro.calculate_accuracy(out_val, validation_num_mask)
+
+            log.loss.append(loss.data[0])
+            log.training_accuracy.append(training_accuracy)
+            log.validation_accuracy.append(validation_accuracy)
+
+            print('=========================================================')
+            print('training times:      %s/%s' % (str(i), str(learning_times)))
+            print('training accuracy:   %s' % str(training_accuracy))
+            print('validation accuracy: %s' % str(validation_accuracy))
+            print('loss:                %s' % str(loss.data[0]))
+            print('estimated time:      %s' % str(est_time))
+            print('=========================================================')
 
     torch.save(net2, 'model/wnet2/%s' % str(seed))
 
     #lossとvalidation(ピクセル単位の正解率)のログを保存しておく。
     pro.make_dir('log')
     pro.make_dir('log/wnet2')
-    pro.make_dir('log/wnet2/val')
-    pro.make_dir('log/wnet2/loss')
 
-    pro.save(validation_log, 'log/wnet2/val', str(seed))
-    pro.save(loss_log, 'log/wnet2/loss', str(seed))   
+    pro.save(log, 'log/wnet2', str(seed))  
 
     print('saved model as model/wnet2/%s' % str(seed))
 
@@ -263,9 +261,7 @@ def eval(seed):
 
     #prediction
     #データをロード
-    image, answers = pro.load_unet2_data(seed,mode=1)
-
-    image = image.reshape(-1,1,360,360).astype(np.float32)
+    image, answers, num_mask = pro.load_unet2_data(seed,mode=1)
 
     tmp = unet2.make_data_for_wnet2(seed)
 
@@ -279,6 +275,8 @@ def eval(seed):
     print('calculating wnet')
 
     ncpred = []
+    mask_pred = np.array([]).reshape(0,360,360)
+
     for i in tqdm(range(10)):
         start = i * 20
         tmp_image = images[start:start+20]
@@ -287,6 +285,8 @@ def eval(seed):
         _,pred = torch.max(out,1)
         pred = pred.cpu()
         pred = pred.data.numpy()
+        pred = pred.reshape(-1,360,360)
+        mask_pred = np.vstack((mask_pred,pred))
         for x in pred:
             c = len(np.where(x>=1)[0])
             n = len(np.where(x==2)[0])
@@ -295,12 +295,14 @@ def eval(seed):
 
     print('done')
 
-    num_of_ans, num_of_correct,prob, diff_dict = pro.validate(answers, ncpred)
+    num_of_ans, num_of_correct,prob, diff_dict = pro.validate_ncr(answers, ncpred)
+    f_measure = pro.validate_mask(num_mask, mask_pred)
 
     print(num_of_ans)
     print(num_of_correct)
     print(prob)
     print(diff_dict)
+    print(f_measure)
 
 
 def view(seed):
@@ -358,10 +360,7 @@ def view(seed):
 
 
 if __name__ == '__main__':
-    if os.path.exists('model/wnet2'):
-        pass
-    else:
-        os.mkdir('model/wnet2')
+    pro.make_dir('model/wnet2')
     files = os.listdir('model/wnet2')
     seed = len(files)
     train(seed)

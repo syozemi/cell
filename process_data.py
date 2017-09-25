@@ -6,6 +6,14 @@ import random
 import cv2 as cv
 from collections import defaultdict
 
+class Log():
+    def __init__(self, seed, learning_times, log_frequency):
+        self.seed = seed
+        self.learning_times = learning_times #何回学習したか
+        self.log_frequency = log_frequency #何回毎にログを取ったか
+        self.loss = []
+        self.training_accuracy = []
+        self.validation_accuracy = []
 
 #画像をグレースケールに変換
 def rgb2gray(rgb):
@@ -91,7 +99,7 @@ def create_ncratio(mask):
 
 
 #answerの値を10段階に分け、それぞれの正解率をだす
-def validate(answer_list, prediction_list):
+def validate_ncr(answer_list, prediction_list):
     a = [0] * 10
     b = [0] * 10
     d = defaultdict(int)
@@ -115,12 +123,57 @@ def validate(answer_list, prediction_list):
 
     return a,b,c,d
 
+def tasu(num):
+    if tz == num:
+        if z == num:
+            tp[num] += 1
+        else:
+            fn[num] += 1
+    else:
+        if z == num:
+            fp[num] += 1
+        else:
+            #tn[num] += 1
+            pass
+
+def validate_mask(mask, pred_mask):
+    #mask,pred_maskは(n,360,360)
+    tp = [0] * 3
+    fp = [0] * 3
+    #tn = [0] * 3
+    fn = [0] * 3
+    for tx, x in zip(mask,pred_mask):
+        for ty, y in zip(tx, x):
+            for tz, z in zip(ty, y):
+                #0
+                tasu(0)
+                #1
+                tasu(1)
+                #2
+                tasu(2)
+    tp,fp,fn = [np.array(x) for x in [tp,fp,fn]]
+    precision = tp / (tp + fp)
+    recall = tp / (tp + fn)
+    f_measure = (2 * recall * precision) / (recall + precision)
+    return f_measure
+
+
 def make_dir(directory):
     if os.path.exists(directory):
         pass
     else:
         os.mkdir(directory)
 
+
+def calculate_accuracy(out, mask):
+    _, pred = torch.max(out, 1)
+    pred = pred.cpu()
+    pred = pred.data.numpy()
+    pred = pred.reshape(mask.shape)
+    correct = len(np.where(pred == mask)[0])
+    pixels = mask.size
+    accuracy = correct / pixels
+    return accuracy
     
 
 #=========================================================
@@ -135,223 +188,153 @@ def load(path):
         a = pickle.load(f)
     return a
 
-def load_image360():
-    print('loading image360 data')
-
-    image = np.array([]).reshape(0,1,360,360)
-    for name in ['image', 'image02']:
-        folders = os.listdir('data/%s' % name)
-        for i,folder in enumerate(folders):
-            path = 'data/%s/%s/image360' % (name,folder)
-            img = load(path).reshape(-1,1,360,360)
-            image = np.vstack((image,img))
-
+def load_image():
+    print('loading image')
+    x = np.array([]).reshape(0,360,360)
+    cells = os.listdir('data')
+    if '.DS_Store' in cells:
+        cells.remove('.DS_Store')
+    for cell in cells:
+        y = load('data/%s/image' % cell)
+        x = np.vstack((x,y))
     print('loading done')
+    return x
 
-    return image
-
-def load_image572():
-    print('loading image572 data')
-    
-    image = np.array([]).reshape(0,1,572,572)
-    for name in ['image', 'image02']:
-        folders = os.listdir('data/%s' % name)
-        for i,folder in enumerate(folders):
-            path = 'data/%s/%s/image572' % (name,folder)
-            img = load(path).reshape(-1,1,572,572)
-            image = np.vstack((image,img))
-
-    print('loading done')
-
-    return image
-
-def load_mask360():
-    print('loading mask360 data')
-    
+def load_mask():
+    print('loading mask')
     x = np.array([]).reshape(0,3,360,360)
-    for name in ['image', 'image02']:
-        folders = os.listdir('data/%s' % name)
-        for i,folder in enumerate(folders):
-            path = 'data/%s/%s/mask360' % (name,folder)
-            x = np.vstack((x,load(path)))
-
+    cells = os.listdir('data')
+    if '.DS_Store' in cells:
+        cells.remove('.DS_Store')
+    for cell in cells:
+        y = load('data/%s/mask' % cell)
+        x = np.vstack((x,y))
     print('loading done')
-
     return x
 
-def load_mask388():
-    print('loading mask388 data')
-    
-    x = np.array([]).reshape(0,3,388,388)
-    for name in ['image', 'image02']:
-        folders = os.listdir('data/%s' % name)
-        for i,folder in enumerate(folders):
-            path = 'data/%s/%s/mask388' % (name,folder)
-            x = np.vstack((x,load(path)))
-
+def load_num_mask():
+    print('loading num_mask')
+    x = np.array([]).reshape(0,360,360)
+    cells = os.listdir('data')
+    if '.DS_Store' in cells:
+        cells.remove('.DS_Store')
+    for cell in cells:
+        y = load('data/%s/num_mask' % cell)
+        x = np.vstack((x,y))
     print('loading done')
-
     return x
 
-def load_num_mask360():
-    print('loading num_mask360 data')
-    
-    x = np.array([]).reshape(0,1,360,360)
-    for name in ['image', 'image02']:
-        folders = os.listdir('data/%s' % name)
-        for i,folder in enumerate(folders):
-            path = 'data/%s/%s/num_mask360' % (name,folder)
-            msk = load(path).reshape(-1,1,360,360)
-            x = np.vstack((x,msk))
-
-    print('loading done')
-
-    return x
-
-def load_num_mask388():
-    print('loading num_mask572 data')
-    
-    x = np.array([]).reshape(0,1,388,388)
-    for name in ['image', 'image02']:
-        folders = os.listdir('data/%s' % name)
-        for i,folder in enumerate(folders):
-            path = 'data/%s/%s/num_mask388' % (name,folder)
-            msk = load(path).reshape(-1,1,388,388)
-            x = np.vstack((x,msk))
-
-    print('loading done')
-
-    return x
-
-def load_num_ncratio360():
-    print('loading num_ncratio360 data')
-    
+def load_ncratio():
+    print('loading ncratio')
     x = []
-    for name in ['image', 'image02']:
-        folders = os.listdir('data/%s' % name)
-        for i,folder in enumerate(folders):
-            path = 'data/%s/%s/num_ncratio360' % (name,folder)
-            x = np.hstack((x,load(path)))
-
+    cells = os.listdir('data')
+    if '.DS_Store' in cells:
+        cells.remove('.DS_Store')
+    for cell in cells:
+        y = load('data/%s/ncratio' % cell)
+        x = np.hstack((x,y))
     print('loading done')
-
     return x
 
-def load_num_ncratio388():
-    print('loading num_ncratio388 data')
-    
-    x = []
-    for name in ['image', 'image02']:
-        folders = os.listdir('data/%s' % name)
-        for i,folder in enumerate(folders):
-            path = 'data/%s/%s/num_ncratio388' % (name,folder)
-            x = np.hstack((x,load(path)))
-
-    print('loading done')
-
-    return x
-
-
-def load_unet_data(seed,mode=0):
-    print('loading data for U-Net')
-
-    if mode == 0:
-        image = load_image572()
-        mask = load_mask388()
-        num_mask = load_num_mask388()
-        for x in [image,mask,num_mask]:
-            np.random.seed(seed)
-            np.random.shuffle(x)
-        print('loading done')
-        return image[:850], mask[:850], num_mask[:850]
-
-    elif mode == 1:
-        image = load_image572()
-        ncratio = load_num_ncratio360()
-        for x in [image,ncratio]:
-            np.random.seed(seed)
-            np.random.shuffle(x)
-        print('loading done')
-        return image[850:], ncratio[850:]
-
-    else:
-        image = load_image572()
-        mask = load_num_mask388()
-        for x in [image,mask]:
-            np.random.seed(seed)
-            np.random.shuffle(x)
-        print('loading done')
-        return image[850:], mask[850:]
 
 def load_unet2_data(seed,mode=0):
+
     if mode == 0:
         print('loading training data for U-Net2')
-        image = load_image360()
-        mask = load_mask360()
-        num_mask = load_num_mask360()
+        image, mask, num_mask = load_image(), load_mask(), load_num_mask()
         for x in [image,mask,num_mask]:
             np.random.seed(seed)
             np.random.shuffle(x)
+        image = image[:850].reshape(850,1,360,360).astype(np.float32)
+        mask = mask[:850].reshape(850,3,360,360).astype(np.float32)
+        num_mask = num_mask[:850].astype(np.int32)
         print('loading done')
-        return image[:850], mask[:850], num_mask[:850]
+        return image, mask, num_mask
 
     elif mode == 1:
         print('loading test data for U-Net2')
-        image = load_image360()
-        ncratio = load_num_ncratio360()
-        for x in [image,ncratio]:
+        image = load_image()
+        ncratio = load_ncratio()
+        num_mask = load_num_mask()
+        for x in [image,ncratio,num_mask]:
             np.random.seed(seed)
             np.random.shuffle(x)
+        image = image[850:].reshape(200,1,360,360).astype(np.float32)
+        ncratio = ncratio[850:]
+        num_mask = num_mask[850:].astype(np.int32)
         print('loading done')
-        return image[850:], ncratio[850:]
+        return image, ncratio, num_mask
 
     else:
         print('loading view data for U-Net2')
-        image = load_image360()
-        mask = load_num_mask360()
+        image = load_image()
+        num_mask = load_num_mask()
         for x in [image,mask]:
             np.random.seed(seed)
             np.random.shuffle(x)
+        image = image[850:].reshape(200,1,360,360).astype(np.float32)
+        num_mask = num_mask[850:].reshape(200,3,360,360).astype(np.int32)
         print('loading done')
-        return image[850:], mask[850:]
+        return image, mask
+
 
 def load_unet3_data(seed,mode=0):
+
     if mode == 0:
         print('loading training data for U-Net3')
-        image = load_raw_image()
-        mask = load_raw_mask()
-        num_mask = load_raw_num_mask()
-        ncratio = load_num_ncratio()
+        image = load_image()
+        mask = load_mask()
+        num_mask = load_num_mask()
+        ncratio = load_ncratio()
         for x in [image,mask,num_mask,ncratio]:
             np.random.seed(seed)
             np.random.shuffle(x)
+        image = image[:850].reshape(850,1,360,360).astype(np.float32)
+        mask = mask[:850].reshape(850,3,360,360).astype(np.float32)
+        num_mask = num_mask[:850].astype(np.int32)
+        ncratio = np.array(ncratio[:850]).reshape(850,1,1,1).astype(np.float32)
         print('loading done')
-        return image[:250], mask[:250], num_mask[:250], ncratio[:250]
+        return image, mask, num_mask, ncratio
 
     elif mode == 1:
         print('loading test data for U-Net3')
-        image = load_raw_image()
-        ncratio = load_num_ncratio()
-        for x in [image,ncratio]:
+        image = load_image()
+        ncratio = load_ncratio()
+        num_mask = load_num_mask()
+        for x in [image,ncratio,num_mask]:
             np.random.seed(seed)
             np.random.shuffle(x)
+        image = image[850:].reshape(200,1,360,360).astype(np.float32)
+        ncratio = ncratio[850:]
+        num_mask = num_mask[850:].astype(np.int32)
         print('loading done')
-        return image[250:], ncratio[250:]
+        return image, ncratio, num_mask
 
     else:
         print('loading view data for U-Net3')
-        image = load_raw_image()
-        mask = load_raw_mask()
+        image = load_image()
+        num_mask = load_num_mask()
         for x in [image,mask]:
             np.random.seed(seed)
             np.random.shuffle(x)
+        image = image[850:].reshape(200,1,360,360).astype(np.float32)
+        num_mask = num_mask[850:].reshape(200,3,360,360).astype(np.int32)
         print('loading done')
-        return image[250:], mask[250:]
+        return image, mask
+
+
+def load_test_data():
+    print('loading')
+    image = load('mini_data/image')
+    mask = load('mini_data/mask')
+    nmask = load('mini_data/num_mask')
+    ncratio = load('mini_data/ncratio')
+    return image, mask, nmask, ncratio
 
 def load_cnn_data(seed,is_train=True):
     print('loading data for CNN')
-    image = load_image360()
-    ncratio = load_num_ncratio()
+    image = load_image()
+    ncratio = load_ncratio()
     for x in [image,ncratio]:
         np.random.seed(seed)
         np.random.shuffle(x)

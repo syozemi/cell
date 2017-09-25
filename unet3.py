@@ -4,15 +4,21 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import numpy as np
-import process_data as pro
 import pickle
 import random
+import os
+from collections import defaultdict
+import matplotlib.pyplot as plt
+import time
+import process_data as pro
+from tqdm import tqdm
+
 
 class Conv(nn.Module):
     def __init__(self, ins, outs, activation=F.relu):
         super(Conv,self).__init__()
-        self.conv1 = nn.Conv2d(ins,outs,3)
-        self.conv2 = nn.Conv2d(outs,outs,3)
+        self.conv1 = nn.Conv2d(ins,outs,3,padding=1)
+        self.conv2 = nn.Conv2d(outs,outs,3,padding=1)
         self.activation = activation
         self.norm = nn.BatchNorm2d(outs)
 
@@ -25,8 +31,8 @@ class Up(nn.Module):
     def __init__(self, ins, outs, activation=F.relu):
         super(Up,self).__init__()
         self.up = nn.ConvTranspose2d(ins,outs,2,stride=2)
-        self.conv1 = nn.Conv2d(ins,outs,3)
-        self.conv2 = nn.Conv2d(outs,outs,3)
+        self.conv1 = nn.Conv2d(ins,outs,3,padding=1)
+        self.conv2 = nn.Conv2d(outs,outs,3,padding=1)
         self.activation = activation
         self.norm = nn.BatchNorm2d(outs)
 
@@ -60,7 +66,6 @@ class MulWeight(nn.Module):
         out = torch.stack([s0,s1,s2],1)
         return out
 
-
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
@@ -69,18 +74,14 @@ class Net(nn.Module):
         self.conv_8_16 = Conv(8,16)
         self.conv_16_32 = Conv(16,32)
         self.conv_32_64 = Conv(32,64)
-        self.conv_64_128 = Conv(64,128)
         self.pool1 = nn.MaxPool2d(2)
         self.pool2 = nn.MaxPool2d(2)
         self.pool3 = nn.MaxPool2d(2)
-        self.pool4 = nn.MaxPool2d(2)
-        self.up1 = Up(128,64)
-        self.up2 = Up(64,32)
-        self.up3 = Up(32,16)
-        self.up4 = Up(16,8)
+        self.up1 = Up(64,32)
+        self.up2 = Up(32,16)
+        self.up3 = Up(16,8)
         self.last = nn.Conv2d(8,3,1)
-        self.weight = MulWeight([0.8,1,1])
-        self.mask_loss = nn.MSELoss()
+        self.weight = MulWeight([0.1,1,1])
 
     def forward(self, x):
         block1 = self.conv_1_8(x)
@@ -92,17 +93,15 @@ class Net(nn.Module):
         block3 = self.conv_16_32(pool2)
         pool3 = self.pool3(block3)
 
-        block4 = self.conv_32_64(pool3)
-        pool4 = self.pool4(block4)
+        bottom = self.conv_32_64(pool3)
 
-        bottom = self.conv_64_128(pool4)
+        up1 = self.up1(bottom,block3)
 
-        up1 = self.up1(bottom,block4)
-        up2 = self.up2(up1,block3)
-        up3 = self.up3(up2,block2)
-        up4 = self.up4(up3,block1)
+        up2 = self.up2(up1,block2)
 
-        raw_score = self.last(up4)
+        up3 = self.up3(up2,block1)
+
+        raw_score = self.last(up3)
 
         score = self.weight(raw_score)
 
@@ -121,106 +120,198 @@ class Criterion(nn.Module):
         batch_size,features,height,width = x.size()
         mask_loss = self.mask_criterion(x,mask)
         _,pred = torch.max(x,1)
-        ones = torch.ones((batch_size,1,height,width)).long()
+        pred = pred.float()
+        ones = torch.ones(batch_size,1,height,width).float()
         ones = Variable(ones.cuda())
-        print(ones.size())
+        ones = Variable(ones)
         c = torch.ge(pred,ones)
         n = torch.gt(pred,ones)
-        print(c.size())
-        c = torch.sum(torch.sum(c,2),2)
-        n = torch.sum(torch.sum(n,2),2)
-        print(n.size())
+        c = torch.sum(torch.sum(c,3),2).float()
+        n = torch.sum(torch.sum(c,3),2).float()
         ncr = torch.div(n,c)
-        print(ncr.size())
         ncr_loss = self.ncr_criterion(ncr,ncratio)
-        return ratio[0]*mask_loss + ratio[1]*ncr_loss
+        ncr_loss = ncr_loss + 1e-8
+        return self.mask_coefficient*mask_loss + self.ncr_coefficient*ncr_loss
 
-def ncr_calculator(x):
-    batch_size,features,height,width = x.size()
-    _,pred = torch.max(x,1)
-    ones = torch.ones((batch_size,1,height,width))
-    c = torch.ge(pred,ones)
-    n = torch.gt(pred,ones)
-    c = torch.sum(torch.sum(c,2),3)
-    n = torch.sum(torch.sum(n,2),3)
-    ncr = torch.div(torch.div(n,c),0.01)
-    return ncr
-
-def train():
+def train(seed):
+    #データのロード
+    image, mask, num_mask, ncratio = pro.load_unet3_data(seed,mode=0)
 
     start_time = time.time()
 
-    image, mask, ncratio = pro.load_unet3_data()
+    train_image = image[:830]
+    train_mask = mask[:830]
+    train_ncratio = ncratio[:830]
 
-    image = image.reshape(350,1,572,572).astype(np.float32)
-    mask = mask.reshape(350,3,388,388).astype(np.float32)
-    ncratio = ncratio.reshape(350,1,1,1).astype(np.float32)
+    validation_image = image[830:]
+    validation_num_mask = num_mask[830:]
+
+    val_x = Variable(torch.from_numpy(validation_image).cuda())
 
     net = Net()
     net.cuda()
 
-    criterion = Criterion((1.0,0.5))
-    criterion.cuda()
+    criterion = Criterion((1.0,1.0))
 
     optimizer = optim.Adam(net.parameters())
 
-    learningtime = 100
-    for i in range(learningtime):
-        r = random.randint(0,339)
-        x = Variable(torch.from_numpy(image[r:r+10,...]).cuda())
-        y = Variable(torch.from_numpy(mask[r:r+10,...]).cuda())
-        y_ = Variable(torch.from_numpy(ncratio[r:r+10,...]).cuda())
+    learning_times = 2000
+    log_frequency = 10
+
+    log = pro.Log(seed, learning_times, log_frequency)
+
+    for i in range(learning_times):
+
+        #ミニバッチを作る
+        r = random.randint(0,829)
+        tmp_image = image[r:r+20]
+        tmp_mask = mask[r:r+20]
+        tmp_ncratio = ncratio[r:r+20]
+
+        #計算できる形にする
+        x = Variable(torch.from_numpy(tmp_image).cuda())
+        y = Variable(torch.from_numpy(tmp_mask).cuda())
+        y_ = Variable(torch.from_numpy(tmp_ncratio).cuda())
+
+        #パラメータを更新する
         optimizer.zero_grad()
         out = net(x)
         loss = criterion(out,y,y_)
         loss.backward()
         optimizer.step()
 
-        if i % 10 == 0:
-            pred_ncr = ncr_calculator(out)
-            pred_ncr = pred_ncr.cpu()
-            pred_ncr = pred_ncr.data.numpy()
-            pred_ncr = pred_ncr.reshape(n)
-            correct = 0
-            for p,a in zip(pred_ncr, ncratio):
-                if np.absolute(p-a) <= 3:
-                    correct += 1
-                else:
-                    pass
-            acc = correct / len(ncratio)
+        #一定回数毎に評価を行う
+        if i % log_frequency == 0:
 
-            print('===========================')
-            print('%s/%s = %s' % (str(correct),str(len(ncratio)),str(acc)))
-            print(loss)
-            print('===========================')
+            tmp_num_mask = num_mask[r:r+20]
+
+            tmp_out = net(val_x)
+
+            training_accuracy = pro.calculate_accuracy(out, tmp_num_mask)
+            validation_accuracy = pro.calculate_accuracy(tmp_out, validation_num_mask)
+
+            log.loss.append(log.data[0])
+            log.training_accuracy.append(training_accuracy)
+            log.validation_accuracy.append(validation_accuracy)
+
+            tmp_end_time = time.time()
+
+            try:
+                tmp_time = tmp_end_time - tmp_start_time
+                est_time = ((learning_times - i) / 10) * tmp_time
+                est_time = est_time // 60
+            except:
+                est_time = 0
+
+            tmp_start_time = time.time()
+
+            print('=========================================================')
+            print('training times:      %s/%s' % (str(i), str(learning_times)))
+            print('training accuracy:   %s' % str(training_accuracy))
+            print('validation accuracy: %s' % str(validation_accuracy))
+            print('loss:                %s' % str(loss.data[0]))
+            print('estimated time:      %s' % str(est_time))
+            print('=========================================================')
+
+    end_time = time.time()
 
     took_time = (end_time - start_time) / 60
+
+    pro.make_dir('model/unet3')
+    pro.make_dir('log')
+    pro.make_dir('log/unet3')
+
+    torch.save(net, 'model/unet3/%s' % str(seed))
+    pro.save(log, 'log/unet3', str(seed))
 
     print('took %s minutes' % str(took_time))
 
 
+def eval(seed):
+    #imageは(n,1,360,360)
+    #answersは(1,n)
+
+    image, answers, num_mask = pro.load_unet3_data(seed,mode=1)
+
+    net = torch.load('model/unet3/%s' % str(seed))
+    net.cuda()
+
+    ncpred = []
+    mask_pred = np.array([]).reshape(0,360,360)
+
+    for i in tqdm(range(10)):
+        start = i * 20
+        img = image[start:start+20]
+        out = net(Variable(torch.from_numpy(img).cuda()))
+        _, pred = torch.max(out,1) #(n,360,360)で要素は0,1,2の配列
+        pred = pred.cpu()
+        pred = pred.data.numpy()
+        pred = pred.reshape(-1,360,360)
+        mask_pred = np.vstack((mask_pred,pred))
+        for x in pred:
+            c = len(np.where(x>=1)[0])
+            n = len(np.where(x==2)[0])
+            ncr = n / c
+            ncpred.append(ncr)
+
+    num_of_ans, num_of_correct,prob, diff_dict = pro.validate_ncr(answers, ncpred)
+    f_measure = pro.validate_mask(num_mask, mask_pred.astype(np.int32))
+
+    print(num_of_ans)
+    print(num_of_correct)
+    print(prob)
+    print(diff_dict)
+    print(f_measure)
+
+def view(seed):
+    image, mask = pro.load_unet3_data(seed,mode=2)
+    n = int(len(image) // 4)
+    for i in range(n):
+        start = i * 4
+        img = image[start:start+4]
+        msk = mask[start:start+4]
+        net = torch.load('model/unet3/%s' % str(seed))
+        net.cuda()
+        x = Variable(torch.from_numpy(img).cuda())
+        out = net(x)
+        _, pred = torch.max(out,1) #(n,360,360)で要素は0,1,2の配列
+        pred = pred.cpu()
+        pred = pred.data.numpy()
+        fig = plt.figure(figsize=(7,7))
+        sub = fig.add_subplot(4,3,1)
+        sub.imshow(img[0].reshape(360,360),cmap='gray')
+        sub = fig.add_subplot(4,3,2)
+        sub.imshow(msk[0],cmap='gray')
+        sub = fig.add_subplot(4,3,3)
+        sub.imshow(pred[0],cmap='gray')
+        sub = fig.add_subplot(4,3,4)
+        sub.imshow(img[1].reshape(360,360),cmap='gray')
+        sub = fig.add_subplot(4,3,5)
+        sub.imshow(msk[1],cmap='gray')
+        sub = fig.add_subplot(4,3,6)
+        sub.imshow(pred[1],cmap='gray')
+        sub = fig.add_subplot(4,3,7)
+        sub.imshow(img[2].reshape(360,360),cmap='gray')
+        sub = fig.add_subplot(4,3,8)
+        sub.imshow(msk[2],cmap='gray')
+        sub = fig.add_subplot(4,3,9)
+        sub.imshow(pred[2],cmap='gray')
+        sub = fig.add_subplot(4,3,10)
+        sub.imshow(img[3].reshape(360,360),cmap='gray')
+        sub = fig.add_subplot(4,3,11)
+        sub.imshow(msk[3],cmap='gray')
+        sub = fig.add_subplot(4,3,12)
+        sub.imshow(pred[3],cmap='gray')
+    plt.show()
+
+
+
 if __name__ == '__main__':
-    train()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    pro.make_dir('model/unet3')
+    files = os.listdir('model/unet3')
+    seed = len(files)
+    train(seed)
+    eval(seed)
+    view(seed)
 
 
