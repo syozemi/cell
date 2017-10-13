@@ -293,7 +293,7 @@ def load_unet3_data(seed,mode=0):
         image = image[:850].reshape(850,1,360,360).astype(np.float32)
         mask = mask[:850].reshape(850,3,360,360).astype(np.float32)
         num_mask = num_mask[:850].astype(np.int32)
-        ncratio = np.array(ncratio[:850]).reshape(850,1,1,1).astype(np.float32)
+        ncratio = np.array(ncratio[:850]).reshape(850,1).astype(np.float32)
         print('loading done')
         return image, mask, num_mask, ncratio
 
