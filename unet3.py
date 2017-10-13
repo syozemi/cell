@@ -120,6 +120,7 @@ class Criterion(nn.Module):
         batch_size,features,height,width = x.size()
         mask_loss = self.mask_criterion(x,mask)
         _,pred = torch.max(x,1)
+        pred = pred.unsqueeze(1)
         print(pred.size())
         pred = pred.float()
         ones = torch.ones(batch_size,1,height,width).float()
