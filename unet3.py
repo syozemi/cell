@@ -123,7 +123,6 @@ class Criterion(nn.Module):
         pred = pred.float()
         ones = torch.ones(batch_size,1,height,width).float()
         ones = Variable(ones.cuda())
-        ones = Variable(ones)
         c = torch.ge(pred,ones)
         n = torch.gt(pred,ones)
         c = torch.sum(torch.sum(c,3),2).float()
