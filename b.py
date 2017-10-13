@@ -15,7 +15,13 @@ from collections import defaultdict
 from tqdm import tqdm
 
 
+ones = torch.ones(3,1,5,5)
 
+ones = torch.sum(torch.sum(ones,2),3)
+
+print(ones.size())
+
+print(ones)
 
 
 
