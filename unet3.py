@@ -126,7 +126,7 @@ class Criterion(nn.Module):
         c = torch.ge(pred,ones)
         n = torch.gt(pred,ones)
         c = torch.sum(torch.sum(c,3),2).float()
-        n = torch.sum(torch.sum(c,3),2).float()
+        n = torch.sum(torch.sum(n,3),2).float()
         ncr = torch.div(n,c)
         ncr_loss = self.ncr_criterion(ncr,ncratio)
         ncr_loss = ncr_loss + 1e-8
