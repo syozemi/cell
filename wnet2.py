@@ -159,7 +159,7 @@ def train(seed):
     start_time = time.time()
 
     #まず、unet2を使って、入力用のデータを作る
-    net = torch.load('model/unet2/%s' % str(seed))
+    net = torch.load('model/unet2/%d' % seed)
     net.cuda()
     image, mask, num_mask = pro.load_unet2_data(seed,mode=0)
 
@@ -230,14 +230,14 @@ def train(seed):
             log.validation_accuracy.append(validation_accuracy)
 
             print('=========================================================')
-            print('training times:      %s/%s' % (str(i), str(learning_times)))
-            print('training accuracy:   %s' % str(training_accuracy))
-            print('validation accuracy: %s' % str(validation_accuracy))
-            print('loss:                %s' % str(loss.data[0]))
-            print('estimated time:      %s' % str(est_time))
+            print('training times:      %d/%d' % (i, learning_times))
+            print('training accuracy:   %d' % training_accuracy)
+            print('validation accuracy: %d' % validation_accuracy)
+            print('loss:                %d' % loss.data[0])
+            print('estimated time:      %d' % est_time)
             print('=========================================================')
 
-    torch.save(net2, 'model/wnet2/%s' % str(seed))
+    torch.save(net2, 'model/wnet2/%d' % seed)
 
     #lossとvalidation(ピクセル単位の正解率)のログを保存しておく。
     pro.make_dir('log')
@@ -245,14 +245,14 @@ def train(seed):
 
     pro.save(log, 'log/wnet2', str(seed))  
 
-    print('saved model as model/wnet2/%s' % str(seed))
+    print('saved model as model/wnet2/%d' % seed)
 
     end_time = time.time()
 
     #かかった時間を出力する
     time_taken = (end_time - start_time) / 60
 
-    print('took %s minutes' % str(time_taken))
+    print('took %d minutes' % time_taken)
 
 
 def eval(seed):
@@ -270,7 +270,7 @@ def eval(seed):
     images = np.hstack((image,tmp))
     images = images.astype(np.float32)
 
-    net2 = torch.load('model/wnet2/%s' % str(seed))
+    net2 = torch.load('model/wnet2/%d' % seed)
 
     print('calculating wnet')
 
@@ -313,8 +313,8 @@ def view(seed):
         start = i * 4
         img = image[start:start+4]
         msk = mask[start:start+4].reshape(4,360,360)
-        net = torch.load('model/unet2/%s' % str(seed))
-        net2 = torch.load('model/wnet2/%s' % str(seed))
+        net = torch.load('model/unet2/%d' % seed)
+        net2 = torch.load('model/wnet2/%d' % seed)
         net.cuda()
         net2.cuda()
         x = Variable(torch.from_numpy(img).cuda())

@@ -168,14 +168,14 @@ def train(seed):
             log.validation_accuracy.append(validation_accuracy)
 
             print('=========================================================')
-            print('training times:      %s/%s' % (str(i), str(learning_times)))
-            print('training accuracy:   %s' % str(training_accuracy))
-            print('validation accuracy: %s' % str(validation_accuracy))
-            print('loss:                %s' % str(loss.data[0]))
-            print('estimated time:      %s' % str(est_time))
+            print('training times:      %d/%d' % (i, learning_times))
+            print('training accuracy:   %d' % training_accuracy)
+            print('validation accuracy: %d' % validation_accuracy)
+            print('loss:                %d' % loss.data[0])
+            print('estimated time:      %d' % est_time)
             print('=========================================================')
 
-    torch.save(net, 'model/unet2/%s' % str(seed))
+    torch.save(net, 'model/unet2/%d' % seed)
 
     pro.make_dir('log')
     pro.make_dir('log/unet2')
@@ -183,10 +183,10 @@ def train(seed):
     pro.save(log, 'log/unet2', str(seed))
 
     end_time = time.time()
-    time_taken = (end_time - start_time) / 60
+    time_taken = (end_time - start_time) // 60
 
-    print('saved model as model/unet2/%s' % str(seed))
-    print('took %s minutes' % str(time_taken))
+    print('saved model as model/unet2/%d' % seed)
+    print('took %d minutes' % time_taken)
 
 def eval(seed):
     #imageは(n,1,360,360)
@@ -196,7 +196,7 @@ def eval(seed):
 
     image = image.reshape(-1,1,360,360).astype(np.float32)
 
-    net = torch.load('model/unet2/%s' % str(seed))
+    net = torch.load('model/unet2/%d' % seed)
     net.cuda()
 
     ncpred = []
@@ -234,7 +234,7 @@ def view(seed):
         start = i * 4
         img = image[start:start+4]
         msk = mask[start:start+4]
-        net = torch.load('model/unet2/%s' % str(seed))
+        net = torch.load('model/unet2/%d' % seed)
         net.cuda()
         x = Variable(torch.from_numpy(img).cuda())
         out = net(x)
@@ -271,9 +271,8 @@ def view(seed):
 def make_data_for_wnet2(seed):  
     print('making data for wnet2')
     net = Net()
-    net = torch.load('model/unet2/%s' % str(seed))
+    net = torch.load('model/unet2/%d' % seed)
     image, answers = pro.load_unet2_data(seed,mode=1)
-    image = image.reshape(-1,1,360,360).astype(np.float32)
     out = np.array([]).reshape(0,2,360,360)
     for i in range(10):
         start = i * 20

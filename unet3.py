@@ -206,11 +206,11 @@ def train(seed):
             tmp_start_time = time.time()
 
             print('=========================================================')
-            print('training times:      %s/%s' % (str(i), str(learning_times)))
-            print('training accuracy:   %s' % str(training_accuracy))
-            print('validation accuracy: %s' % str(validation_accuracy))
-            print('loss:                %s' % str(loss.data[0]))
-            print('estimated time:      %s' % str(est_time))
+            print('training times:      %d/%d' % (i, learning_times))
+            print('training accuracy:   %d' % training_accuracy)
+            print('validation accuracy: %d' % validation_accuracy)
+            print('loss:                %d' % loss.data[0])
+            print('estimated time:      %d' % est_time)
             print('=========================================================')
 
     end_time = time.time()
@@ -221,10 +221,10 @@ def train(seed):
     pro.make_dir('log')
     pro.make_dir('log/unet3')
 
-    torch.save(net, 'model/unet3/%s' % str(seed))
+    torch.save(net, 'model/unet3/%d' % seed)
     pro.save(log, 'log/unet3', str(seed))
 
-    print('took %s minutes' % str(took_time))
+    print('took %d minutes' % took_time)
 
 
 def eval(seed):
@@ -270,7 +270,7 @@ def view(seed):
         start = i * 4
         img = image[start:start+4]
         msk = mask[start:start+4]
-        net = torch.load('model/unet3/%s' % str(seed))
+        net = torch.load('model/unet3/%d' % seed)
         net.cuda()
         x = Variable(torch.from_numpy(img).cuda())
         out = net(x)

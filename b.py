@@ -15,12 +15,7 @@ from collections import defaultdict
 from tqdm import tqdm
 
 
-a = np.array([1,2,3])
-b = np.array([3,2,1])
 
-c = a * b / (a + b)
-
-print(c)
 
 
 
