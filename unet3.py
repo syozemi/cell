@@ -132,7 +132,7 @@ class Criterion(nn.Module):
         print(ncr.size())
         print(ncratio.size())
         ncr_loss = self.ncr_criterion(ncr,ncratio)
-        ncr_loss = ncr_loss + 1e-5
+        ncr_loss = ncr_loss + 1e-8
         return (self.mask_coefficient * mask_loss) + (self.ncr_coefficient * ncr_loss)
 
 def train(seed):
@@ -208,11 +208,11 @@ def train(seed):
             tmp_start_time = time.time()
 
             print('=========================================================')
-            print('training times:      %d/%d' % (i, learning_times))
-            print('training accuracy:   %d' % training_accuracy)
-            print('validation accuracy: %d' % validation_accuracy)
-            print('loss:                %d' % loss.data[0])
-            print('estimated time:      %d' % est_time)
+            print('training times:      %e/%e' % (i, learning_times))
+            print('training accuracy:   %e' % training_accuracy)
+            print('validation accuracy: %e' % validation_accuracy)
+            print('loss:                %e' % loss.data[0])
+            print('estimated time:      %e' % est_time)
             print('=========================================================')
 
     end_time = time.time()
@@ -226,7 +226,7 @@ def train(seed):
     torch.save(net, 'model/unet3/%d' % seed)
     pro.save(log, 'log/unet3', str(seed))
 
-    print('took %d minutes' % took_time)
+    print('took %e minutes' % took_time)
 
 
 def eval(seed):
