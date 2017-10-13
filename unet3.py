@@ -155,7 +155,7 @@ def train(seed):
 
     optimizer = optim.Adam(net.parameters())
 
-    learning_times = 20000
+    learning_times = 10000
     log_frequency = 20
 
     log = pro.Log(seed, learning_times, log_frequency)
