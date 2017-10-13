@@ -210,7 +210,7 @@ def train(seed):
             print('training accuracy:   %s' % str(training_accuracy))
             print('validation accuracy: %s' % str(validation_accuracy))
             print('loss:                %s' % str(loss.data[0]))
-            print('estimated time:      %s' % str(est_time))
+            print('estimated time:      %d' % est_time)
             print('=========================================================')
 
     end_time = time.time()
@@ -221,7 +221,7 @@ def train(seed):
     pro.make_dir('log')
     pro.make_dir('log/unet3')
 
-    torch.save(net, 'model/unet3/%d' % seed)
+    torch.save(net, 'model/unet3/%s' % str(seed))
     pro.save(log, 'log/unet3', str(seed))
 
     print('took %s minutes' % str(took_time))
