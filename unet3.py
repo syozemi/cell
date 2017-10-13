@@ -224,7 +224,7 @@ def train(seed):
     torch.save(net, 'model/unet3/%d' % seed)
     pro.save(log, 'log/unet3', str(seed))
 
-    print('took %e minutes' % took_time)
+    print('took %s minutes' % str(took_time))
 
 
 def eval(seed):
