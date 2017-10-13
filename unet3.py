@@ -190,7 +190,7 @@ def train(seed):
             training_accuracy = pro.calculate_accuracy(out, tmp_num_mask)
             validation_accuracy = pro.calculate_accuracy(tmp_out, validation_num_mask)
 
-            log.loss.append(log.data[0])
+            log.loss.append(loss.data[0])
             log.training_accuracy.append(training_accuracy)
             log.validation_accuracy.append(validation_accuracy)
 
