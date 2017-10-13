@@ -121,17 +121,14 @@ class Criterion(nn.Module):
         mask_loss = self.mask_criterion(x,mask)
         _,pred = torch.max(x,1)
         pred = pred.unsqueeze(1)
-        print(pred.size())
         pred = pred.float()
         ones = torch.ones(batch_size,1,height,width).float()
         ones = Variable(ones.cuda())
         c = torch.ge(pred,ones)
         n = torch.gt(pred,ones)
-        print(c.size())
         c = torch.sum(torch.sum(c,3),2).float()
         n = torch.sum(torch.sum(n,3),2).float()
         ncr = torch.div(n,c)
-        print(ncr.size())
         ncr_loss = self.ncr_criterion(ncr,ncratio)
         ncr_loss = ncr_loss + 1e-8
         return self.mask_coefficient*mask_loss + self.ncr_coefficient*ncr_loss

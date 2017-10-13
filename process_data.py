@@ -5,6 +5,7 @@ import os
 import random
 import cv2 as cv
 from collections import defaultdict
+import torch
 
 class Log():
     def __init__(self, seed, learning_times, log_frequency):
