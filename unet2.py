@@ -131,7 +131,7 @@ def train(seed):
     criterion = nn.MSELoss().cuda()
     optimizer = optim.Adam(net.parameters())
 
-    learning_times = 30000
+    learning_times = 10000
     log_frequency = 10
 
     log = pro.Log(seed, learning_times, log_frequency)
@@ -288,7 +288,8 @@ def make_data_for_wnet2(seed):
 if __name__ == '__main__':
     pro.make_dir('model/unet2')
     files = os.listdir('model/unet2')
-    seed = len(files)
+    seed = 0
+    #seed = len(files)
     train(seed)
     eval(seed)
     view(seed)
