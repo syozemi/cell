@@ -97,9 +97,9 @@ image, ncratio = pro.load_unet_nc_data(seed)
 
 ncpred = []
 
-for i in tqdm(range(10)):
-    start = i * 20
-    img = Variable(torch.from_numpy(image[start:start+20].astype(np.float32)).cuda())
+for i in tqdm(range(20)):
+    start = i * 10
+    img = Variable(torch.from_numpy(image[start:start+10].astype(np.float32)).cuda())
     c_out = net_c(img)
     n_out = net_n(img)
     _, c_pred = torch.max(c_out,1)
