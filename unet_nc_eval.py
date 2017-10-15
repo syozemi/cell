@@ -88,7 +88,7 @@ class Net(nn.Module):
         return F.softmax(raw_score)
 
 print('please enter seed')
-n = int(input())
+seed = int(input())
 
 net_c = torch.load('model/unet_c/%d' % seed)
 net_n = torch.load('model/unet_n/%d' % seed)
