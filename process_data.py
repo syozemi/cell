@@ -372,13 +372,13 @@ def load_unet3_data(seed,mode=0):
         print('loading view data for U-Net3')
         image = load_image()
         num_mask = load_num_mask()
-        for x in [image,mask]:
+        for x in [image,num_mask]:
             np.random.seed(seed)
             np.random.shuffle(x)
         image = image[850:].reshape(200,1,360,360).astype(np.float32)
         num_mask = num_mask[850:].astype(np.int32)
         print('loading done')
-        return image, mask
+        return image, num_mask
 
 
 def load_unet_c_data(seed, mode=0):
