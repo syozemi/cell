@@ -412,8 +412,8 @@ def load_unet_n_data(seed, mode=0):
     if mode == 0:
         print('loading training data for U-Net-N')
         image = load_image()
-        cytoplasm = load_nucleus()
-        num_cytoplasm = load_num_nucleus()
+        nucleus = load_nucleus()
+        num_nucleus = load_num_nucleus()
         for x in [image, nucleus, num_nucleus]:
             np.random.seed(seed)
             np.random.shuffle(x)
