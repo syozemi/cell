@@ -17,7 +17,7 @@ if '.DS_Store' in folders:
 
 for folder in folders:
 
-    image,mask,num_mask,ncratio = [],[],[],[]
+    image,mask,num_mask,ncratio,cytoplasm,nucleus,num_cytoplasm,num_nucleus = [],[],[],[],[],[],[],[]
 
     for name in ['image', 'image02']:
 
@@ -40,13 +40,16 @@ for folder in folders:
                     #img = cv.resize(cv.imread(ipath,0)/255,(572,572))
                     img = cv.imread(ipath,0)[3:,:]/255
 
+                    #
+                    cyt, nuc, num_cyt, num_nuc = pro.create_c_and_n(cpath, npath)
+
                     #３クラスのマスクを作る
                     msk, num_msk = pro.create_mask_label(cpath,npath,360)
                     
                     #マスクからnc比を計算する
                     ncr = pro.create_ncratio(msk)
 
-                    _ = [x.append(y) for x,y in [(image, img), (mask, msk), (num_mask, num_msk), (ncratio, ncr)]]
+                    _ = [x.append(y) for x,y in [(image, img), (mask, msk), (num_mask, num_msk), (ncratio, ncr), (cytoplasm, cyt), (nucleus, nuc), (num_cytoplasm, num_cyt), (num_nucleus, num_nuc)]]
 
                 except Exception as e:
                     print(str(e))
@@ -55,9 +58,9 @@ for folder in folders:
         except:
             pass
 
-    image, mask, num_mask = [np.array(x) for x in [image, mask, num_mask]]
+    image, mask, num_mask, cytoplasm, nucleus, num_cytoplasm, num_nucleus = [np.array(x) for x in [image, mask, num_mask, cytoplasm, nucleus, num_cytoplasm, num_nucleus]]
 
-    _ = [pro.save(x, 'data/%s/' % folder, y) for x,y in [(image, 'image'), (mask, 'mask'), (num_mask, 'num_mask'), (ncratio, 'ncratio')]]
+    _ = [pro.save(x, 'data/%s/' % folder, y) for x,y in [(image, 'image'), (mask, 'mask'), (num_mask, 'num_mask'), (ncratio, 'ncratio'), (cytoplasm, 'cytoplasm'), (nucleus, 'nucleus'), (num_cytoplasm, 'num_cytoplasm'), (num_nucleus, 'num_nucleus')]]
 
     print('%s done' % folder)
                     

@@ -98,6 +98,16 @@ def create_ncratio(mask):
 
     return percentage
 
+def create_c_and_n(cpath, npath):
+    cyt, nuc = [cv.imread(x)[3:,:,2]/255 for x in [cpath, npath]]
+    ones = np.ones((360,360))
+    cyt_, nuc_ = ones - cyt, ones - nuc
+    cytoplasm, nucleus = [], []
+    _ = [cytoplasm.append(x) for x in [cyt_, cyt]]
+    _ = [nucleus.append(x) for x in [nuc_, nuc]]
+    cytoplasm, nucleus = [np.array(x) for x in [cytoplasm, nucleus]]
+    return cytoplasm, nucleus, cyt, nuc
+
 
 #answerの値を10段階に分け、それぞれの正解率をだす
 def validate_ncr(answer_list, prediction_list):
@@ -124,7 +134,7 @@ def validate_ncr(answer_list, prediction_list):
 
     return a,b,c,d
 
-def tasu(num):
+def tasu(tz,z,num):
     if tz == num:
         if z == num:
             tp[num] += 1
@@ -237,6 +247,53 @@ def load_ncratio():
     print('loading done')
     return x
 
+def load_cytoplasm():
+    print('loading cytoplasm')
+    x = np.array([]).reshape(0,2,360,360)
+    cells = os.listdir('data')
+    if '.DS_Store' in cells:
+        cells.remove('.DS_Store')
+    for cell in cells:
+        y = load('data/%s/cytoplasm' % cell)
+        x = np.vstack((x,y))
+    print('loading done')
+    return x
+
+def load_nucleus():
+    print('loading nucleus')
+    x = np.array([]).reshape(0,2,360,360)
+    cells = os.listdir('data')
+    if '.DS_Store' in cells:
+        cells.remove('.DS_Store')
+    for cell in cells:
+        y = load('data/%s/nucleus' % cell)
+        x = np.vstack((x,y))
+    print('loading done')
+    return x
+
+def load_num_cytoplasm():
+    print('loading num_cytoplasm')
+    x = np.array([]).reshape(0,360,360)
+    cells = os.listdir('data')
+    if '.DS_Store' in cells:
+        cells.remove('.DS_Store')
+    for cell in cells:
+        y = load('data/%s/num_cytoplasm' % cell)
+        x = np.vstack((x,y))
+    print('loading done')
+    return x
+
+def load_num_nucleus():
+    print('loading num_nucleus')
+    x = np.array([]).reshape(0,360,360)
+    cells = os.listdir('data')
+    if '.DS_Store' in cells:
+        cells.remove('.DS_Store')
+    for cell in cells:
+        y = load('data/%s/num_nucleus' % cell)
+        x = np.vstack((x,y))
+    print('loading done')
+    return x
 
 def load_unet2_data(seed,mode=0):
 
@@ -319,10 +376,64 @@ def load_unet3_data(seed,mode=0):
             np.random.seed(seed)
             np.random.shuffle(x)
         image = image[850:].reshape(200,1,360,360).astype(np.float32)
-        num_mask = num_mask[850:].reshape(200,3,360,360).astype(np.int32)
+        num_mask = num_mask[850:].astype(np.int32)
         print('loading done')
         return image, mask
 
+
+def load_unet_c_data(seed, mode=0):
+    if mode == 0:
+        print('loading training data for U-Net-C')
+        image = load_image()
+        cytoplasm = load_cytoplasm()
+        num_cytoplasm = load_num_cytoplasm()
+        for x in [image, cytoplasm, num_cytoplasm]:
+            np.random.seed(seed)
+            np.random.shuffle(x)
+        image = image[:850].reshape(850,1,360,360).astype(np.float32)
+        cytoplasm = cytoplasm[:850].reshape(850,2,360,360).astype(np.float32)
+        num_cytoplasm = num_cytoplasm[:850].astype(np.int32)
+        print('loading done')
+        return image, cytoplasm, num_cytoplasm
+
+    if mode == 2:
+        print('loading data for U-Net-C')
+        image = load_image()
+        mask = load_num_cytoplasm()
+        for x in [image, mask]:
+            np.random.seed(seed)
+            np.random.shuffle(x)
+        image = image[850:].reshape(200,1,360,360).astype(np.float32)
+        mask = mask[850:].reshape(200,360,360).astype(np.int32)
+        print('loading done')
+        return image, mask
+
+def load_unet_n_data(seed, mode=0):
+    if mode == 0:
+        print('loading training data for U-Net-N')
+        image = load_image()
+        cytoplasm = load_nucleus()
+        num_cytoplasm = load_num_nucleus()
+        for x in [image, nucleus, num_nucleus]:
+            np.random.seed(seed)
+            np.random.shuffle(x)
+        image = image[:850].reshape(850,1,360,360).astype(np.float32)
+        nucleus = nucleus[:850].reshape(850,2,360,360).astype(np.float32)
+        num_nucleus = num_nucleus[:850].astype(np.int32)
+        print('loading done')
+        return image, nucleus, num_nucleus
+
+    if mode == 2:
+        print('loading data for U-Net-N')
+        image = load_image()
+        mask = load_num_nucleus()
+        for x in [image, mask]:
+            np.random.seed(seed)
+            np.random.shuffle(x)
+        image = image[850:].reshape(200,1,360,360).astype(np.float32)
+        mask = mask[850:].reshape(200,360,360).astype(np.int32)
+        print('loading done')
+        return image, mask
 
 def load_test_data():
     print('loading')

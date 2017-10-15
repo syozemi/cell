@@ -14,12 +14,17 @@ import torch.optim as optim
 from collections import defaultdict
 from tqdm import tqdm
 
+a = []
 
-ones = torch.ones(3,5,5)
 
-ones = ones.unsqueeze(1)
+def c():
+    a.append(9)
 
-print(ones.size())
+for i in range(10):
+    c()
+
+print(a)
+
 
 
 

@@ -49,23 +49,6 @@ class Up(nn.Module):
         out = self.activation(self.norm(self.conv2(out)))
         return out
 
-class MulWeight(nn.Module):
-    def __init__(self, weight):
-        super(MulWeight, self).__init__()
-        self.w0 = weight[0]
-        self.w1 = weight[1]
-        self.w2 = weight[2]
-
-    def forward(self,x):
-        s0 = x[:,0,:,:]
-        s1 = x[:,1,:,:]
-        s2 = x[:,2,:,:]
-        s0 = torch.mul(s0,self.w0)
-        s1 = torch.mul(s1,self.w1)
-        s2 = torch.mul(s2,self.w2)
-        out = torch.stack([s0,s1,s2],1)
-        return out
-
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
@@ -80,8 +63,7 @@ class Net(nn.Module):
         self.up1 = Up(64,32)
         self.up2 = Up(32,16)
         self.up3 = Up(16,8)
-        self.last = nn.Conv2d(8,3,1)
-        self.weight = MulWeight([0.1,1,1])
+        self.last = nn.Conv2d(8,2,1)
 
     def forward(self, x):
         block1 = self.conv_1_8(x)
@@ -103,109 +85,67 @@ class Net(nn.Module):
 
         raw_score = self.last(up3)
 
-        score = self.weight(raw_score)
+        return F.softmax(raw_score)
 
-        return F.softmax(score)
-
-
-class Criterion(nn.Module):
-    def __init__(self, ratio):
-        super(Criterion,self).__init__()
-        self.mask_coefficient = ratio[0]
-        self.ncr_coefficient = ratio[1]
-        self.mask_criterion = nn.MSELoss()
-        self.ncr_criterion = nn.MSELoss()
-
-    def forward(self,x,mask,ncratio):
-        batch_size,features,height,width = x.size()
-        mask_loss = self.mask_criterion(x,mask)
-        print(mask_loss.data[0])
-        _,pred = torch.max(x,1)
-        pred = pred.unsqueeze(1)
-        pred = pred.float()
-        ones = torch.ones(batch_size,1,height,width).float()
-        ones = Variable(ones.cuda())
-        c = torch.ge(pred,ones)
-        n = torch.gt(pred,ones)
-        c = torch.sum(torch.sum(c,3),2).float()
-        n = torch.sum(torch.sum(n,3),2).float()
-        ncr = torch.div(n,c)
-        ncr_loss = self.ncr_criterion(ncr,ncratio)
-        ncr_loss = ncr_loss + 1e-8
-        print(ncr_loss.data[0])
-        return (self.mask_coefficient * mask_loss) + (self.ncr_coefficient * ncr_loss)
 
 def train(seed):
-    #データのロード
-    image, mask, num_mask, ncratio = pro.load_unet3_data(seed,mode=0)
+    #imageは入力データ
+    #maskは教師用データ
+    #num_maskはマスクの数字版で、validationに使う
 
     start_time = time.time()
+  
+    image, mask, num_mask = pro.load_unet_c_data(seed,mode=0)
 
-    train_image = image[:830]
-    train_mask = mask[:830]
-    train_ncratio = ncratio[:830]
+    train_image = image[:830] #(230,1,360,360)
+    train_mask = mask[:830] #(230,3,360,360)
 
-    validation_image = image[830:]
-    validation_num_mask = num_mask[830:]
+    validation_image = image[830:] #(20,1,360,360)
+    validation_num_mask = num_mask[830:] #(20,360,360)
 
+    #validation用に作っておく
     val_x = Variable(torch.from_numpy(validation_image).cuda())
 
     net = Net()
     net.cuda()
-
-    criterion = Criterion((1.0,1.0))
-
+    criterion = nn.MSELoss().cuda()
     optimizer = optim.Adam(net.parameters())
 
-    learning_times = 10000
+    learning_times = 20000
     log_frequency = 20
 
     log = pro.Log(seed, learning_times, log_frequency)
 
     for i in range(learning_times):
+        r = random.randint(0,809)
+        tmp_image = image[r:r+20,...]
+        tmp_mask = mask[r:r+20,...]
+        #もっといいバッチの作り方はある(これだと端にあるデータの登場回数が少ない)
+        #バッチを作ったのは、GPUのメモリに全部は乗らないから
 
-        #ミニバッチを作る
-        r = random.randint(0,829)
-        tmp_image = image[r:r+20]
-        tmp_mask = mask[r:r+20]
-        tmp_ncratio = ncratio[r:r+20]
-
-        #計算できる形にする
         x = Variable(torch.from_numpy(tmp_image).cuda())
         y = Variable(torch.from_numpy(tmp_mask).cuda())
-        y_ = Variable(torch.from_numpy(tmp_ncratio).cuda())
 
-        #パラメータを更新する
         optimizer.zero_grad()
         out = net(x)
-        loss = criterion(out,y,y_)
+        loss = criterion(out,y)
         loss.backward()
         optimizer.step()
 
-        #一定回数毎に評価を行う
+        #10回に一回validateする
+        #ピクセル単位でどれだけ正しく予測できているか
         if i % log_frequency == 0:
 
             tmp_num_mask = num_mask[r:r+20]
 
-            tmp_out = net(val_x)
+            out_val = net(val_x)
 
             training_accuracy = pro.calculate_accuracy(out, tmp_num_mask)
-            validation_accuracy = pro.calculate_accuracy(tmp_out, validation_num_mask)
+            validation_accuracy = pro.calculate_accuracy(out_val, validation_num_mask)
 
             log.loss.append(loss.data[0])
             log.training_accuracy.append(training_accuracy)
             log.validation_accuracy.append(validation_accuracy)
-
-            tmp_end_time = time.time()
-
-            try:
-                tmp_time = tmp_end_time - tmp_start_time
-                est_time = ((learning_times - i) / 10) * tmp_time
-                est_time = est_time // 60
-            except:
-                est_time = 0
-
-            tmp_start_time = time.time()
 
             print('=========================================================')
             print('training times:      %s/%s' % (str(i), str(learning_times)))
@@ -215,64 +155,28 @@ def train(seed):
             print('estimated time:      %d' % est_time)
             print('=========================================================')
 
-    end_time = time.time()
+    torch.save(net, 'model/unet_c/%d' % seed)
 
-    took_time = (end_time - start_time) / 60
-
-    pro.make_dir('model/unet3')
     pro.make_dir('log')
-    pro.make_dir('log/unet3')
+    pro.make_dir('log/unet_c')
 
-    torch.save(net, 'model/unet3/%s' % str(seed))
-    pro.save(log, 'log/unet3', str(seed))
+    pro.save(log, 'log/unet_c', str(seed))
 
-    print('took %s minutes' % str(took_time))
+    end_time = time.time()
+    time_taken = (end_time - start_time) // 60
 
+    print('saved model as model/unet_c/%d' % seed)
+    print('took %d minutes' % time_taken)
 
-def eval(seed):
-    #imageは(n,1,360,360)
-    #answersは(1,n)
-
-    image, answers, num_mask = pro.load_unet3_data(seed,mode=1)
-
-    net = torch.load('model/unet3/%s' % str(seed))
-    net.cuda()
-
-    ncpred = []
-    mask_pred = np.array([]).reshape(0,360,360)
-
-    for i in tqdm(range(10)):
-        start = i * 20
-        img = image[start:start+20]
-        out = net(Variable(torch.from_numpy(img).cuda()))
-        _, pred = torch.max(out,1) #(n,360,360)で要素は0,1,2の配列
-        pred = pred.cpu()
-        pred = pred.data.numpy()
-        pred = pred.reshape(-1,360,360)
-        mask_pred = np.vstack((mask_pred,pred))
-        for x in pred:
-            c = len(np.where(x>=1)[0])
-            n = len(np.where(x==2)[0])
-            ncr = n / c
-            ncpred.append(ncr)
-
-    num_of_ans, num_of_correct, prob, diff_dict = pro.validate_ncr(answers, ncpred)
-    #f_measure = pro.validate_mask(num_mask, mask_pred.astype(np.int32))
-
-    print(num_of_ans)
-    print(num_of_correct)
-    print(prob)
-    print(diff_dict)
-    #print(f_measure)
 
 def view(seed):
-    image, mask = pro.load_unet3_data(seed,mode=2)
+    image, mask = pro.load_unet_c_data(seed,mode=2)
     n = int(len(image) // 4)
     for i in range(n):
         start = i * 4
         img = image[start:start+4]
         msk = mask[start:start+4]
-        net = torch.load('model/unet3/%d' % seed)
+        net = torch.load('model/unet_c/%d' % seed)
         net.cuda()
         x = Variable(torch.from_numpy(img).cuda())
         out = net(x)
@@ -306,14 +210,9 @@ def view(seed):
         sub.imshow(pred[3],cmap='gray')
     plt.show()
 
-
-
 if __name__ == '__main__':
-    pro.make_dir('model/unet3')
-    files = os.listdir('model/unet3')
+    pro.make_dir('model/unet_c')
+    files = os.listdir('model/unet_c')
     seed = len(files)
     train(seed)
-    eval(seed)
     view(seed)
-
-
