@@ -167,6 +167,17 @@ def train(seed):
             log.training_accuracy.append(training_accuracy)
             log.validation_accuracy.append(validation_accuracy)
 
+            tmp_end_time = time.time()
+
+            try:
+                tmp_time = tmp_end_time - tmp_start_time
+                est_time = ((learning_times - i) / log_frequency) * tmp_time
+                est_time = est_time // 60
+            except:
+                est_time = 0
+
+            tmp_start_time = time.time()
+
             print('=========================================================')
             print('training times:      %d/%d' % (i, learning_times))
             print('training accuracy:   %d' % training_accuracy)
