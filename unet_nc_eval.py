@@ -112,7 +112,7 @@ for i in tqdm(range(20)):
         pred = nuc / cyt
         ncpred.append(pred)
 
-num_of_ans, num_of_correct, prob, diff_dict = pro.validate_ncr(answers, ncpred)
+num_of_ans, num_of_correct, prob, diff_dict = pro.validate_ncr(ncratio, ncpred)
 
 print(num_of_ans)
 print(num_of_correct)
