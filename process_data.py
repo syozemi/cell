@@ -435,6 +435,18 @@ def load_unet_n_data(seed, mode=0):
         print('loading done')
         return image, mask
 
+def load_unet_nc_data(seed):
+    print('loading')
+    image = load_image()
+    ncratio = load_ncratio()
+    for x in [image, ncratio]:
+        np.random.seed(seed)
+        np.random.shuffle(x)
+    image = image[850:].reshape(200,1,360,360).astype(np.float32)
+    ncratio = ncratio[850:]
+    return image, ncratio
+
+
 def load_test_data():
     print('loading')
     image = load('mini_data/image')
