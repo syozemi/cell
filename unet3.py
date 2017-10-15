@@ -200,7 +200,7 @@ def train(seed):
 
             try:
                 tmp_time = tmp_end_time - tmp_start_time
-                est_time = ((learning_times - i) / 10) * tmp_time
+                est_time = ((learning_times - i) / log_frequency) * tmp_time
                 est_time = est_time // 60
             except:
                 est_time = 0
