@@ -229,13 +229,13 @@ def eval(seed):
             ncpred.append(ncr)
 
     num_of_ans, num_of_correct,prob, diff_dict = pro.validate_ncr(answers, ncpred)
-    f_measure = pro.validate_mask(num_mask, mask_pred.astype(np.int32))
+    #f_measure = pro.validate_mask(num_mask, mask_pred.astype(np.int32))
 
     print(num_of_ans)
     print(num_of_correct)
     print(prob)
     print(diff_dict)
-    print(f_measure)
+    #print(f_measure)
 
 
 def view(seed):
