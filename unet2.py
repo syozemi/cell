@@ -179,10 +179,10 @@ def train(seed):
             tmp_start_time = time.time()
 
             print('=========================================================')
-            print('training times:      %d/%d' % (i, learning_times))
-            print('training accuracy:   %d' % training_accuracy)
-            print('validation accuracy: %d' % validation_accuracy)
-            print('loss:                %d' % loss.data[0])
+            print('training times:      %s/%s' % (str(i), str(learning_times)))
+            print('training accuracy:   %s' % str(training_accuracy))
+            print('validation accuracy: %s' % str(validation_accuracy))
+            print('loss:                %s' % str(loss.data[0]))
             print('estimated time:      %d' % est_time)
             print('=========================================================')
 
