@@ -14,16 +14,13 @@ import torch.optim as optim
 from collections import defaultdict
 from tqdm import tqdm
 
-a = []
+a = np.arange(1050)
 
+np.random.seed(0)
+np.random.shuffle(a)
 
-def c():
-    a.append(9)
-
-for i in range(10):
-    c()
-
-print(a)
+for x in a:
+    print(x)
 
 
 
