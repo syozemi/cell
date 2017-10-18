@@ -119,7 +119,7 @@ class Criterion(nn.Module):
     def forward(self,x,mask,ncratio):
         batch_size,features,height,width = x.size()
         mask_loss = self.mask_criterion(x,mask)
-        print(mask_loss.data[0])
+        #print(mask_loss.data[0])
         _,pred = torch.max(x,1)
         pred = pred.unsqueeze(1)
         pred = pred.float()
@@ -132,7 +132,7 @@ class Criterion(nn.Module):
         ncr = torch.div(n,c)
         ncr_loss = self.ncr_criterion(ncr,ncratio)
         ncr_loss = ncr_loss + 1e-8
-        print(ncr_loss.data[0])
+        #print(ncr_loss.data[0])
         return (self.mask_coefficient * mask_loss) + (self.ncr_coefficient * ncr_loss)
 
 def train(seed):
