@@ -149,7 +149,7 @@ def eval(seed):
     print(wrong_list)
 
     for x in wrong_list:
-        print(x)
+        print(answers[x], ncpred[x])
         img = image[x]
         pred = mask_pred[x]
         msk = num_mask[x]
