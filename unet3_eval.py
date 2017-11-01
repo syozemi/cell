@@ -259,11 +259,29 @@ def eval(seed):
     num_of_ans, num_of_correct, prob, diff_dict = pro.validate_ncr(answers, ncpred)
     #f_measure = pro.validate_mask(num_mask, mask_pred.astype(np.int32))
 
+    wrong = pro.wrong()
+
     print(num_of_ans)
     print(num_of_correct)
     print(prob)
     print(diff_dict)
     #print(f_measure)
+
+    for x in l:
+        wrong_img = image[x]
+        wrong_msk = num_mask[x]
+        out = net(Variable(torch.from_numpy(wrong_img).cuda()))
+        _, wrong_pred = torch.max(out, 1)
+        wrong_pred = wrong_pred.cpu()
+        wrong_pred = wrong_pred.data.numpy()
+        fig = plt.figure(figsize=(8,8))
+        sub = fig.add_subplot(1,3,1)
+        sub.imshow(wrong_img, cmap='gray')
+        sub = fig.add_subplot(1,3,2)
+        sub.imshow(wrong_msk, cmap='gray')
+        sub.fig.add_subplot(1,3,3)
+        sub.imshow(wrong_pred, cmap='gray')
+    plt.show()
 
 def view(seed):
     image, mask = pro.load_unet3_data(seed,mode=2)

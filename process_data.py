@@ -114,6 +114,7 @@ def validate_ncr(answer_list, prediction_list):
     a = [0] * 10
     b = [0] * 10
     d = defaultdict(int)
+    e = []
     for x,y in zip(answer_list, prediction_list):
         i = int(x // 0.1)
         a[i] += 1
@@ -133,6 +134,16 @@ def validate_ncr(answer_list, prediction_list):
             c.append(p)
 
     return a,b,c,d
+
+def wrong(answer_list, prediction_list):
+    l = []
+    for i, (x,y) in enumerate(zip(answer_list, prediction_list)):
+        diff = np.absolute(x-y)
+        if diff >= 0.05:
+            l.append(i)
+        else:
+            pass
+    return l
 
 def tasu(tz,z,num):
     if tz == num:
