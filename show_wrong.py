@@ -156,6 +156,9 @@ def eval(seed):
         img = img.reshape(360,360)
         pred = pred.reshape(360,360)
         msk = msk.reshape(360,360)
+        plt.imsave(fname='wrong/unet2/%d/image%d.png' % (seed, i), arr=img, cmap='gray', format='png')
+        plt.imsave(fname='wrong/unet2/%d/mask%d.png' % (seed, i), arr = msk, cmap='gray', format='png')
+        plt.imsave(fname='wrong/unet2/%d/prediction%d.png' % (seed, i), arr = pred, cmap='gray', format='png')
         fig = plt.figure(figsize=(8,8))
         sub = fig.add_subplot(1,3,1)
         sub.imshow(img,cmap='gray')
@@ -167,8 +170,11 @@ def eval(seed):
 
 
 if __name__ == '__main__':
+    pro.make_dir('wrong')
+    pro.make_dir('wrong/unet2')
     print('input seed')
     n = int(input())
+    pro.make_dir('wrong/unet2/%d' % seed)
     eval(n)
 
 
