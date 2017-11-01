@@ -146,10 +146,14 @@ def eval(seed):
     print(diff_dict)
 
     wrong_list = pro.wrong(answers, ncpred)
+    print(wrong_list)
 
     for x in wrong_list:
+        print(x)
         img = image[x]
         pred = mask_pred[x]
+        img = img.reshape(360,360)
+        pred = pred.reshape(360,360)
         fig = plt.figure(figsize=(8,8))
         sub = fig.add_subplot(1,2,1)
         sub.imshow(img,cmap='gray')
