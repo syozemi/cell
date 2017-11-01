@@ -173,7 +173,7 @@ if __name__ == '__main__':
     pro.make_dir('wrong')
     pro.make_dir('wrong/unet2')
     print('input seed')
-    n = int(input())
+    seed = int(input())
     pro.make_dir('wrong/unet2/%d' % seed)
     eval(n)
 
