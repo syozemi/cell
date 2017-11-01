@@ -148,7 +148,7 @@ def eval(seed):
     wrong_list = pro.wrong(answers, ncpred)
     print(wrong_list)
 
-    for x in wrong_list:
+    for i,x in enumerate(wrong_list):
         print(answers[x], ncpred[x])
         img = image[x]
         pred = mask_pred[x]
