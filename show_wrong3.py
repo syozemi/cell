@@ -117,7 +117,7 @@ def eval(seed):
 
     image = image.reshape(-1,1,360,360).astype(np.float32)
 
-    net = torch.load('model/unet2/%d' % seed)
+    net = torch.load('model/unet3/%d' % seed)
     net.cuda()
 
     ncpred = []
@@ -170,29 +170,3 @@ if __name__ == '__main__':
     print('input seed')
     n = int(input())
     eval(n)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
