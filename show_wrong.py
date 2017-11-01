@@ -152,12 +152,16 @@ def eval(seed):
         print(x)
         img = image[x]
         pred = mask_pred[x]
+        msk = num_mask[x]
         img = img.reshape(360,360)
         pred = pred.reshape(360,360)
+        msk = msk.reshape(360,360)
         fig = plt.figure(figsize=(8,8))
-        sub = fig.add_subplot(1,2,1)
+        sub = fig.add_subplot(1,3,1)
         sub.imshow(img,cmap='gray')
-        sub = fig.add_subplot(1,2,2)
+        sub = fig.add_subplot(1,3,2)
+        sub.imshow(msk,cmap='gray')        
+        sub = fig.add_subplot(1,3,3)
         sub.imshow(pred,cmap='gray')
     plt.show()
 
