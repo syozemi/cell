@@ -159,7 +159,10 @@ def eval(seed):
 
 
 
-
+if __name__ == '__main__':
+    print('input seed')
+    n = int(input())
+    eval(n)
 
 
 
