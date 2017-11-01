@@ -148,7 +148,7 @@ def eval(seed):
     wrong_list = pro.wrong(answers, ncpred)
     print(wrong_list)
 
-    for x in wrong_list:
+    for i,x in enumerate(wrong_list):
         print(answers[x], ncpred[x])
         img = image[x]
         pred = mask_pred[x]
@@ -156,6 +156,9 @@ def eval(seed):
         img = img.reshape(360,360)
         pred = pred.reshape(360,360)
         msk = msk.reshape(360,360)
+        plt.imsave(fname='wrong/unet3/%d/image%d' % (seed, i), arr=img)
+        plt.imsave(fname='wrong/unet3/%d/mask%d' % (seed, i), arr = msk)
+        plt.imsave(fname='wrong/unet3/%d/prediction%d' % (seed, i), arr = pred)
         fig = plt.figure(figsize=(8,8))
         sub = fig.add_subplot(1,3,1)
         sub.imshow(img,cmap='gray')
@@ -167,6 +170,9 @@ def eval(seed):
 
 
 if __name__ == '__main__':
+    pro.make_dir('wrong')
+    pro.make_dir('wrong/unet3')
     print('input seed')
-    n = int(input())
-    eval(n)
+    seed = int(input())
+    pro.make_dir('wrong/unet3/%d' % seed)
+    eval(seed)

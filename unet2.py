@@ -107,6 +107,20 @@ class Net(nn.Module):
 
         return F.softmax(score)
 
+    def show_bottom(self,x):
+        block1 = self.conv_1_8(x)
+        pool1 = self.pool1(block1)
+
+        block2 = self.conv_8_16(pool1)
+        pool2 = self.pool2(block2)
+
+        block3 = self.conv_16_32(pool2)
+        pool3 = self.pool3(block3)
+
+        bottom = self.conv_32_64(pool3)
+
+        return bottom
+
 
 def train(seed):
     #imageは入力データ
