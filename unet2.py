@@ -13,7 +13,6 @@ import time
 import process_data as pro
 from tqdm import tqdm
 
-# gsan
 
 class Conv(nn.Module):
     def __init__(self, ins, outs, activation=F.relu):
