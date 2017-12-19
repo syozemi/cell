@@ -13,6 +13,7 @@ import time
 import process_data as pro
 from tqdm import tqdm
 
+# gsan
 
 class Conv(nn.Module):
     def __init__(self, ins, outs, activation=F.relu):
@@ -138,11 +139,15 @@ def train(seed):
     validation_num_mask = num_mask[830:] #(20,360,360)
 
     #validation用に作っておく
-    val_x = Variable(torch.from_numpy(validation_image).cuda())
+
+    ########################## シャープ二つ付いているヤツはGPU用コード ##################
+    ## val_x = Variable(torch.from_numpy(validation_image).cuda())
+    val_x = Variable(torch.from_numpy(validation_image))
 
     net = Net()
-    net.cuda()
-    criterion = nn.MSELoss().cuda()
+    ## net.cuda()
+    ## criterion = nn.MSELoss().cuda()
+    criterion = nn.MSELoss()
     optimizer = optim.Adam(net.parameters())
 
     learning_times = 10000
@@ -157,8 +162,10 @@ def train(seed):
         #もっといいバッチの作り方はある(これだと端にあるデータの登場回数が少ない)
         #バッチを作ったのは、GPUのメモリに全部は乗らないから
 
-        x = Variable(torch.from_numpy(tmp_image).cuda())
-        y = Variable(torch.from_numpy(tmp_mask).cuda())
+        ## x = Variable(torch.from_numpy(tmp_image).cuda())
+        ## y = Variable(torch.from_numpy(tmp_mask).cuda())
+        x = Variable(torch.from_numpy(tmp_image))
+        y = Variable(torch.from_numpy(tmp_mask))
 
         optimizer.zero_grad()
         out = net(x)
@@ -222,7 +229,7 @@ def eval(seed):
     image = image.reshape(-1,1,360,360).astype(np.float32)
 
     net = torch.load('model/unet2/%d' % seed)
-    net.cuda()
+    ## net.cuda()
 
     ncpred = []
     mask_pred = np.array([]).reshape(0,360,360)
@@ -230,7 +237,8 @@ def eval(seed):
     for i in tqdm(range(10)):
         start = i * 20
         img = image[start:start+20]
-        out = net(Variable(torch.from_numpy(img).cuda()))
+        ## out = net(Variable(torch.from_numpy(img).cuda()))
+        out = net(Variable(torch.from_numpy(img)))
         _, pred = torch.max(out,1) #(n,360,360)で要素は0,1,2の配列
         pred = pred.cpu()
         pred = pred.data.numpy()
@@ -260,8 +268,9 @@ def view(seed):
         img = image[start:start+4]
         msk = mask[start:start+4]
         net = torch.load('model/unet2/%d' % seed)
-        net.cuda()
-        x = Variable(torch.from_numpy(img).cuda())
+        ## net.cuda()
+        ## x = Variable(torch.from_numpy(img).cuda())
+        x = Variable(torch.from_numpy(img))
         out = net(x)
         _, pred = torch.max(out,1) #(n,360,360)で要素は0,1,2の配列
         pred = pred.cpu()
@@ -302,7 +311,8 @@ def make_data_for_wnet2(seed):
     for i in range(10):
         start = i * 20
         tmp_image = image[start:start+20]
-        tmp_out = net(Variable(torch.from_numpy(tmp_image).cuda()))
+        ## tmp_out = net(Variable(torch.from_numpy(tmp_image).cuda()))
+        tmp_out = net(Variable(torch.from_numpy(tmp_image)))
         tmp_out = tmp_out.cpu()
         tmp_out = tmp_out.data.numpy()[:,1:,:,:]
         out = np.vstack((out,tmp_out))
