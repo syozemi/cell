@@ -13,30 +13,11 @@ import torch.nn.functional as F
 import torch.optim as optim
 from collections import defaultdict
 from tqdm import tqdm
+import sys
 
-a = np.arange(1050)
+from c import Net,Conv,Up,MulWeight
 
-np.random.seed(0)
-np.random.shuffle(a)
+model = 'model/unet2/1'
 
-for x in a:
-    print(x)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+net = torch.load(model, location:'cpu')
 
