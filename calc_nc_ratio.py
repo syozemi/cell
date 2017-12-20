@@ -104,13 +104,13 @@ def main():
     images, nc_ratio = [], []
 
     #0~1の値でできた、(画像の枚数,1,360,360)の4次元配列を用意して、入力とする。
-    images = np.array(images).reshape(len(image_paths),1,360,360).astype(np.float32)
+    images = np.array(images).reshape(-1,1,360,360).astype(np.float32)
 
     #モデルのパスを指定して、学習済みのパラメーターをロードする。
     #NNのコードが書いてある必要がある。
     net = torch.load(model_path)
 
-    #画像が多くなると、全てはメモリに乗り切らないので分割してモデルに入力する。
+    #画像が多くなると、全てはメモリに乗り切らないので分割する。
     out = net(Variable(torch.from_numpy(images)).cuda())
 
     #nc比を計算する。
